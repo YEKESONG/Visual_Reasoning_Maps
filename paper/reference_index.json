@@ -1,0 +1,170 @@
+[
+  {
+    "id": "01",
+    "key": "ref01",
+    "url": "https://arxiv.org/abs/2508.06772",
+    "title": "Story Ribbons: Reimagining Storyline Visualizations with Large Language Models",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "02",
+    "key": "ref02",
+    "url": "https://arxiv.org/abs/2305.11473",
+    "title": "Graphologue: Exploring Large Language Model Responses with Interactive Diagrams",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "03",
+    "key": "ref03",
+    "url": "https://arxiv.org/abs/2305.11483",
+    "title": "Sensecape: Enabling Multilevel Exploration and Sensemaking with Large Language Models",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "04",
+    "key": "ref04",
+    "url": "https://arxiv.org/abs/2601.14943",
+    "title": "State of the Art of LLM-Enabled Interaction with Visualization",
+    "todo": "核对全文的具体页码、评价协议与适用边界。 arXiv 页面仅写 Submitted to STARs；不声称正式录用。"
+  },
+  {
+    "id": "05",
+    "key": "ref05",
+    "url": "https://aclanthology.org/J19-4006/",
+    "title": "Argument Mining: A Survey",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "06",
+    "key": "ref06",
+    "url": "https://arxiv.org/abs/2506.16383",
+    "title": "Large Language Models in Argument Mining: A Survey",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "07",
+    "key": "ref07",
+    "url": "https://aclanthology.org/J17-3005/",
+    "title": "Parsing Argumentation Structures in Persuasive Essays",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "08",
+    "key": "ref08",
+    "url": "https://aclanthology.org/W18-5206/",
+    "title": "An Argument-Annotated Corpus of Scientific Publications",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "09",
+    "key": "ref09",
+    "url": "https://doi.org/10.1111/cgf.14389",
+    "title": "Design and Evaluation of Visualization Techniques to Facilitate Argument Exploration",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "10",
+    "key": "ref10",
+    "url": "https://doi.org/10.1109/TSMC.1981.4308636",
+    "title": "Methods for Visual Understanding of Hierarchical System Structures",
+    "todo": "核对全文的具体页码、评价协议与适用边界。 IEEE 页面受访问限制；作者、年与题名暂按给定清单，正文不转述未经核实的算法结论。"
+  },
+  {
+    "id": "11a",
+    "key": "ref11a",
+    "url": "https://doi.org/10.1109/TVCG.2013.196",
+    "title": "StoryFlow: Tracking the Evolution of Stories",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "11b",
+    "key": "ref11b",
+    "url": "https://github.com/remaerd/iStoryline.js",
+    "title": "iStoryline: Effective Convergence to Hand-drawn Storylines",
+    "todo": "核对全文的具体页码、评价协议与适用边界。 核对 2018 在线年与 2019 卷期年。"
+  },
+  {
+    "id": "12",
+    "key": "ref12",
+    "url": "https://doi.org/10.1111/j.1467-8659.2012.03079.x",
+    "title": "Graph Bundling by Kernel Density Estimation",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "13",
+    "key": "ref13",
+    "url": "https://arxiv.org/abs/2404.16130",
+    "title": "From Local to Global: A Graph RAG Approach to Query-Focused Summarization",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "14",
+    "key": "ref14",
+    "url": "https://arxiv.org/abs/2410.05779",
+    "title": "LightRAG: Simple and Fast Retrieval-Augmented Generation",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "15",
+    "key": "ref15",
+    "url": "https://arxiv.org/abs/2303.14334",
+    "title": "The Semantic Reader Project: Augmenting Scholarly Documents through AI-Powered Interactive Reading Interfaces",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "16",
+    "key": "ref16",
+    "url": "https://arxiv.org/abs/2404.13765",
+    "title": "SciDaSynth: Interactive Structured Data Extraction from Scientific Literature with Large Language Model",
+    "todo": "核对全文的具体页码、评价协议与适用边界。 已按 arXiv 修正原清单题名（Structured Data Extraction）。"
+  },
+  {
+    "id": "17",
+    "key": "ref17",
+    "url": "https://aclanthology.org/2023.emnlp-main.398/",
+    "title": "Enabling Large Language Models to Generate Text with Citations",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "18",
+    "key": "ref18",
+    "url": "https://arxiv.org/abs/2310.01783",
+    "title": "Can large language models provide useful feedback on research papers? A large-scale empirical analysis",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "19",
+    "key": "ref19",
+    "url": "https://arxiv.org/abs/2401.04259",
+    "title": "MARG: Multi-Agent Review Generation for Scientific Papers",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "20",
+    "key": "ref20",
+    "url": "https://arxiv.org/abs/2501.10326",
+    "title": "Large language models for automated scholarly paper review: A survey",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "21",
+    "key": "ref21",
+    "url": "https://paperreview.ai/tech-overview",
+    "title": "Tech Overview: Stanford Agentic Reviewer",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "22",
+    "key": "ref22",
+    "url": "https://github.com/kermitt2/grobid",
+    "title": "GROBID",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  },
+  {
+    "id": "23",
+    "key": "ref23",
+    "url": "https://arxiv.org/abs/2408.09869",
+    "title": "Docling Technical Report",
+    "todo": "核对全文的具体页码、评价协议与适用边界。"
+  }
+]

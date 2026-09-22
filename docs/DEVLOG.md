@@ -8,3 +8,11 @@
 - 决策：沿用指定目录与远程；没有覆盖用户文件。
 - 验证：git status、git remote -v、git fetch origin 成功；配置不包含密钥。
 - 遗留：后续阶段补齐正文与代码；当前没有 .env，真实 API 验收有条件执行。
+
+## S1 文献与阅读卡片
+- 目标：覆盖给定清单，并记录核实边界。
+- 完成：24 项 BibTeX、24 张卡片、引用索引和待办；第 11 项拆成两篇。
+- 工具：httpx、BeautifulSoup 读取官方摘要/元数据，bibtexparser 解析。
+- 决策：引用实读的预印本版本；纠正 SciDaSynth 题名；核实自动审稿综述作者；不把待核实出版状态写成事实。
+- 验证：BibTeX 解析 24 条；24 张卡片含链接；不存论文全文。
+- 遗留：IEEE 的 Sugiyama 页面受限；全文页码与部分正式卷期留 TODO，详见 paper/README.md。
