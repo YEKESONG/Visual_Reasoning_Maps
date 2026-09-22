@@ -1,10 +1,21 @@
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
+
+
+def short_label(value: object) -> object:
+    # Model labels sometimes exceed the node width; trim instead of failing the whole stage.
+    if isinstance(value, str) and len(value.strip()) > 40:
+        return value.strip()[:39].rstrip() + "…"
+    return value
+
+
+def unit_interval(value: object) -> object:
+    return min(1.0, max(0.0, value)) if isinstance(value, (int, float)) else value
 
 
 class Word(Model):
@@ -69,6 +80,9 @@ class Step(Model):
     status: Status = "to_verify"
     first_position: int = 0
 
+    _label = field_validator("label", mode="before")(short_label)
+    _confidence = field_validator("confidence", mode="before")(unit_interval)
+
 
 class Link(Model):
     id: str
@@ -79,6 +93,8 @@ class Link(Model):
     anchors: list[str] = Field(min_length=1)
     confidence: float = Field(ge=0, le=1)
     status: Status = "to_verify"
+
+    _confidence = field_validator("confidence", mode="before")(unit_interval)
 
 
 class TermCard(Model):
@@ -106,6 +122,39 @@ class Graph(Model):
     genre: str = "scientific"
     thesis: str = ""
 
+    @model_validator(mode="before")
+    @classmethod
+    def drop_ungrounded(cls, data: object) -> object:
+        """Drop model items without a source instead of rejecting the whole answer.
+
+        A relation without its own sentences falls back to those of its endpoints.
+        """
+        if not isinstance(data, dict):
+            return data
+        data = dict(data)
+        steps = [
+            s
+            for s in data.get("steps") or []
+            if not isinstance(s, dict) or (s.get("anchors") and str(s.get("quote") or "").strip())
+        ]
+        anchors = {s.get("id"): s.get("anchors") for s in steps if isinstance(s, dict)}
+        links = []
+        for link in data.get("links") or []:
+            if isinstance(link, dict) and not link.get("anchors"):
+                fallback = anchors.get(link.get("dst")) or anchors.get(link.get("src"))
+                if not fallback:
+                    continue
+                link = {**link, "anchors": fallback}
+            links.append(link)
+        data["steps"], data["links"] = steps, links
+        if "terms" in data:
+            data["terms"] = [
+                t
+                for t in data.get("terms") or []
+                if not isinstance(t, dict) or (t.get("anchors") and t.get("step_ids"))
+            ]
+        return data
+
 
 class Metadata(Model):
     id: str
@@ -120,7 +169,7 @@ class Generation(Model):
     language: str = "auto"
     model: str
     timestamp: str
-    prompt_version: str = "1.0"
+    prompt_version: str = "2.0"
     total_tokens: int = 0
     estimated_cost_usd: float | None = None
 

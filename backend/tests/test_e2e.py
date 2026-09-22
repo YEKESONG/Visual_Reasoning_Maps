@@ -81,3 +81,37 @@ async def test_provider_value_error_cannot_echo_secrets(tmp_path, monkeypatch):
     last = tasks.events[key][-1]
     assert last["status"] == "error"
     assert "private-provider" not in last["error"]
+
+
+async def test_explanation_drops_citations_outside_the_passages(tmp_path, monkeypatch):
+    from backend.app.ingest.arxiv_html import parse_html
+    from backend.app.models import Explanation
+
+    html = (
+        "<article><h1>Fixture</h1>"
+        + "".join(f"<p>{s.quote}</p>" for s in fixture_graph().steps)
+        + "</article>"
+    )
+    doc, html = parse_html(html, "fixture", "https://arxiv.org/html/2404.16130")
+    store = Store(tmp_path)
+    store.directory(doc.id).mkdir()
+    (store.directory(doc.id) / "source.html").write_text(html)
+    tasks = TaskManager()
+    await process(doc, CompleteFake(), main.settings, store, tasks, tasks.create())
+
+    class Explainer:
+        def __init__(self, *args):
+            pass
+
+        async def generate(self, stage, payload, schema):
+            assert all(isinstance(row, list) for row in payload["sentences"])
+            return Explanation(
+                explanation="1. The author states it [p5s1]. 2. Outside [p9s9].",
+                anchors=["p5s1", "p9s9"],
+            )
+
+    monkeypatch.setattr(main, "store", store)
+    monkeypatch.setattr(main, "model_factory", Explainer)
+    result = TestClient(main.app).post("/api/docs/fixture/steps/e/explanation").json()
+    assert result["explanation"] == "1. The author states it [p5s1]. 2. Outside."
+    assert result["anchors"] == ["p5s1"]

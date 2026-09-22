@@ -262,7 +262,7 @@ export interface components {
       timestamp: string;
       /**
        * Prompt Version
-       * @default 1.0
+       * @default 2.0
        */
       prompt_version: string;
       /**

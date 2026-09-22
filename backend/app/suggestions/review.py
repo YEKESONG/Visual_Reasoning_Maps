@@ -49,23 +49,40 @@ def rule_suggestions(graph: Graph) -> list[Suggestion]:
     return results
 
 
-async def review(graph: Graph, doc: Document, model: ModelClient) -> list[Suggestion]:
+async def review(
+    graph: Graph, doc: Document, model: ModelClient, limit: int = 180000
+) -> list[Suggestion]:
     result = rule_suggestions(graph)
+    sentences = doc.sentences
+    if sum(len(s.text) for s in sentences) > limit:
+        anchored = {a for s in graph.steps for a in s.anchors}
+        orders = {s.id: s.order for s in sentences}
+        near = {orders[a] + d for a in anchored if a in orders for d in range(-2, 3)}
+        sentences = [s for s in sentences if s.order in near]
     critique = await model.generate(
         "suggestions",
         {
-            "graph": graph.model_dump(mode="json"),
-            "sentences": [s.model_dump(mode="json") for s in doc.sentences],
+            "steps": [
+                s.model_dump(mode="json", exclude={"confidence", "first_position"})
+                for s in graph.steps
+            ],
+            "links": [
+                e.model_dump(mode="json", exclude={"confidence", "anchors"}) for e in graph.links
+            ],
+            "sentences": [[s.id, s.text] for s in sentences],
         },
         Suggestions,
     )
-    ids = {"step": {s.id for s in graph.steps}, "link": {e.id for e in graph.links}}
-    sentences = {s.id for s in doc.sentences}
+    targets = {
+        "step": {s.id: s.anchors for s in graph.steps},
+        "link": {e.id: e.anchors for e in graph.links},
+    }
+    known = {s.id for s in doc.sentences}
     for suggestion in critique.suggestions:
-        if (
-            suggestion.target_id in ids[suggestion.target_type]
-            and set(suggestion.anchors) <= sentences
-        ):
-            suggestion.source = "llm"
-            result.append(suggestion)
+        anchors = targets[suggestion.target_type].get(suggestion.target_id)
+        if anchors is None:
+            continue
+        suggestion.anchors = [a for a in suggestion.anchors if a in known] or anchors
+        suggestion.source = "llm"
+        result.append(suggestion)
     return result

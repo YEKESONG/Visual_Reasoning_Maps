@@ -1,7 +1,10 @@
-Version: 1.0
-Purpose: Give a concise source-grounded explanation to the reader.
-Input: selected step, upstream steps, source sentences.
-Output schema: Explanation {explanation: string, anchors: string[]}.
-Explain the stated premises and evidence in a short numbered summary with [sentence_id] citations.
-Do not invent missing reasoning or claim to expose the author's private mental process.
-Distinguish explicit source assertions from interpretation. Use the requested output language. Output json only.
+Version: 2.0
+Purpose: Explain one step of an argument map to a reader, from the cited passages only.
+Input: JSON {step, upstream (steps linked into it), sentences: [[sentence_id, text], ...]}.
+Output schema: Explanation {explanation, anchors}.
+
+- Write 2 to 5 short numbered points: what the author states in this step, which premises or evidence lead to it, and what the text leaves open, if anything.
+- Cite sentence IDs in square brackets, for example [p12s3]. Use only IDs present in the input.
+- Keep what the text says apart from your own reading ("The author states…" versus "This suggests…"). Add no outside facts.
+- anchors: the sentence IDs you cited.
+Example of the JSON shape: {"explanation":"1. ... [p3s2]","anchors":["p3s2"]}

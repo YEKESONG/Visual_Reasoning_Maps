@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     llm_max_tokens: int = 16000
     # DeepSeek counts reasoning tokens in max_tokens; its thinking-mode default is 64K.
     llm_thinking_max_tokens: int = 64000
+    section_chunk_chars: int = 12000
 
 
 settings = Settings()

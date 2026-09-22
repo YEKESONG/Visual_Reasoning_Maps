@@ -272,15 +272,14 @@ async def explanation(doc_id: str, step_id: str, request: Request):
                 anchors=step.anchors,
             )
         else:
+            fields = {"id", "type", "label", "summary", "quote", "anchors", "status"}
             try:
                 result = await model_factory(config, store, doc_id).generate(
                     "explanation",
                     {
-                        "step": step.model_dump(mode="json"),
-                        "upstream": [s.model_dump(mode="json") for s in parents],
-                        "sentences": [
-                            s.model_dump(mode="json") for s in doc.sentences if s.id in needed
-                        ],
+                        "step": step.model_dump(mode="json", include=fields),
+                        "upstream": [s.model_dump(mode="json", include=fields) for s in parents],
+                        "sentences": [[s.id, s.text] for s in doc.sentences if s.id in needed],
                     },
                     Explanation,
                 )
@@ -289,10 +288,16 @@ async def explanation(doc_id: str, step_id: str, request: Request):
                     503,
                     "Explication indisponible. Vérifiez la configuration du modèle et réessayez.",
                 ) from None
-            if not set(result.anchors) <= needed:
-                raise HTTPException(
-                    502, "L’explication contient des références non valides. Réessayez."
-                )
+
+            # Citations outside the supplied passages are dropped rather than shown as sources.
+            def cited(match: re.Match) -> str:
+                valid = [key for key in re.split(r"\s*,\s*", match[1]) if key in needed]
+                return f" [{', '.join(valid)}]" if valid else ""
+
+            result.explanation = re.sub(
+                r"\s*\[(p\d+s\d+(?:\s*,\s*p\d+s\d+)*)\]", cited, result.explanation
+            )
+            result.anchors = [a for a in result.anchors if a in needed] or step.anchors
         store.write(doc_id, f"explanations/{key}.json", result.model_dump(mode="json"))
         return result
 

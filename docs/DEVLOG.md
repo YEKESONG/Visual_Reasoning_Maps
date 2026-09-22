@@ -184,3 +184,19 @@
 - 主要文件：backend/app/llm/client.py、backend/app/config.py。
 - 验证：新增测试——思考阶段 tool_choice=auto 且使用 64K 上限、非思考阶段仍指定函数、重试消息不含 assistant 轮、失败时记录原因且日志中没有文档内容和密钥；pytest 48 项通过；ruff 通过；OpenAPI 无变化。
 - 遗留：成本估算依赖 LiteLLM 价格表，未收录的模型记为 null。
+
+## S19c 模型输入瘦身、分节打包与提示词 v2
+- 目标：减少无效 token 和调用次数，让各阶段的输入格式清楚、输出更容易通过校验。
+- 问题：各阶段把句子对象整体发送，包括坐标框数组、页码、DOM ID；跨节阶段把全部步骤的完整字段和全文句子一起发送（约 4.6 万输入 token）；骨架阶段只看到 sec3 这类章节编号，看不到章节标题；分节阶段每个章节单独调用一次；模型输出中只要有一个步骤缺锚点或标题超过 40 字，整批结果校验失败并重试。
+- 完成内容：
+  - 所有模型输入里的句子改为 `[句子ID, 文本]`，不再带坐标和 DOM 信息。
+  - 骨架阶段按 `{title, sentences}` 分章节发送；文本超过 `max_input_chars` 时，每节交替保留开头和结尾的句子。
+  - 分节阶段把相邻短章节打包、把超长章节按句拆开，每块不超过 `SECTION_CHUNK_CHARS`（默认 12000 字符）；只附主流程的精简字段（id、parent、type、label、summary、anchors）。测试论文从 60 次分节调用降到 4 次。
+  - 跨节阶段只发送步骤精简字段、已有关系三元组，以及被引用句子和前后各一句；与已有关系重复、端点不存在的关系直接丢弃。
+  - 提示词升级到 2.0：写明输入格式、步骤类型和关系方向、每类关系的判定标准、何时返回空结果，并给出 JSON 形状示例。
+  - 模型输出容错：标题超过 40 字截断并加省略号，置信度夹到 0–1；没有锚点或引文的步骤、没有锚点的术语卡直接丢弃；没有锚点的关系借用终点（或起点）步骤的句子。
+  - 修改建议阶段只发送步骤、关系和句子文本；目标存在但部分锚点无效时保留有效锚点。
+  - 按需解释只发送所需字段；解释里引用了输入之外的句子 ID 时删掉该引用，不再返回 502。
+  - extract() 增加进度回调参数（在 S19e 接入任务进度）。
+- 主要文件：backend/app/extraction/pipeline.py、backend/app/prompts/{skeleton,section,cross,suggestions,explanation}.md、backend/app/models.py、backend/app/suggestions/review.py、backend/app/main.py、backend/app/config.py。
+- 验证：新增测试——按章节组织且不含坐标、长文每节保留首尾、分节打包与拆分、子步骤加前缀并丢弃父节点无效的条目、跨节去重、模型输出容错、解释中越界引用被删除；pytest 53 项通过；OpenAPI 与前端类型重新生成（prompt_version 默认 2.0）；前端 lint/test/build 通过。
