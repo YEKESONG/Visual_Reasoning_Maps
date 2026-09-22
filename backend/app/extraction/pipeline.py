@@ -111,7 +111,7 @@ async def extract(
                 graph.steps.append(step)
                 used.add(step.id)
         for link in detail.links:
-            link.id = f"section{index}_{link.id}"
+            link.id = f"section{index}_rel_{link.id}"
             link.src = remap.get(link.src, link.src)
             link.dst = remap.get(link.dst, link.dst)
             if link.src in used and link.dst in used:

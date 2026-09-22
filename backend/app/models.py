@@ -179,6 +179,13 @@ class Pattern(Model):
     step_ids: list[str]
 
 
+class RepairPatch(Graph):
+    """Replacement or new steps and links, plus IDs to delete; untouched items are kept."""
+
+    remove_step_ids: list[str] = Field(default_factory=list)
+    remove_link_ids: list[str] = Field(default_factory=list)
+
+
 class Flow(Graph):
     metadata: Metadata
     patterns: list[Pattern] = Field(default_factory=list)

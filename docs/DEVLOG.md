@@ -200,3 +200,22 @@
   - extract() 增加进度回调参数（在 S19e 接入任务进度）。
 - 主要文件：backend/app/extraction/pipeline.py、backend/app/prompts/{skeleton,section,cross,suggestions,explanation}.md、backend/app/models.py、backend/app/suggestions/review.py、backend/app/main.py、backend/app/config.py。
 - 验证：新增测试——按章节组织且不含坐标、长文每节保留首尾、分节打包与拆分、子步骤加前缀并丢弃父节点无效的条目、跨节去重、模型输出容错、解释中越界引用被删除；pytest 53 项通过；OpenAPI 与前端类型重新生成（prompt_version 默认 2.0）；前端 lint/test/build 通过。
+
+## S19d 定向修复与按条目标记核验状态
+- 目标：修复轮只改有问题的条目，不丢已抽取的子步骤；虚线框只表示"原文支持未确认"。
+- 问题：
+  - 旧修复轮用 skeleton 提示词把全文（含坐标）、整张图和问题清单一起发出，要求整图重生成；该提示词只产出 5–12 个主步骤，子步骤会整体丢失。
+  - 最终状态计算时，只要出现一个全图级问题（例如 disconnected），所有步骤和关系都被标成 to_verify。第一次真实跑通时 39 个步骤、54 条关系全部显示虚线框，而核验阶段其实判定了 81 项 supported、13 项 partial、4 项 unsupported。
+  - 分节阶段的步骤 ID 和关系 ID 使用同一前缀，模型给步骤和关系起了相同的局部 ID（如 l4），生成的 section3_l4 同时是步骤和关系。问题清单只记录 ID，针对关系的问题被当成步骤去修，模型把这些步骤重新输出为无父节点的主步骤，三轮问题数 6 → 8 → 14。
+- 完成内容：
+  - 新增 repair 阶段和 RepairPatch：输入问题清单（带条目类型）、全部步骤的精简字段、关系三元组、问题条目的完整数据和原文句子；输出只包含替换或新增的条目以及要删除的 ID。合并时按 ID 替换、追加新条目，删除主步骤时连带删除其子步骤和相关关系；原样返回的条目不算修改，不重新核验。
+  - 修复时保留被改写子步骤的原父节点，除非补丁明确移到别处。
+  - 问题记录增加 target_type（step / link / graph）；关系 ID 与步骤 ID 冲突时统一重命名；分节关系使用 `section{i}_rel_` 前缀。
+  - 不调用模型的确定性修正：原文中找不到的连接词清空；无效的关系锚点改用两端步骤的句子；术语卡中失效的锚点和步骤引用清理，清理后为空则删除。
+  - 核验只对新增或修改过的条目重新判定；一批中被漏判的条目再问一次，仍漏判的记为 unchecked 且不送去修复。
+  - 最终只有原文支持类问题（anchor、semantic、connective、contradiction_anchor、endpoint、parent）会把对应条目标为 to_verify；结构问题（dead_end、disconnected、size 等）保留在 validation_report.json 中。
+  - critic 提示词 2.0 与新的输入格式一致；repair 提示词 1.1 逐条写明每类问题的处理方法（例如 dead_end 要补一条有原文依据的关系，size 要合并或删减子步骤）。
+- 真实运行（测试论文，骨架/分节/跨节命中缓存，只重跑核验以后的阶段）：修复前全部 to_verify；修复后第一版 36 个步骤 verified、4 个 partial，50/54 条关系 verified；修复提示词 1.1 后 s7 子步骤过多的问题被修好，最终 33 个步骤中 31 个 verified、2 个 partial，46 条关系中 45 条 verified，只剩 s4 未连到结论这一处结构缺口记录在报告中。
+- 主要文件：backend/app/validation/checks.py、backend/app/models.py（RepairPatch）、backend/app/prompts/repair.md、backend/app/prompts/critic.md、backend/app/extraction/pipeline.py。
+- 验证：新增测试——结构缺口不影响已核对条目、漏判条目会被再问一次、问题带条目类型、补丁保留父节点且只报告真实改动、删除主步骤连带删除子步骤和关系、确定性修正；原有的两轮修复上限和"修复失败仍能渲染"测试保持通过；pytest 58 项通过。
+- 遗留：非思考模式下的修复对结构问题（缺少通向结论的关系）效果有限；如需更强的修复，可把 repair 加入 LLM_THINKING_STAGES，代价是每轮多约 30 秒。

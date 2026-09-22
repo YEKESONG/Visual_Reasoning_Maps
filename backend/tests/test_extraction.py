@@ -132,7 +132,7 @@ async def test_detail_and_cross_stages_are_merged_conservatively():
     graph = await extract(fixture_doc(), Model(), Settings(_env_file=None))
     assert [s.id for s in graph.steps if s.parent] == ["section0_c1"]
     ids = {e.id: (e.src, e.dst) for e in graph.links}
-    assert ids["section0_l1"] == ("section0_c1", "b")
+    assert ids["section0_rel_l1"] == ("section0_c1", "b")
     # x1 repeats an existing relation and x3 points to an unknown step.
     assert "x2" in ids and "x1" not in ids and "x3" not in ids
     assert len(payloads["section"]["main_flow"]) == 5

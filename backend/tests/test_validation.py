@@ -144,3 +144,108 @@ def test_deduplicate_requires_shared_provenance():
     changes = deduplicate(graph, Settings(_env_file=None))
     assert changes[0]["target_id"] == "twin"
     assert len(graph.steps) == 5
+
+
+class Supportive:
+    """Critic that supports everything and a repair stage that changes nothing."""
+
+    def __init__(self, skip_first_pass=False):
+        self.calls = []
+        self.skip_first_pass = skip_first_pass
+
+    async def generate(self, stage, payload, schema):
+        self.calls.append(stage)
+        if stage == "critic":
+            items = payload["items"]
+            if self.skip_first_pass and self.calls.count("critic") == 1:
+                items = items[:1]
+            return Critique(
+                judgements=[
+                    Judgement(
+                        target_type=i["target_type"],
+                        target_id=i["target_id"],
+                        verdict="supported",
+                        reason="Explicite.",
+                    )
+                    for i in items
+                ]
+            )
+        from backend.app.models import RepairPatch
+
+        return RepairPatch(steps=[], links=[])
+
+
+async def test_structural_gaps_do_not_hide_textual_support():
+    graph = fixture_graph()
+    graph.links = graph.links[:-1]
+    result, report = await validate_and_repair(
+        graph, fixture_doc(), Supportive(), Settings(_env_file=None)
+    )
+    # The map has a dead end and no path to the conclusion, but every quote is supported.
+    assert {"dead_end", "disconnected"} <= {i["code"] for i in report["final_issues"]}
+    assert all(s.status == "verified" for s in result.steps)
+
+
+async def test_critic_is_asked_again_for_skipped_items():
+    critic = Supportive(skip_first_pass=True)
+    result, report = await validate_and_repair(
+        fixture_graph(), fixture_doc(), critic, Settings(_env_file=None)
+    )
+    assert critic.calls == ["critic", "critic"]
+    assert report["rounds"][0]["unchecked"] == []
+    assert all(item.status == "verified" for item in [*result.steps, *result.links])
+
+
+def test_issues_name_the_kind_of_item():
+    graph = fixture_graph()
+    graph.links[0].anchors = ["bad"]
+    issues = local_checks(graph, fixture_doc(), Settings(_env_file=None))
+    assert {"target_type": "link", "target_id": "ab", "code": "anchor"}.items() <= next(
+        i for i in issues if i["code"] == "anchor"
+    ).items()
+
+
+def test_patch_keeps_parents_and_reports_real_changes():
+    from backend.app.models import RepairPatch
+    from backend.app.validation.checks import apply_patch
+
+    graph = fixture_graph()
+    child = graph.steps[2].model_copy(update={"id": "child", "parent": "b"})
+    graph.steps.append(child)
+    graph.links.append(
+        Link(id="cb", src="child", dst="b", type="support", anchors=["p3s1"], confidence=0.5)
+    )
+    rewritten = child.model_copy(update={"parent": None, "summary": "Reformulé."})
+    unchanged = graph.steps[0].model_copy()
+    new_link = Link(id="n1", src="a", dst="e", type="support", anchors=["p5s1"], confidence=0.5)
+    changed = apply_patch(
+        graph,
+        RepairPatch(steps=[rewritten, unchanged], links=[new_link], remove_step_ids=["c"]),
+    )
+    # The rewritten detail stays under its main step; resending an unchanged step is ignored.
+    assert next(s for s in graph.steps if s.id == "child").parent == "b"
+    assert changed == {("step", "child"), ("link", "n1")}
+    assert "c" not in {s.id for s in graph.steps}
+    assert not any("c" in (e.src, e.dst) for e in graph.links)
+
+
+def test_deterministic_fixes_before_any_model_call():
+    from backend.app.models import TermCard
+    from backend.app.validation.checks import tidy, unique_link_ids
+
+    graph = fixture_graph()
+    graph.links[1].connective = "therefore"
+    graph.links[2].anchors = ["missing"]
+    graph.links[3].id = "a"
+    graph.terms = [TermCard(term="t", definition="d", anchors=["p1s1"], step_ids=["gone"])]
+    changes = unique_link_ids(graph) + tidy(graph, fixture_doc())
+    assert graph.links[1].connective == ""
+    assert graph.links[2].anchors == ["p4s1", "p3s1"]
+    assert graph.links[3].id != "a"
+    assert graph.terms == []
+    assert {c["code"] for c in changes} == {
+        "link_renamed",
+        "connective_cleared",
+        "link_anchors_replaced",
+        "term_removed",
+    }
