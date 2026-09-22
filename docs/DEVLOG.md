@@ -124,3 +124,11 @@
 - 验证：39 项后端测试；7 项前端单测；curl 真 HTTP 上传 + 假模型流水线，SSE 七条事件最终 done。route/PDF 按需加载减小首页包；新增导入遗漏 RenderTask 类型导致一次构建失败，已修复后重验。
 - 遗留：真实模型 key 未配置，无付费调用或真实模型效果结论。后续 S17b 从已推送远程提交重新克隆验证并记录最终结果。
 - S17a 最终检查：ruff check/format、pytest 39、前端 lint/tsc/Vitest 7/Playwright 2 全通过；OpenAPI 生成无漂移；pip check 无冲突；所有已安装 Python 包元数据兼容3.11。按需加载后首页 JS 266KB，PDF/图页面分别独立加载，构建不再报大块警告。S16 对应远端 Actions run 35753367757 已确认 success。
+
+
+## S17b 全新克隆验收与发布
+- 完成：从 GitHub 远程全新克隆 6401b73，不复制任何环境/构建/数据；独立 setup.sh 成功。39项后端测试、Ruff、7项前端单测、lint/build通过；新端口8013一键启动，health及两份示例flow/source均HTTP200。
+- 完成：过程文档补齐完整提交快照、复现命令、模块箭头和代码对照、默认方案与切换、已知局限；综述6页PDF已逐页核对，24张阅读卡片及参考链接齐备。
+- 验证：最终实现已通过 OpenAPI 类型漂移检查、后端检查、前端lint/strict构建、两条Chromium阅读路径；无API key，无真实生成token/费用可以报告。S16远端GitHub Actions已确认success；发布提交CI另在交付报告记录。
+- 发布：准备并推送 v0.1.0；交付目录另存源码归档、综述PDF、截图与中文报告。API key需要用户在.env填写；综述待核实清单见paper/README.md。
+- 范围：Docker/GROBID/Langfuse/向量可选集成未实跑；原文泳道布局留作扩展；多类文本的人工评价尚未开展，不以功能验收冒充语义效果评价。

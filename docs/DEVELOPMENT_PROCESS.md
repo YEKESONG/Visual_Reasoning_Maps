@@ -69,6 +69,12 @@ pnpm test:e2e
 - 未配置 API key，因此没有真实 DeepSeek 生成、真实 token/费用或人工语义准确率结论。已提供 `scripts/record_fixtures.py`，用户配置后可继续模型验收。
 - GitHub Actions 工作流已经提供；若不能读取远端运行结果，不能用本地通过代替“GitHub CI 已通过”。Docker/GROBID/Langfuse/可选向量模型均未做外部服务集成实测。
 
+## 全新远程克隆验收
+
+2026-09-22 从 `git@github.com:YEKESONG/Visual_Reasoning_Maps.git` 新克隆提交 `6401b73` 到空目录。没有复制本机虚拟环境、node_modules、构建产物或数据。设置本机 Python/Node/pnpm 路径后执行 README 的 setup.sh，创建独立 .venv、安装锁定依赖、生成前端构建；39项后端测试、Ruff、前端lint和7项单测通过。`PORT=8013 python3 run.py` 启动后，curl health 返回 ok/configured=false；首页、两份演示的 flow/source 全部HTTP200；新克隆工作树干净。S17b 只更新验收文档，运行代码与这次验证相同。
+
+S16 的 GitHub Actions 已确认成功：[run 35753367757](https://github.com/YEKESONG/Visual_Reasoning_Maps/actions/runs/35753367757)。最终提交的 CI 状态见仓库 Actions，最终交付报告另记录发布时观察到的结果。
+
 ## 已知局限与下一步
 
 - 多栏 PDF、公式、表格和断句仍需更丰富语料；扫描件外部 OCR。原文句子跨 PDF 段落/页边界不会自动合并。
@@ -82,4 +88,26 @@ pnpm test:e2e
 
 ## 提交记录
 
-阶段提交记录将在最终验收后更新。最终文档提交本身可通过 `git log --oneline` 查看；下方快照不自引用自身哈希。
+以下为 S0 至 S17a 的实际提交。最终 S17b 文档提交可通过 `git log --oneline` 查看；快照不自引用自身哈希。
+
+```text
+cdf804a chore: initialize repository and development record [S0]
+191e0f1 docs(paper): verify references and create reading cards [S1]
+1714f49 docs(paper): write French literature review and comparison [S2]
+d59f24b feat(backend): add config storage task events and health [S3]
+8e11342 feat(ingest): parse positioned PDF and cached arXiv HTML [S4]
+4fb16de feat(anchors): map sentences to PDF geometry and HTML spans [S5]
+961439f feat(llm): add structured calls caching and usage accounting [S6]
+c0578f6 feat(extraction): add typed multi-stage grounded flow pipeline [S7]
+edfe629 feat(validation): enforce evidence and graph constraints with repair [S8]
+5419051 feat(review): attach grounded rule and model suggestions [S9]
+0f31041 feat(api): connect full processing pipeline and document endpoints [S10]
+13ced63 feat(ui): build French library upload and typed API client [S11]
+c907973 feat(graph): add hierarchical layout focus filters and guided reading [S12]
+158e7f2 feat(reader): show grounded details and original-layout excerpts [S13]
+6a1cf0c feat(reader): add full-text page and bidirectional anchor navigation [S14]
+82e71a9 build: package local startup bilingual guides and offline CI [S15]
+2fb1667 feat(demo): ship public-domain examples and verified reading journeys [S16]
+6401b73 fix: harden provider transport arXiv assets and graph validation [S17a]
+```
+
