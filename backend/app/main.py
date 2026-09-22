@@ -254,3 +254,18 @@ async def explanation(doc_id: str, step_id: str):
                 )
         store.write(doc_id, f"explanations/{key}.json", result.model_dump(mode="json"))
         return result
+
+
+@app.get("/{path:path}", include_in_schema=False)
+def frontend(path: str):
+    if path.startswith("api/"):
+        raise HTTPException(404, "Route API inconnue.")
+    from backend.app.config import ROOT
+
+    dist = ROOT / "frontend/dist"
+    candidate = (dist / path).resolve()
+    if candidate.is_relative_to(dist.resolve()) and candidate.is_file():
+        return FileResponse(candidate)
+    if (dist / "index.html").exists():
+        return FileResponse(dist / "index.html")
+    raise HTTPException(503, "Interface non construite. Exécutez scripts/setup.sh.")

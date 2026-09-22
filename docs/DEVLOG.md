@@ -101,3 +101,10 @@
 - 主要文件：FullText.tsx、main.tsx；截图 docs/screenshots/qa-fulltext.png。
 - 验证：Playwright 走通 节点→详情→全文→高亮→原节点；返回 /doc/qa-fixture?step=a；5 节点均渲染、无 JS 异常；Enter/Esc 路径执行。
 - 遗留：位置条按句序估计分布，点击使用实际锚点；S16 更完整示例补验。
+
+## S15 打包、一键启动与 CI
+- 完成：setup.sh/dev.sh/run.py、FastAPI 托管 SPA、双语 README、Dockerfile/compose、GitHub Actions、OpenAPI 导出与真实调用录制脚本、许可证及第三方声明。
+- 验证：从本地全新 clone 复制当前待提交源码快照，创建独立 .venv，完整执行 setup.sh；30 项后端测试通过；PORT=8011 python3 run.py 启动；curl /api/health 返回 ok/configured=false，首页返回构建 HTML。
+- 验证：bash -n、ruff、前端 lint/test/build 通过；不依赖系统全局 Python 包。
+- 决策：当前锁定依赖需要 Python 3.12（NetworkX 3.7），使用已安装 Python 3.12 与 Node 24。S17 将检查是否可以恢复 3.11 支持。
+- 遗留：Docker/GROBID 未实跑；S17 再从已推送提交进行最终 clone 验证，不混淆快照验收与远程克隆验收。

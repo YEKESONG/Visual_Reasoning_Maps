@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports: ["127.0.0.1:8000:8000"]
+    env_file: .env
+    volumes: ["./data:/app/data"]
+  grobid:
+    image: grobid/grobid:0.8.2
+    profiles: ["grobid"]
+    ports: ["127.0.0.1:8070:8070"]

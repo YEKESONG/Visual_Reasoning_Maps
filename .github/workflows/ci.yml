@@ -1,0 +1,24 @@
+name: Verify
+on: [push, pull_request]
+jobs:
+  offline-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: pip install -r requirements.lock
+      - run: ruff check backend scripts run.py && ruff format --check backend scripts run.py
+      - run: pytest -q
+      - run: npm install -g pnpm@11.19.0
+      - run: pnpm install --frozen-lockfile
+        working-directory: frontend
+      - run: python -m scripts.export_openapi
+      - run: pnpm types && pnpm exec prettier --write src/api-schema.d.ts && git diff --exit-code -- src/api-schema.d.ts
+        working-directory: frontend
+      - run: pnpm lint && pnpm test && pnpm build
+        working-directory: frontend

@@ -1,0 +1,9 @@
+.env
+.venv
+.git
+data
+work
+frontend/work
+frontend/node_modules
+frontend/dist
+paper
