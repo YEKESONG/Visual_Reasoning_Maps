@@ -28,9 +28,11 @@ export async function api<T>(url: string, options?: RequestInit): Promise<T> {
   }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
+    if (typeof body.detail === "string") throw new Error(body.detail);
+    // A 5xx without detail is an unhandled server error; retrying rarely helps.
     throw new Error(
-      typeof body.detail === "string"
-        ? body.detail
+      response.status >= 500
+        ? "Erreur du serveur. Consultez le terminal où il tourne ; après une mise à jour du code, redémarrez-le."
         : "La requête a échoué. Réessayez.",
     );
   }

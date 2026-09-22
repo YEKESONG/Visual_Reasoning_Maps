@@ -369,6 +369,11 @@ export const messages = {
     en: "The request failed. Try again.",
     zh: "请求失败，请重试。",
   },
+  "Erreur du serveur. Consultez le terminal où il tourne ; après une mise à jour du code, redémarrez-le.":
+    {
+      en: "Server error. Check the terminal where the server runs; after a code update, restart it.",
+      zh: "服务器出错了。请查看运行服务器的终端；如果刚更新过代码，请重启服务器。",
+    },
   "Tâche inconnue ou serveur redémarré. Relancez le traitement.": {
     en: "Unknown task, or the server was restarted. Start the analysis again.",
     zh: "找不到这个任务，可能服务已重启，请重新提交。",
