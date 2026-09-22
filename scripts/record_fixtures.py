@@ -6,6 +6,7 @@ from pathlib import Path
 
 from backend.app.anchoring.sentences import anchor_document
 from backend.app.config import settings
+from backend.app.extraction.pipeline import sections_payload
 from backend.app.ingest.pdf_pymupdf import parse_pdf
 from backend.app.llm.client import LLMClient
 from backend.app.models import Graph
@@ -24,12 +25,13 @@ async def main() -> None:
     model = LLMClient(settings, store, key)
     result = await model.generate(
         "skeleton",
-        {"title": doc.title, "sentences": [{"id": s.id, "text": s.text} for s in doc.sentences]},
+        {"title": doc.title, "sections": sections_payload(doc, settings.max_input_chars)},
         Graph,
     )
     store.write(key, "recorded_skeleton.json", result.model_dump(mode="json"))
+    cost = "unknown" if model.cost_usd is None else f"{model.cost_usd:.6f}"
     print(
-        f"Recorded in data/{key}/recorded_skeleton.json; tokens={model.total_tokens}; estimate_usd={model.cost_usd:.6f}"
+        f"Recorded in data/{key}/recorded_skeleton.json; tokens={model.total_tokens}; estimate_usd={cost}"
     )
 
 

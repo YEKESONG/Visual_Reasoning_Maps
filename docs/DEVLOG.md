@@ -310,3 +310,8 @@
   - 前端在 confidence 缺省时按 0.5 显示。
 - 主要文件：backend/app/models.py、backend/tests/test_extraction.py、frontend/src/Details.tsx、frontend/openapi.json、frontend/src/api-schema.d.ts。
 - 验证：新增测试（类型同义词与大小写、缺省置信度、多余字段、术语别名）；pytest 64 项通过；OpenAPI 与前端类型重新生成；前端 lint/test/build 通过。
+
+## S21b 录制脚本跟上新的骨架输入
+- 问题：`scripts/record_fixtures.py` 仍按旧格式发送 `sentences` 字典列表，与 2.x 版骨架提示词要求的 `{title, sections}` 不一致；服务商价格未知时 cost_usd 为 None，`:.6f` 格式化会抛异常。
+- 完成内容：改用 extraction.pipeline.sections_payload() 构造输入；费用未知时输出 unknown。
+- 验证：ruff 检查通过；脚本可以正常导入。它会真实调用模型并产生费用，因此没有在这里运行。
