@@ -30,3 +30,11 @@
 - 验证：pytest 3 项通过；ruff 检查/格式化通过；覆盖事件结束和重连。
 - 遗留：任务执行状态暂在内存，重启需重新提交；curl 网络验证安排 S10 完整接口阶段。
 - 更正 S2：进一步检查发现 /Library/TeX/texbin/latexmk，之前 PATH 检查被前序失败中止；正在补做实际编译。
+
+## S4 文档获取与解析
+- 完成：PyMuPDF 词级坐标、旋转页归一化、章节启发式；GROBID TEI 结构增强；arXiv HTML 保留内联元素/MathML、缓存样式和图片，下载失败回退 PDF。
+- 主要文件：ingest/、models.py；工具 PyMuPDF 1.28.2、httpx、BeautifulSoup、lxml。
+- 决策：只接受 arxiv.org HTTPS 文档，逐跳检查重定向并限制大小；HTML 去除活动内容。
+- 验证：pytest 9 项通过；ruff 格式化后检查通过。
+- 遗留：PDF 公式无法可靠恢复 LaTeX；扫描件明确提示 OCR；GROBID 未进行真实服务验收。
+- 综述补验：latexmk 完整通过，输出 5 页，无未定义引用，存在窄表列 underfull 提示。
