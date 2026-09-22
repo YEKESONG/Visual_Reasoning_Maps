@@ -4,113 +4,113 @@
       "id": "reason",
       "parent": null,
       "type": "premise",
-      "label": "La raison est également partagée",
-      "summary": "L’auteur pose l’égalité naturelle de la faculté de juger, puis distingue les chemins suivis par la pensée.",
+      "label": "Le bon sens est également partagé",
+      "summary": "Descartes pose que la capacité de bien juger est la même chez tous ; les opinions divergent parce que chacun conduit sa pensée autrement.",
       "anchors": [
-        "p3s2"
+        "p2s2"
       ],
       "quote": "power of judging aright and of distinguishing truth from error, which is properly what is called good sense or reason, is by nature equal in all men; and that the diversity of our opinions,",
       "confidence": 0.75,
       "status": "partial",
-      "first_position": 3
+      "first_position": 2
     },
     {
       "id": "method",
       "parent": null,
       "type": "claim",
-      "label": "Bien conduire sa pensée",
-      "summary": "Posséder un esprit vigoureux ne suffit pas : l’usage qui en est fait compte.",
+      "label": "Encore faut-il bien s’en servir",
+      "summary": "Un esprit vigoureux ne suffit pas : ce qui compte est la manière de l’appliquer.",
       "anchors": [
-        "p3s3"
+        "p2s3"
       ],
       "quote": "For to be possessed of a vigorous mind is not enough; the prime requisite is rightly to apply it.",
       "confidence": 0.75,
       "status": "partial",
-      "first_position": 4
+      "first_position": 3
     },
     {
       "id": "experience",
       "parent": null,
       "type": "evidence",
-      "label": "Une méthode, des progrès",
-      "summary": "Descartes rapporte les progrès qu’il attribue à sa méthode. Il s’agit de son témoignage, pas d’une preuve expérimentale.",
+      "label": "Les progrès qu’il doit à sa méthode",
+      "summary": "Descartes dit avoir tiré de sa méthode des progrès constants. C’est son propre témoignage, pas une mesure indépendante.",
       "anchors": [
-        "p5s1"
+        "p4s1"
       ],
       "quote": "I will not hesitate, however, to avow my belief that it has been my singular good fortune to have very early in life fallen in with certain tracks which have conducted me to considerations and",
       "confidence": 0.75,
       "status": "partial",
-      "first_position": 8
+      "first_position": 7
     },
     {
       "id": "doubt",
       "parent": null,
       "type": "objection",
-      "label": "Le jugement peut se tromper",
-      "summary": "L’auteur admet qu’il peut surestimer ses propres résultats. Cette réserve limite la portée du témoignage.",
+      "label": "Il peut se tromper sur lui-même",
+      "summary": "Il admet qu’il prend peut-être du cuivre et du verre pour de l’or et des diamants, c’est-à-dire qu’il surestime ses résultats.",
       "anchors": [
-        "p8s1"
+        "p5s1"
       ],
       "quote": "After all, it is possible I may be mistaken; and it is but a little copper and glass, perhaps, that I take for gold and diamonds.",
       "confidence": 0.75,
       "status": "partial",
-      "first_position": 12
+      "first_position": 9
     },
     {
       "id": "describe",
       "parent": null,
       "type": "claim",
-      "label": "Rendre son parcours visible",
-      "summary": "Il propose de rendre ses chemins de pensée inspectables en les décrivant.",
+      "label": "Raconter son chemin plutôt qu’enseigner",
+      "summary": "Il choisit de décrire, comme dans un tableau, la façon dont il a conduit sa raison, plutôt que d’imposer une méthode.",
       "anchors": [
-        "p8s3"
+        "p5s3"
       ],
       "quote": "But I shall endeavor in this discourse to describe the paths I have followed, and to delineate my life as in a picture, in order that each one may also be able to judge of them for himself, and that",
       "confidence": 0.75,
       "status": "partial",
-      "first_position": 14
+      "first_position": 11
     },
     {
       "id": "judge",
       "parent": null,
       "type": "conclusion",
-      "label": "Laisser le lecteur juger",
-      "summary": "Le lecteur est invité à exercer son jugement sur le parcours présenté. Ce lien est une reconstruction éditoriale.",
+      "label": "Chacun pourra en juger",
+      "summary": "Ainsi exposé, son parcours peut être jugé par chaque lecteur, et les avis reçus deviennent pour lui un moyen de s’instruire.",
       "anchors": [
-        "p8s3"
+        "p5s3"
       ],
       "quote": "each one may also be able to judge of them for himself, and that in the general opinion entertained of them, as gathered from current report, I myself may have a new help towards instruction to be",
       "confidence": 0.75,
       "status": "partial",
-      "first_position": 14
+      "first_position": 11
     },
     {
       "id": "personal",
       "parent": "describe",
       "type": "claim",
-      "label": "Décrire, sans prescrire",
-      "summary": "La méthode est présentée comme un parcours personnel, non comme une règle universelle.",
+      "label": "Un récit, pas une leçon",
+      "summary": "Son but n’est pas d’enseigner la méthode que chacun doit suivre, mais de montrer comment il a conduit la sienne.",
       "anchors": [
-        "p9s1"
+        "p6s1"
       ],
       "quote": "My present design, then, is not to teach the method which each ought to follow for the right conduct of his reason, but solely to describe the way in which I have endeavored to conduct my own.",
       "confidence": 0.75,
       "status": "partial",
-      "first_position": 15
+      "first_position": 12
     },
     {
       "id": "criticism",
       "parent": "describe",
       "type": "premise",
-      "label": "Accepter la critique",
-      "summary": "Donner des préceptes expose aussi leur auteur à la critique.",
+      "label": "Qui donne des préceptes s’expose",
+      "summary": "Celui qui prescrit aux autres se juge plus habile qu’eux et mérite d’être blâmé à la moindre erreur.",
       "anchors": [
-        "p9s2"
+        "p6s2"
       ],
       "quote": "They who set themselves to give precepts must of course regard themselves as possessed of greater skill than those to whom they prescribe; and if they err in the slightest particular, they subject",
       "confidence": 0.75,
       "status": "partial",
-      "first_position": 16
+      "first_position": 13
     }
   ],
   "links": [
@@ -121,8 +121,8 @@
       "type": "support",
       "connective": "",
       "anchors": [
-        "p3s2",
-        "p3s3"
+        "p2s2",
+        "p2s3"
       ],
       "confidence": 0.7,
       "status": "partial"
@@ -134,8 +134,8 @@
       "type": "support",
       "connective": "",
       "anchors": [
-        "p5s1",
-        "p3s3"
+        "p4s1",
+        "p2s3"
       ],
       "confidence": 0.7,
       "status": "partial"
@@ -147,8 +147,8 @@
       "type": "support",
       "connective": "",
       "anchors": [
-        "p3s3",
-        "p8s3"
+        "p2s3",
+        "p5s3"
       ],
       "confidence": 0.7,
       "status": "partial"
@@ -160,8 +160,8 @@
       "type": "support",
       "connective": "",
       "anchors": [
-        "p5s1",
-        "p8s3"
+        "p4s1",
+        "p5s3"
       ],
       "confidence": 0.7,
       "status": "partial"
@@ -173,8 +173,8 @@
       "type": "refine",
       "connective": "",
       "anchors": [
-        "p8s1",
-        "p8s3"
+        "p5s1",
+        "p5s3"
       ],
       "confidence": 0.7,
       "status": "partial"
@@ -186,7 +186,7 @@
       "type": "support",
       "connective": "",
       "anchors": [
-        "p8s3"
+        "p5s3"
       ],
       "confidence": 0.7,
       "status": "partial"
@@ -198,8 +198,8 @@
       "type": "contradict",
       "connective": "",
       "anchors": [
-        "p8s1",
-        "p5s1"
+        "p5s1",
+        "p4s1"
       ],
       "confidence": 0.7,
       "status": "partial"
@@ -211,8 +211,8 @@
       "type": "refine",
       "connective": "",
       "anchors": [
-        "p9s1",
-        "p9s2"
+        "p6s1",
+        "p6s2"
       ],
       "confidence": 0.7,
       "status": "partial"
@@ -221,9 +221,9 @@
   "terms": [
     {
       "term": "Méthode",
-      "definition": "Dans cet extrait, une manière de conduire la pensée que l’auteur rapporte à son expérience.",
+      "definition": "Ici, la manière dont l’auteur dit avoir conduit sa pensée, présentée à partir de sa propre expérience.",
       "anchors": [
-        "p5s1"
+        "p4s1"
       ],
       "step_ids": [
         "method",
@@ -232,14 +232,15 @@
     }
   ],
   "genre": "philosophy",
-  "thesis": "Une méthode personnelle peut être exposée au jugement du lecteur.",
+  "thesis": "Descartes expose sa méthode comme un parcours personnel que chaque lecteur est libre de juger.",
   "metadata": {
     "id": "demo-descartes-pdf",
-    "title": "Descartes · Conduire sa raison · PDF",
+    "title": "Descartes · Discours de la méthode, première partie · PDF",
     "kind": "pdf",
     "source_url": "https://www.gutenberg.org/ebooks/59",
     "created_at": "2026-09-22T12:00:00Z",
-    "demo": true
+    "demo": true,
+    "language": null
   },
   "patterns": [
     {
@@ -304,9 +305,10 @@
     }
   ],
   "generation": {
+    "language": "auto",
     "model": "editorial-demo (no API call)",
     "timestamp": "2026-09-22T12:00:00Z",
-    "prompt_version": "1.0",
+    "prompt_version": "2.0",
     "total_tokens": 0,
     "estimated_cost_usd": null
   }

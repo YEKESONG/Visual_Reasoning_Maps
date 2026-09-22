@@ -1,6 +1,6 @@
 {
   "id": "demo-descartes-html",
-  "title": "Descartes · Conduire sa raison · HTML",
+  "title": "Descartes · Discours de la méthode, première partie · HTML",
   "kind": "html",
   "source_url": "https://www.gutenberg.org/ebooks/59",
   "sections": [
@@ -200,6 +200,6 @@
   ],
   "pages": [],
   "warnings": [
-    "Extrait du domaine public, remis en page pour cette démonstration. Carte préparée manuellement ; aucun modèle n’a été évalué sur cet exemple."
+    "Extrait du domaine public, remis en page pour cet exemple. Carte préparée à la main ; aucun modèle n’a été évalué dessus."
   ]
 }

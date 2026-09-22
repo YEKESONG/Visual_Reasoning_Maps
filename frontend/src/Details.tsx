@@ -180,13 +180,14 @@ export function Details({
         <h3>{t("Explication")}</h3>
         {explanation ? (
           demo ? (
-            <p className="explanation">
-              {t(step.summary) +
-                " " +
-                t(
+            <div className="explanation">
+              <p>{t(step.summary)}</p>
+              <p className="hint">
+                {t(
                   "Exemple préparé à la main : aucune explication n’est générée, relisez le passage cité.",
                 )}
-            </p>
+              </p>
+            </div>
           ) : (
             <Citations text={explanation.explanation} doc={doc} />
           )

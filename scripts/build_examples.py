@@ -19,7 +19,7 @@ from backend.app.storage.files import Store
 from backend.app.validation.checks import patterns
 
 URL = "https://www.gutenberg.org/ebooks/59"
-TITLE = "Descartes · Conduire sa raison"
+TITLE = "Descartes · Discours de la méthode, première partie"
 PARAGRAPHS = json.loads((ROOT / "examples/descartes-excerpt.json").read_text())
 
 
@@ -96,7 +96,7 @@ def main() -> None:
         doc.title = TITLE + (" · HTML" if kind == "html" else " · PDF")
         doc.source_url = URL
         doc.warnings = [
-            "Extrait du domaine public, remis en page pour cette démonstration. Carte préparée manuellement ; aucun modèle n’a été évalué sur cet exemple."
+            "Extrait du domaine public, remis en page pour cet exemple. Carte préparée à la main ; aucun modèle n’a été évalué dessus."
         ]
 
         def find(text):
@@ -106,64 +106,64 @@ def main() -> None:
             (
                 "reason",
                 "premise",
-                "La raison est également partagée",
-                "L’auteur pose l’égalité naturelle de la faculté de juger, puis distingue les chemins suivis par la pensée.",
+                "Le bon sens est également partagé",
+                "Descartes pose que la capacité de bien juger est la même chez tous ; les opinions divergent parce que chacun conduit sa pensée autrement.",
                 "power of judging aright",
                 None,
             ),
             (
                 "method",
                 "claim",
-                "Bien conduire sa pensée",
-                "Posséder un esprit vigoureux ne suffit pas : l’usage qui en est fait compte.",
+                "Encore faut-il bien s’en servir",
+                "Un esprit vigoureux ne suffit pas : ce qui compte est la manière de l’appliquer.",
                 "For to be possessed",
                 None,
             ),
             (
                 "experience",
                 "evidence",
-                "Une méthode, des progrès",
-                "Descartes rapporte les progrès qu’il attribue à sa méthode. Il s’agit de son témoignage, pas d’une preuve expérimentale.",
+                "Les progrès qu’il doit à sa méthode",
+                "Descartes dit avoir tiré de sa méthode des progrès constants. C’est son propre témoignage, pas une mesure indépendante.",
                 "I will not hesitate",
                 None,
             ),
             (
                 "doubt",
                 "objection",
-                "Le jugement peut se tromper",
-                "L’auteur admet qu’il peut surestimer ses propres résultats. Cette réserve limite la portée du témoignage.",
+                "Il peut se tromper sur lui-même",
+                "Il admet qu’il prend peut-être du cuivre et du verre pour de l’or et des diamants, c’est-à-dire qu’il surestime ses résultats.",
                 "After all, it is possible",
                 None,
             ),
             (
                 "describe",
                 "claim",
-                "Rendre son parcours visible",
-                "Il propose de rendre ses chemins de pensée inspectables en les décrivant.",
+                "Raconter son chemin plutôt qu’enseigner",
+                "Il choisit de décrire, comme dans un tableau, la façon dont il a conduit sa raison, plutôt que d’imposer une méthode.",
                 "But I shall endeavor",
                 None,
             ),
             (
                 "judge",
                 "conclusion",
-                "Laisser le lecteur juger",
-                "Le lecteur est invité à exercer son jugement sur le parcours présenté. Ce lien est une reconstruction éditoriale.",
+                "Chacun pourra en juger",
+                "Ainsi exposé, son parcours peut être jugé par chaque lecteur, et les avis reçus deviennent pour lui un moyen de s’instruire.",
                 "each one may also be able",
                 None,
             ),
             (
                 "personal",
                 "claim",
-                "Décrire, sans prescrire",
-                "La méthode est présentée comme un parcours personnel, non comme une règle universelle.",
+                "Un récit, pas une leçon",
+                "Son but n’est pas d’enseigner la méthode que chacun doit suivre, mais de montrer comment il a conduit la sienne.",
                 "My present design",
                 "describe",
             ),
             (
                 "criticism",
                 "premise",
-                "Accepter la critique",
-                "Donner des préceptes expose aussi leur auteur à la critique.",
+                "Qui donne des préceptes s’expose",
+                "Celui qui prescrit aux autres se juge plus habile qu’eux et mérite d’être blâmé à la moindre erreur.",
                 "They who set themselves",
                 "describe",
             ),
@@ -220,13 +220,13 @@ def main() -> None:
             terms=[
                 TermCard(
                     term="Méthode",
-                    definition="Dans cet extrait, une manière de conduire la pensée que l’auteur rapporte à son expérience.",
+                    definition="Ici, la manière dont l’auteur dit avoir conduit sa pensée, présentée à partir de sa propre expérience.",
                     anchors=by["experience"].anchors,
                     step_ids=["method", "experience"],
                 )
             ],
             genre="philosophy",
-            thesis="Une méthode personnelle peut être exposée au jugement du lecteur.",
+            thesis="Descartes expose sa méthode comme un parcours personnel que chaque lecteur est libre de juger.",
             metadata=Metadata(
                 id=key,
                 title=doc.title,
@@ -245,7 +245,7 @@ def main() -> None:
             target_id="experience",
             category="support",
             severity="info",
-            message="Distinguez le progrès rapporté par l’auteur d’une mesure indépendante de l’efficacité de la méthode.",
+            message="Distinguez le progrès que l’auteur s’attribue d’une mesure indépendante de l’efficacité de la méthode.",
             anchors=by["experience"].anchors,
             source="rule",
         )

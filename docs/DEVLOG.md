@@ -281,3 +281,14 @@
   - 修正：展开的步骤变成分组后，父步骤内容固定在分组顶部，"收起"按钮不再被子步骤遮住；React Flow 缩放按钮不受全局按钮样式影响；窄屏下缩小缩略图；输入框占位文字调浅。
 - 主要文件：frontend/src/{pages,main,MapPage,Details,SourceView,FullText}.tsx、api.ts、style.css、translations.ts、i18n.test.ts、e2e/*.spec.ts；backend/app/suggestions/review.py、ingest/pdf_pymupdf.py、main.py；docs/DESIGN.md。
 - 验证：`pnpm lint && pnpm test && pnpm build` 通过；Playwright 10 条用例全部通过（用例按新文案更新）；pytest 61 项通过；在 8010 端口逐页截图检查中文首页、图谱页（未选中、选中步骤、选中关系）、法语 1024px HTML 示例、英文全文页。
+
+## S20e 重建 Descartes 示例
+- 问题：示例标题"Descartes · Conduire sa raison"被译成"笛卡尔 · 引导理性"，不是这部作品通行的名称（中文通常译作《谈谈方法》，英文 *Discourse on the Method*）；步骤名有的是生硬的概括（"呈现思考历程""方法带来进步"），摘要里有"这条关系由示例编者重建"之类读者用不上的说明。另外，服务启动时只在 data/ 里没有示例时才复制，已有旧副本的环境更新代码后仍显示旧示例，而旧示例的译文已删除，中英界面会退回法文。
+- 完成内容：
+  - 标题改为"Descartes · Discours de la méthode, première partie"（中文"笛卡尔 ·《谈谈方法》第一部分"，英文"Descartes · Discourse on the Method, Part I"）。没有用"1re"，因为 Georgia 的旧式数字让"1"看起来像"I"。
+  - 按英译原文重写八个步骤的名称和摘要、术语卡、主旨和修改建议，例如"良知人人均等"对应开篇 "Good sense is… the most equally distributed"，"他也可能看错自己"对应 "it is but a little copper and glass… that I take for gold and diamonds"。
+  - 用 S19a 的新解析器重建示例 PDF 的 parsed.json（页脚、页码不再进入句子）。
+  - sync_examples()：启动时比较 data/ 副本与 examples/ 中的 flow.json，不一致就整体替换。
+  - 重新生成 docs/screenshots 下的 13 张截图（Playwright 用例自动写出）。
+- 主要文件：scripts/build_examples.py、examples/*、frontend/src/translations.ts、frontend/e2e/*.spec.ts、backend/app/main.py、backend/tests/test_examples.py、examples/README.md、docs/screenshots/*。
+- 验证：pytest 62 项通过（新增示例副本替换测试）；Vitest 11 项通过（示例文案全部有中英文）；Playwright 10 条通过；截图人工检查中文图谱页和法文首页。

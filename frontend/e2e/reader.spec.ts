@@ -23,7 +23,7 @@ test("PDF demonstration: hierarchy, evidence, full text and return", async ({
   await expect(page.locator(".react-flow__node")).toHaveCount(6);
   await page.locator('.react-flow__node[data-id="experience"]').click();
   await expect(page.locator(".detail-panel h2")).toHaveText(
-    "Une méthode, des progrès",
+    "Les progrès qu’il doit à sa méthode",
   );
   await expect(page.locator(".pdf-highlight").first()).toBeVisible();
   await expect
@@ -41,7 +41,7 @@ test("PDF demonstration: hierarchy, evidence, full text and return", async ({
   });
   await page
     .getByRole("button", {
-      name: "Afficher les 2 sous-étapes de « Rendre son parcours visible »",
+      name: "Afficher les 2 sous-étapes de « Raconter son chemin plutôt qu’enseigner »",
     })
     .click();
   await expect(page.locator(".react-flow__node")).toHaveCount(8);
@@ -52,7 +52,7 @@ test("PDF demonstration: hierarchy, evidence, full text and return", async ({
   });
   await page
     .getByRole("button", {
-      name: "Masquer les sous-étapes de « Rendre son parcours visible »",
+      name: "Masquer les sous-étapes de « Raconter son chemin plutôt qu’enseigner »",
     })
     .click();
   await expect(page.locator(".react-flow__node")).toHaveCount(6);
@@ -72,7 +72,7 @@ test("PDF demonstration: hierarchy, evidence, full text and return", async ({
   await page.locator('.react-flow__node[data-id="judge"]').focus();
   await page.keyboard.press("Enter");
   await expect(page.locator(".detail-panel h2")).toHaveText(
-    "Laisser le lecteur juger",
+    "Chacun pourra en juger",
   );
   await page.keyboard.press("Escape");
   await expect(page.locator(".map-guide")).toBeVisible();

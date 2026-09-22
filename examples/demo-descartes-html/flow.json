@@ -4,8 +4,8 @@
       "id": "reason",
       "parent": null,
       "type": "premise",
-      "label": "La raison est également partagée",
-      "summary": "L’auteur pose l’égalité naturelle de la faculté de juger, puis distingue les chemins suivis par la pensée.",
+      "label": "Le bon sens est également partagé",
+      "summary": "Descartes pose que la capacité de bien juger est la même chez tous ; les opinions divergent parce que chacun conduit sa pensée autrement.",
       "anchors": [
         "p1s2"
       ],
@@ -18,8 +18,8 @@
       "id": "method",
       "parent": null,
       "type": "claim",
-      "label": "Bien conduire sa pensée",
-      "summary": "Posséder un esprit vigoureux ne suffit pas : l’usage qui en est fait compte.",
+      "label": "Encore faut-il bien s’en servir",
+      "summary": "Un esprit vigoureux ne suffit pas : ce qui compte est la manière de l’appliquer.",
       "anchors": [
         "p1s3"
       ],
@@ -32,8 +32,8 @@
       "id": "experience",
       "parent": null,
       "type": "evidence",
-      "label": "Une méthode, des progrès",
-      "summary": "Descartes rapporte les progrès qu’il attribue à sa méthode. Il s’agit de son témoignage, pas d’une preuve expérimentale.",
+      "label": "Les progrès qu’il doit à sa méthode",
+      "summary": "Descartes dit avoir tiré de sa méthode des progrès constants. C’est son propre témoignage, pas une mesure indépendante.",
       "anchors": [
         "p3s1"
       ],
@@ -46,8 +46,8 @@
       "id": "doubt",
       "parent": null,
       "type": "objection",
-      "label": "Le jugement peut se tromper",
-      "summary": "L’auteur admet qu’il peut surestimer ses propres résultats. Cette réserve limite la portée du témoignage.",
+      "label": "Il peut se tromper sur lui-même",
+      "summary": "Il admet qu’il prend peut-être du cuivre et du verre pour de l’or et des diamants, c’est-à-dire qu’il surestime ses résultats.",
       "anchors": [
         "p4s1"
       ],
@@ -60,8 +60,8 @@
       "id": "describe",
       "parent": null,
       "type": "claim",
-      "label": "Rendre son parcours visible",
-      "summary": "Il propose de rendre ses chemins de pensée inspectables en les décrivant.",
+      "label": "Raconter son chemin plutôt qu’enseigner",
+      "summary": "Il choisit de décrire, comme dans un tableau, la façon dont il a conduit sa raison, plutôt que d’imposer une méthode.",
       "anchors": [
         "p4s3"
       ],
@@ -74,8 +74,8 @@
       "id": "judge",
       "parent": null,
       "type": "conclusion",
-      "label": "Laisser le lecteur juger",
-      "summary": "Le lecteur est invité à exercer son jugement sur le parcours présenté. Ce lien est une reconstruction éditoriale.",
+      "label": "Chacun pourra en juger",
+      "summary": "Ainsi exposé, son parcours peut être jugé par chaque lecteur, et les avis reçus deviennent pour lui un moyen de s’instruire.",
       "anchors": [
         "p4s3"
       ],
@@ -88,8 +88,8 @@
       "id": "personal",
       "parent": "describe",
       "type": "claim",
-      "label": "Décrire, sans prescrire",
-      "summary": "La méthode est présentée comme un parcours personnel, non comme une règle universelle.",
+      "label": "Un récit, pas une leçon",
+      "summary": "Son but n’est pas d’enseigner la méthode que chacun doit suivre, mais de montrer comment il a conduit la sienne.",
       "anchors": [
         "p5s1"
       ],
@@ -102,8 +102,8 @@
       "id": "criticism",
       "parent": "describe",
       "type": "premise",
-      "label": "Accepter la critique",
-      "summary": "Donner des préceptes expose aussi leur auteur à la critique.",
+      "label": "Qui donne des préceptes s’expose",
+      "summary": "Celui qui prescrit aux autres se juge plus habile qu’eux et mérite d’être blâmé à la moindre erreur.",
       "anchors": [
         "p5s2"
       ],
@@ -221,7 +221,7 @@
   "terms": [
     {
       "term": "Méthode",
-      "definition": "Dans cet extrait, une manière de conduire la pensée que l’auteur rapporte à son expérience.",
+      "definition": "Ici, la manière dont l’auteur dit avoir conduit sa pensée, présentée à partir de sa propre expérience.",
       "anchors": [
         "p3s1"
       ],
@@ -232,14 +232,15 @@
     }
   ],
   "genre": "philosophy",
-  "thesis": "Une méthode personnelle peut être exposée au jugement du lecteur.",
+  "thesis": "Descartes expose sa méthode comme un parcours personnel que chaque lecteur est libre de juger.",
   "metadata": {
     "id": "demo-descartes-html",
-    "title": "Descartes · Conduire sa raison · HTML",
+    "title": "Descartes · Discours de la méthode, première partie · HTML",
     "kind": "html",
     "source_url": "https://www.gutenberg.org/ebooks/59",
     "created_at": "2026-09-22T12:00:00Z",
-    "demo": true
+    "demo": true,
+    "language": null
   },
   "patterns": [
     {
@@ -304,9 +305,10 @@
     }
   ],
   "generation": {
+    "language": "auto",
     "model": "editorial-demo (no API call)",
     "timestamp": "2026-09-22T12:00:00Z",
-    "prompt_version": "1.0",
+    "prompt_version": "2.0",
     "total_tokens": 0,
     "estimated_cost_usd": null
   }

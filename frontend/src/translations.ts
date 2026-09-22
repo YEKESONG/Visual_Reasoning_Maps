@@ -572,96 +572,105 @@ export const messages = {
     },
 
   // Hand-made Descartes example
-  "Descartes · Conduire sa raison · PDF": {
-    en: "Descartes · Guiding reason · PDF",
-    zh: "笛卡尔 · 引导理性 · PDF",
+  "Descartes · Discours de la méthode, première partie · PDF": {
+    en: "Descartes · Discourse on the Method, Part I · PDF",
+    zh: "笛卡尔 ·《谈谈方法》第一部分 · PDF",
   },
-  "Descartes · Conduire sa raison · HTML": {
-    en: "Descartes · Guiding reason · HTML",
-    zh: "笛卡尔 · 引导理性 · HTML",
+  "Descartes · Discours de la méthode, première partie · HTML": {
+    en: "Descartes · Discourse on the Method, Part I · HTML",
+    zh: "笛卡尔 ·《谈谈方法》第一部分 · HTML",
   },
-  "Une méthode personnelle peut être exposée au jugement du lecteur.": {
-    en: "A personal method can be laid before the reader’s judgement.",
-    zh: "个人的方法可以交给读者来评判。",
-  },
-  "La raison est également partagée": {
-    en: "Reason is equally shared",
-    zh: "理性为人人共有",
-  },
-  "Bien conduire sa pensée": { en: "Guide thought well", zh: "正确引导思考" },
-  "Une méthode, des progrès": {
-    en: "A method, some progress",
-    zh: "方法带来进步",
-  },
-  "Le jugement peut se tromper": {
-    en: "Judgement can be mistaken",
-    zh: "判断可能出错",
-  },
-  "Rendre son parcours visible": {
-    en: "Make the thinking visible",
-    zh: "呈现思考历程",
-  },
-  "Laisser le lecteur juger": {
-    en: "Let the reader judge",
-    zh: "让读者作出判断",
-  },
-  "Décrire, sans prescrire": {
-    en: "Describe without prescribing",
-    zh: "描述经历，不强加规则",
-  },
-  "Accepter la critique": { en: "Accept criticism", zh: "接受批评" },
-  "L’auteur pose l’égalité naturelle de la faculté de juger, puis distingue les chemins suivis par la pensée.":
+  "Descartes expose sa méthode comme un parcours personnel que chaque lecteur est libre de juger.":
     {
-      en: "The author assumes an equal natural ability to judge, then distinguishes the paths thought can follow.",
-      zh: "作者提出人的判断能力在自然禀赋上是平等的，随后区分了不同的思考路径。",
+      en: "Descartes presents his method as a personal path that each reader is free to judge.",
+      zh: "笛卡尔把他的方法当作个人经历来讲述，交由每位读者自行评判。",
     },
-  "Posséder un esprit vigoureux ne suffit pas : l’usage qui en est fait compte.":
-    {
-      en: "A vigorous mind is not enough: how it is used matters.",
-      zh: "仅有敏锐的头脑并不足够，关键在于如何运用。",
-    },
-  "Descartes rapporte les progrès qu’il attribue à sa méthode. Il s’agit de son témoignage, pas d’une preuve expérimentale.":
-    {
-      en: "Descartes reports progress he attributes to his method. This is personal testimony, not experimental evidence.",
-      zh: "笛卡尔描述了他归因于自身方法的进步。这是个人见证，而非实验证据。",
-    },
-  "L’auteur admet qu’il peut surestimer ses propres résultats. Cette réserve limite la portée du témoignage.":
-    {
-      en: "The author admits that he may overestimate his results. This reservation limits his testimony.",
-      zh: "作者承认自己可能高估成果。这一保留限制了个人见证的效力。",
-    },
-  "Il propose de rendre ses chemins de pensée inspectables en les décrivant.": {
-    en: "He proposes describing his paths of thought so they can be examined.",
-    zh: "他提出将自己的思考路径描述出来，供他人审视。",
+  "Le bon sens est également partagé": {
+    en: "Good sense is equally shared",
+    zh: "良知人人均等",
   },
-  "Le lecteur est invité à exercer son jugement sur le parcours présenté. Ce lien est une reconstruction éditoriale.":
-    {
-      en: "The reader is invited to judge the account. This relation is an editorial reconstruction.",
-      zh: "读者受邀对所呈现的思考历程作出判断。这条关系由示例编者重建。",
-    },
-  "La méthode est présentée comme un parcours personnel, non comme une règle universelle.":
-    {
-      en: "The method is presented as a personal journey rather than a universal rule.",
-      zh: "这里的方法被呈现为个人历程，而非普遍适用的规则。",
-    },
-  "Donner des préceptes expose aussi leur auteur à la critique.": {
-    en: "Offering precepts also exposes their author to criticism.",
-    zh: "提出准则也意味着作者将受到批评。",
+  "Encore faut-il bien s’en servir": {
+    en: "The mind must be applied well",
+    zh: "关键在于运用得当",
   },
+  "Les progrès qu’il doit à sa méthode": {
+    en: "The progress he owes to his method",
+    zh: "他归功于方法的进步",
+  },
+  "Il peut se tromper sur lui-même": {
+    en: "He may be wrong about himself",
+    zh: "他也可能看错自己",
+  },
+  "Raconter son chemin plutôt qu’enseigner": {
+    en: "Telling his path rather than teaching",
+    zh: "讲述自己的路，而不是教人",
+  },
+  "Chacun pourra en juger": {
+    en: "Each reader can judge",
+    zh: "由读者自己评判",
+  },
+  "Un récit, pas une leçon": {
+    en: "An account, not a lesson",
+    zh: "是自述，不是说教",
+  },
+  "Qui donne des préceptes s’expose": {
+    en: "Giving precepts invites blame",
+    zh: "立规矩的人要经得起批评",
+  },
+  "Descartes pose que la capacité de bien juger est la même chez tous ; les opinions divergent parce que chacun conduit sa pensée autrement.":
+    {
+      en: "Descartes holds that the power of judging well is the same in everyone; opinions differ because people guide their thinking differently.",
+      zh: "笛卡尔认为，正确判断的能力人人相同；意见之所以不同，是因为各人引导思想的方式不同。",
+    },
+  "Un esprit vigoureux ne suffit pas : ce qui compte est la manière de l’appliquer.":
+    {
+      en: "A vigorous mind is not enough; what matters is how it is applied.",
+      zh: "只有敏锐的头脑还不够，重要的是怎样运用它。",
+    },
+  "Descartes dit avoir tiré de sa méthode des progrès constants. C’est son propre témoignage, pas une mesure indépendante.":
+    {
+      en: "Descartes says his method has brought him steady progress. This is his own testimony, not an independent measure.",
+      zh: "笛卡尔说他的方法让他不断进步。这是他本人的说法，不是独立的衡量。",
+    },
+  "Il admet qu’il prend peut-être du cuivre et du verre pour de l’or et des diamants, c’est-à-dire qu’il surestime ses résultats.":
+    {
+      en: "He admits he may be taking copper and glass for gold and diamonds, that is, overrating his results.",
+      zh: "他承认自己也许把铜和玻璃当成了金子和钻石，也就是高估了自己的成果。",
+    },
+  "Il choisit de décrire, comme dans un tableau, la façon dont il a conduit sa raison, plutôt que d’imposer une méthode.":
+    {
+      en: "He chooses to describe, as in a picture, how he has guided his own reason, instead of prescribing a method.",
+      zh: "他选择像画一幅画那样描述自己如何引导理性，而不是给别人规定方法。",
+    },
+  "Ainsi exposé, son parcours peut être jugé par chaque lecteur, et les avis reçus deviennent pour lui un moyen de s’instruire.":
+    {
+      en: "Laid out this way, his path can be judged by each reader, and the opinions he receives become a way for him to learn.",
+      zh: "这样摆出来，每位读者都能评判他的道路；别人的意见也成了他继续学习的途径。",
+    },
+  "Son but n’est pas d’enseigner la méthode que chacun doit suivre, mais de montrer comment il a conduit la sienne.":
+    {
+      en: "His aim is not to teach the method everyone should follow, but to show how he has guided his own.",
+      zh: "他的目的不是教人人都该遵循的方法，而是展示自己如何引导理性。",
+    },
+  "Celui qui prescrit aux autres se juge plus habile qu’eux et mérite d’être blâmé à la moindre erreur.":
+    {
+      en: "Whoever prescribes to others thinks himself more skilful than they are and deserves blame for the slightest error.",
+      zh: "给别人立规矩的人自认为比别人高明，哪怕出一点错也该受责备。",
+    },
   Méthode: { en: "Method", zh: "方法" },
-  "Dans cet extrait, une manière de conduire la pensée que l’auteur rapporte à son expérience.":
+  "Ici, la manière dont l’auteur dit avoir conduit sa pensée, présentée à partir de sa propre expérience.":
     {
-      en: "In this excerpt, a way of guiding thought that the author relates to his experience.",
-      zh: "在本段中，指作者结合自身经验描述的一种引导思考的方式。",
+      en: "Here, the way the author says he has guided his thinking, presented from his own experience.",
+      zh: "在这段文字里，指作者依据自身经历所说的引导思考的方式。",
     },
-  "Distinguez le progrès rapporté par l’auteur d’une mesure indépendante de l’efficacité de la méthode.":
+  "Distinguez le progrès que l’auteur s’attribue d’une mesure indépendante de l’efficacité de la méthode.":
     {
-      en: "Distinguish the author’s reported progress from an independent measure of the method’s effectiveness.",
-      zh: "请区分作者自述的进步与对方法有效性的独立测量。",
+      en: "Separate the progress the author claims for himself from an independent measure of how well the method works.",
+      zh: "请把作者自称的进步和对方法效果的独立衡量区分开来。",
     },
-  "Extrait du domaine public, remis en page pour cette démonstration. Carte préparée manuellement ; aucun modèle n’a été évalué sur cet exemple.":
+  "Extrait du domaine public, remis en page pour cet exemple. Carte préparée à la main ; aucun modèle n’a été évalué dessus.":
     {
-      en: "Public-domain excerpt, newly typeset for this demo. The map was edited manually; no model was evaluated on this example.",
-      zh: "本示例使用重新排版的公有领域文本，图谱由人工编排，未用于模型效果评测。",
+      en: "Public-domain excerpt, re-typeset for this example. The map was prepared by hand; no model was evaluated on it.",
+      zh: "公有领域文本节选，为本示例重新排版。图谱为人工整理，没有用来评测任何模型。",
     },
 } as const;

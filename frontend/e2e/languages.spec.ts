@@ -3,43 +3,45 @@ const labels = {
   zh: {
     library: "文档库",
     focus: "只显示所选步骤的推理链",
-    expand: "展开“呈现思考历程”的 2 个子步骤",
-    collapse: "收起“呈现思考历程”的子步骤",
-    evidence: "方法带来进步",
+    expand: "展开“讲述自己的路，而不是教人”的 2 个子步骤",
+    collapse: "收起“讲述自己的路，而不是教人”的子步骤",
+    evidence: "他归功于方法的进步",
     explain: "解释这一步",
     note: "人工整理的示例",
     filter: "矛盾",
     next: "下一步",
     zoom: "放大",
-    title: "笛卡尔 · 引导理性 · PDF",
+    title: "笛卡尔 ·《谈谈方法》第一部分 · PDF",
     language: "界面语言",
   },
   en: {
     library: "Library",
     focus: "Isolate the selected step’s chain",
-    expand: "Show the 2 sub-steps of “Make the thinking visible”",
-    collapse: "Hide the sub-steps of “Make the thinking visible”",
-    evidence: "A method, some progress",
+    expand: "Show the 2 sub-steps of “Telling his path rather than teaching”",
+    collapse: "Hide the sub-steps of “Telling his path rather than teaching”",
+    evidence: "The progress he owes to his method",
     explain: "Explain this step",
     note: "Hand-made example",
     filter: "Contradiction",
     next: "Next step",
     zoom: "Zoom in",
-    title: "Descartes · Guiding reason · PDF",
+    title: "Descartes · Discourse on the Method, Part I · PDF",
     language: "Interface language",
   },
   fr: {
     library: "Bibliothèque",
     focus: "Isoler la chaîne de l’étape choisie",
-    expand: "Afficher les 2 sous-étapes de « Rendre son parcours visible »",
-    collapse: "Masquer les sous-étapes de « Rendre son parcours visible »",
-    evidence: "Une méthode, des progrès",
+    expand:
+      "Afficher les 2 sous-étapes de « Raconter son chemin plutôt qu’enseigner »",
+    collapse:
+      "Masquer les sous-étapes de « Raconter son chemin plutôt qu’enseigner »",
+    evidence: "Les progrès qu’il doit à sa méthode",
     explain: "Expliquer cette étape",
     note: "Exemple préparé à la main",
     filter: "Contradiction",
     next: "Étape suivante",
     zoom: "Zoom avant",
-    title: "Descartes · Conduire sa raison · PDF",
+    title: "Descartes · Discours de la méthode, première partie · PDF",
     language: "Langue de l’interface",
   },
 };
@@ -113,9 +115,7 @@ test("switching language preserves selected node, expanded state and HTML source
   ).toBeVisible();
   await page.locator(".language-switch select").selectOption("zh");
   await expect(page.locator(".react-flow__node")).toHaveCount(8);
-  await expect(page.locator(".detail-panel h2")).toHaveText(
-    "描述经历，不强加规则",
-  );
+  await expect(page.locator(".detail-panel h2")).toHaveText("是自述，不是说教");
   await page.locator(".detail-panel .anchor-links a").first().click();
   await page.locator(".language-switch select").selectOption("fr");
   await page
@@ -125,7 +125,7 @@ test("switching language preserves selected node, expanded state and HTML source
     .click();
   await expect(page).toHaveURL(/step=personal/);
   await expect(page.locator(".detail-panel h2")).toHaveText(
-    "Décrire, sans prescrire",
+    "Un récit, pas une leçon",
   );
 });
 test("analysis language is submitted and errors change with the interface", async ({
