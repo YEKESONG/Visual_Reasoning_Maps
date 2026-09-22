@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     max_children: int = 8
     llm_concurrency: int = 3
     llm_max_tokens: int = 16000
+    # DeepSeek counts reasoning tokens in max_tokens; its thinking-mode default is 64K.
+    llm_thinking_max_tokens: int = 64000
 
 
 settings = Settings()

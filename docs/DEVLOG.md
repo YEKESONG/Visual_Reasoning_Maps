@@ -170,3 +170,17 @@
 - 工具与库：PyMuPDF 1.28.2 的 get_textpage、get_text("dict"/"words")、get_drawings、cluster_drawings、get_image_info。
 - 验证：新增合成双栏论文测试（章节、顺序、连字符、噪声过滤、图注位置、跨页句子）和切句测试；`.venv/bin/pytest -q` 45 项通过；ruff check/format 通过；重新导出 OpenAPI 并生成前端类型；`pnpm lint && pnpm test && pnpm build` 通过。
 - 遗留：扫描件仍需先做 OCR；无横线的表格、复杂浮动体和三栏以上版式没有专门处理；跨页句子只在起始页高亮。
+
+## S19b DeepSeek 思考模式与失败诊断
+- 目标：让开启思考的阶段（skeleton、cross）稳定返回结构化结果，失败时能看出原因。
+- 问题：失败那次运行的 llm_log.jsonl 显示，skeleton 和 cross 在 tools 模式下都先报 BadRequestError，再退回 JSON 模式；cross 的 JSON 调用用满 16000 个输出 token，其中 16000 个是推理 token，正文为空，Instructor 解析失败，整个任务中止。日志只有异常类名，看不出原因。
+- 排查：用极小请求直接调用接口（费用可忽略）。`tool_choice` 指定函数或设为 required 时，思考模式返回 400 "Thinking mode does not support this tool_choice"；设为 auto 时模型正常调用工具；非思考模式指定函数正常。DeepSeek 文档（create-chat-completion）写明：思考模式不支持 required 和指定函数的 tool_choice；max_tokens 包含推理 token，思考模式默认 64K、上限 384K。Instructor 重试时回放的 assistant 消息不带 reasoning_content，而思考模式要求回传。
+- 完成内容：
+  - 思考阶段把 Instructor 生成的 tool_choice 改为 auto，输出上限用新的 `LLM_THINKING_MAX_TOKENS`（默认 64000）；超时思考阶段 600 秒、其他 240 秒。
+  - 思考阶段重试时不回放 assistant 轮，只把校验错误作为用户消息重发（feedback_only）。
+  - 连接错误和 5xx 也按瞬时错误重试。
+  - 通过 Instructor 的 parse:error 钩子记录触发重试的校验错误；阶段最终失败时写入 `failed` 记录并抛出只带阶段名的 StageError。记录内容只有异常类名和字段路径，不含模型输出、原文或密钥。
+  - 系统提示中的输出语言写成完整语言名（Simplified Chinese / English / French / the language of the source document），不再只写 zh/en/fr。
+- 主要文件：backend/app/llm/client.py、backend/app/config.py。
+- 验证：新增测试——思考阶段 tool_choice=auto 且使用 64K 上限、非思考阶段仍指定函数、重试消息不含 assistant 轮、失败时记录原因且日志中没有文档内容和密钥；pytest 48 项通过；ruff 通过；OpenAPI 无变化。
+- 遗留：成本估算依赖 LiteLLM 价格表，未收录的模型记为 null。
