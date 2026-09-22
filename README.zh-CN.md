@@ -6,7 +6,7 @@
 
 ## 安装与启动
 
-要求 Python **3.12+**、Node.js **22+**（已测 24）、pnpm **11.19.0**、Git。锁定的当前依赖高于原始最低版本 3.11/20；必要时先 `npm install -g pnpm@11.19.0`。
+要求 Python **3.11+**、Node.js **22.13+**（已测 24）、pnpm **11.19.0**、Git。PDF.js 6 要求 Node 22.13 以上；Python 3.12、Node 24 已实测；必要时先 `npm install -g pnpm@11.19.0`。
 
 ```sh
 git clone git@github.com:YEKESONG/Visual_Reasoning_Maps.git && cd Visual_Reasoning_Maps

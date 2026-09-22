@@ -60,3 +60,24 @@ def test_upload_validation():
     assert client.post("/api/tasks", files={"file": ("x.pdf", b"not pdf")}).status_code == 422
     assert client.post("/api/tasks", json={"arxiv_url": "https://evil.test"}).status_code == 422
     assert client.get("/api/tasks/unknown/events").status_code == 404
+
+
+async def test_provider_value_error_cannot_echo_secrets(tmp_path, monkeypatch):
+    from backend.tests.test_ingest import make_pdf
+
+    path = tmp_path / "fixture.pdf"
+    make_pdf(path)
+    store = Store(tmp_path / "data")
+    tasks = TaskManager()
+    key = tasks.create()
+    monkeypatch.setattr(main, "store", store)
+    monkeypatch.setattr(main, "tasks", tasks)
+
+    async def failing_process(*args):
+        raise ValueError("private-provider-message-that-must-not-be-returned")
+
+    monkeypatch.setattr(main, "process", failing_process)
+    await main.run_task(key, path.read_bytes())
+    last = tasks.events[key][-1]
+    assert last["status"] == "error"
+    assert "private-provider" not in last["error"]

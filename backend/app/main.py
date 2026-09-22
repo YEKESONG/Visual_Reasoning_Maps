@@ -118,8 +118,16 @@ async def run_task(task_id: str, payload: bytes | str, title: str = "") -> None:
     except Exception as exc:
         # Provider errors may contain credentials or full request bodies: never return/log them.
         safe = "Le traitement a échoué. Vérifiez le format du document, la configuration du modèle et la connexion, puis réessayez."
-        if type(exc) is ValueError and not str(exc).startswith("1 validation"):
-            safe = str(exc)[:400]
+        if type(exc) is ValueError and str(exc) in {
+            "PDF protégé. Exportez une copie sans mot de passe.",
+            "PDF trop long : limite de 400 pages.",
+            "Texte insuffisant. Ce PDF peut être scanné : appliquez une reconnaissance OCR puis réessayez.",
+            "Document distant trop volumineux.",
+            "Trop de redirections arXiv.",
+            "Aucun HTML ni PDF exploitable sur arXiv.",
+            "Le document contient moins de cinq phrases exploitables. Choisissez un texte plus complet.",
+        }:
+            safe = str(exc)
         tasks.emit(task_id, safe, 0, "error", error=safe)
 
 

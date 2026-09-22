@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
-import * as pdfjs from "pdfjs-dist";
-import type { PDFDocumentProxy } from "pdfjs-dist";
+import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 import type { Document, Sentence } from "./api";
 import { cropBounds, displayBox } from "./geometry";
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url,
-).toString();
 const documents = new Map<string, Promise<PDFDocumentProxy>>();
 function loadPdf(url: string) {
   let promise = documents.get(url);
   if (!promise) {
-    promise = pdfjs.getDocument({ url }).promise;
+    promise = (async () => {
+      const pdfjs = await import("pdfjs-dist");
+      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+        "pdfjs-dist/build/pdf.worker.min.mjs",
+        import.meta.url,
+      ).toString();
+      return pdfjs.getDocument({ url }).promise;
+    })();
     documents.set(url, promise);
     promise.catch(() => documents.delete(url));
   }
@@ -82,7 +84,7 @@ export function PdfPage({
   useEffect(() => {
     if (!visible || !canvas.current) return;
     let active = true;
-    let render: ReturnType<pdfjs.PDFPageProxy["render"]> | undefined;
+    let render: RenderTask | undefined;
     loadPdf(`/api/docs/${doc.id}/source`)
       .then((pdf) => pdf.getPage(page))
       .then((p) => {

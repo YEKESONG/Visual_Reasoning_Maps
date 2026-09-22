@@ -158,7 +158,6 @@ def deduplicate(graph: Graph, config: Settings) -> list[dict]:
                 )
             changes.append({"code": "merged", "target_id": other.id, "into": step.id})
     graph.steps = [s for s in graph.steps if s.id not in removed]
-    graph.links = [e for e in graph.links if e.src != e.dst]
     return changes
 
 
@@ -258,11 +257,44 @@ async def validate_and_repair(
                 },
                 Graph,
             )
-    # Never leave a cycle in the rendered DAG; record every discarded relation.
+    # Keep the renderable result well formed even when both repairs fail.
     seen = set()
-    graph.steps = [s for s in graph.steps if not (s.id in seen or seen.add(s.id))]
-    valid = {s.id for s in graph.steps}
-    graph.links = [e for e in graph.links if e.src in valid and e.dst in valid]
+    kept_steps = []
+    for step in graph.steps:
+        if step.id in seen:
+            report["changes"].append({"code": "removed_duplicate_step", "target_id": step.id})
+        else:
+            kept_steps.append(step)
+            seen.add(step.id)
+    graph.steps = kept_steps
+    by_id = {s.id: s for s in graph.steps}
+    invalid_parents = {
+        s.id
+        for s in graph.steps
+        if s.parent and (s.parent not in by_id or by_id[s.parent].parent is not None)
+    }
+    for step in graph.steps:
+        if step.id in invalid_parents:
+            report["changes"].append(
+                {"code": "cleared_parent", "target_id": step.id, "parent": step.parent}
+            )
+            step.parent = None
+            step.status = "to_verify"
+    valid = set(by_id)
+    kept_links = []
+    seen_links = set()
+    for link in graph.links:
+        if (
+            link.id in seen_links
+            or link.src not in valid
+            or link.dst not in valid
+            or link.src == link.dst
+        ):
+            report["removed_links"].append(link.model_dump(mode="json"))
+        else:
+            kept_links.append(link)
+            seen_links.add(link.id)
+    graph.links = kept_links
     while not nx.is_directed_acyclic_graph(directed(graph)):
         cycle = nx.find_cycle(directed(graph))
         edge = min(

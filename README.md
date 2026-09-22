@@ -6,7 +6,7 @@ Un atelier de lecture local pour parcourir les arguments d’un document et reve
 
 ## Démarrer
 
-Prérequis : Python **3.12+**, Node.js **22+** (24 testé), pnpm **11.19.0**, Git. Les versions verrouillées nécessitent un environnement plus récent que le minimum initial 3.11/20. Installer pnpm au besoin avec `npm install -g pnpm@11.19.0`.
+Prérequis : Python **3.11+**, Node.js **22.13+** (24 testé), pnpm **11.19.0**, Git. PDF.js 6 requiert Node 22.13 ou supérieur ; Python 3.12 et Node 24 ont été testés. Installer pnpm au besoin avec `npm install -g pnpm@11.19.0`.
 
 ```sh
 git clone git@github.com:YEKESONG/Visual_Reasoning_Maps.git && cd Visual_Reasoning_Maps

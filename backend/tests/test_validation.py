@@ -91,3 +91,56 @@ async def test_two_repairs_and_uncertainty():
     assert critic.repairs == 2
     assert len(report["rounds"]) == 3
     assert all(s.status == "to_verify" for s in graph.steps)
+
+
+class UnchangedRepair:
+    def __init__(self, graph):
+        self.graph = graph
+
+    async def generate(self, stage, payload, schema):
+        if stage == "critic":
+            return Critique(judgements=[])
+        return self.graph.model_copy(deep=True)
+
+
+async def test_failed_repairs_still_produce_renderable_graph():
+    import networkx as nx
+
+    from backend.app.validation.checks import directed
+
+    graph = fixture_graph()
+    graph.steps[0].parent = "missing"
+    graph.steps.append(graph.steps[1].model_copy())
+    graph.links.extend(
+        [
+            graph.links[0].model_copy(),
+            Link(
+                id="missing", src="bad", dst="a", type="support", anchors=["p1s1"], confidence=0.8
+            ),
+            Link(id="back", src="e", dst="a", type="support", anchors=["p1s1"], confidence=0.01),
+            Link(id="self", src="a", dst="a", type="contradict", anchors=["p1s1"], confidence=0.7),
+        ]
+    )
+    result, report = await validate_and_repair(
+        graph, fixture_doc(), UnchangedRepair(graph), Settings(_env_file=None)
+    )
+    assert nx.is_directed_acyclic_graph(directed(result))
+    assert len({s.id for s in result.steps}) == len(result.steps)
+    assert len({e.id for e in result.links}) == len(result.links)
+    assert result.steps[0].parent is None
+    assert {e["id"] for e in report["removed_links"]} >= {"missing", "back", "self"}
+    assert all(s.status == "to_verify" for s in result.steps)
+    assert len(report["rounds"]) == 3
+
+
+def test_deduplicate_requires_shared_provenance():
+    from backend.app.validation.checks import deduplicate
+
+    graph = fixture_graph()
+    twin = graph.steps[0].model_copy(update={"id": "twin", "anchors": ["p2s1"]})
+    graph.steps.append(twin)
+    assert deduplicate(graph, Settings(_env_file=None)) == []
+    twin.anchors = graph.steps[0].anchors
+    changes = deduplicate(graph, Settings(_env_file=None))
+    assert changes[0]["target_id"] == "twin"
+    assert len(graph.steps) == 5

@@ -90,6 +90,37 @@ def parse_html(content: str, doc_id: str, url: str) -> tuple[Document, str]:
     return doc, str(soup)
 
 
+async def cached_css(client: httpx.AsyncClient, url: str, depth: int = 0) -> str:
+    """Inline publisher styles, including arXiv's cascade-layer imports."""
+    content = (await fetch(client, url, 4 * 1024 * 1024)).decode("utf8")
+    pattern = re.compile(
+        r"@import\s+(?:url\(\s*['\"]?([^'\"\s)]+)['\"]?\s*\)|['\"]([^'\"]+)['\"])\s*([^;]*);", re.I
+    )
+    output = []
+    start = 0
+    for match in list(pattern.finditer(content))[:20]:
+        output.append(content[start : match.start()])
+        nested = ""
+        if depth < 3:
+            try:
+                nested = await cached_css(client, urljoin(url, match[1] or match[2]), depth + 1)
+            except (httpx.HTTPError, ValueError, UnicodeError):
+                pass
+        qualifiers = match[3].strip()
+        layer = re.match(r"layer\(([-\w.]+)\)", qualifiers)
+        if layer:
+            nested = "@layer " + layer[1] + " {" + nested + "}"
+            qualifiers = qualifiers[layer.end() :].strip()
+        if qualifiers:
+            nested = "@media " + qualifiers + " {" + nested + "}"
+        output.append(nested)
+        start = match.end()
+    output.append(content[start:])
+    content = "".join(output)
+    # Drop remote fonts/backgrounds; leave type and document geometry rules intact.
+    return re.sub(r"@import[^;]*;|url\([^)]*\)", "", content)
+
+
 async def acquire(url: str, directory: Path, doc_id: str) -> tuple[Document, bytes]:
     paper_id = arxiv_id(url)
     html_url = f"https://arxiv.org/html/{paper_id}"
@@ -114,19 +145,18 @@ async def acquire(url: str, directory: Path, doc_id: str) -> tuple[Document, byt
         assets.mkdir(exist_ok=True)
         for index, el in enumerate(soup.select('link[rel="stylesheet"], img[src]')):
             attr = "href" if el.name == "link" else "src"
-            remote = urljoin(html_url + "/", el.get(attr, ""))
+            remote = urljoin(html_url, el.get(attr, ""))
             suffix = ".css" if attr == "href" else Path(urlparse(remote).path).suffix
             if suffix.lower() not in (".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"):
                 el.decompose()
                 continue
             name = f"{index}{suffix}"
             try:
-                content = await fetch(client, remote, 4 * 1024 * 1024)
-                if suffix == ".css":
-                    # Drop imports/remote font requests; keep the cached publisher's layout rules.
-                    content = re.sub(
-                        r"@import[^;]*;|url\([^)]*\)", "", content.decode("utf8")
-                    ).encode()
+                content = (
+                    (await cached_css(client, remote)).encode()
+                    if suffix == ".css"
+                    else await fetch(client, remote, 4 * 1024 * 1024)
+                )
                 (assets / name).write_bytes(content)
                 el[attr] = f"/api/docs/{doc_id}/assets/{name}"
             except (httpx.HTTPError, ValueError, UnicodeError):

@@ -116,3 +116,11 @@
 - 验证：后端 33 项通过（包含待在 S17 提交的适配层新增测试），前端 7 项通过；Playwright 2 条完整阅读路径通过，无 pageerror；PDF 两页渲染检查；七张截图保存于 docs/screenshots/。
 - 验证命令：pytest -q、ruff check backend scripts；pnpm lint/test/build/test:e2e。
 - 遗留：图布局缩放后小字号可用放大查看；长文语义准确度和真实 API 调用仍待密钥实测。
+
+## S17a 适配层、真实文档与最终文档
+- 完成：修复 strict 标志与 Instructor 包装异常的 JSON 回退；每次传输记录用量，未知价格记 null；屏蔽 provider 原始诊断；异常结构最终去重、清理无效父级/端点与循环并记录。
+- 实际网络发现并修复：arXiv 图片相对 URL 不应强加末尾斜线；新版主 CSS 用 @import layer，需递归展开。Story Ribbons 现解析 30 节、138 段、487 句、64 资源，1 个外部字体警告，未调用模型。
+- 完成：DECISIONS、ARCHITECTURE、TECH_STACK、DEVELOPMENT_PROCESS；综述 plainurl 可点击参考文献与表格排版，6 页已检查；NetworkX 固定 3.6.1 恢复 Python3.11 元数据兼容，Node 最低22.13与 PDF.js 对齐。
+- 验证：39 项后端测试；7 项前端单测；curl 真 HTTP 上传 + 假模型流水线，SSE 七条事件最终 done。route/PDF 按需加载减小首页包；新增导入遗漏 RenderTask 类型导致一次构建失败，已修复后重验。
+- 遗留：真实模型 key 未配置，无付费调用或真实模型效果结论。后续 S17b 从已推送远程提交重新克隆验证并记录最终结果。
+- S17a 最终检查：ruff check/format、pytest 39、前端 lint/tsc/Vitest 7/Playwright 2 全通过；OpenAPI 生成无漂移；pip check 无冲突；所有已安装 Python 包元数据兼容3.11。按需加载后首页 JS 266KB，PDF/图页面分别独立加载，构建不再报大块警告。S16 对应远端 Actions run 35753367757 已确认 success。
