@@ -1,0 +1,14 @@
+[project]
+name = "visual-reasoning-maps"
+version = "0.1.0"
+requires-python = ">=3.11"
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["backend/tests"]
+asyncio_mode = "auto"
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]

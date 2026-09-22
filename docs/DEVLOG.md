@@ -22,3 +22,11 @@
 - 验证：bibtexparser 新版使用 parse_string，24 条均解析成功，无 failed_blocks。S1 验证脚本误用旧版 loads，已在本阶段纠正并实测，S1 日志中的通过结论以本次为准。
 - 验证：静态检查全部 cite 键存在，7 个章节存在；本机未发现 latexmk，按需求跳过 LaTeX 编译。
 - 遗留：全文阅读、页码与少数出版状态详见 paper/README.md。
+
+## S3 后端基础
+- 完成：配置（密钥使用 SecretStr）、原子 JSON 存储、内容哈希、后台任务、SSE 历史与重连、健康接口。
+- 主要文件：backend/app/config.py、storage/files.py、tasks/manager.py、main.py。
+- 工具：FastAPI 0.141.1、SSE-Starlette 3.4.11、Pydantic 2.13.5；全量环境锁定 requirements.lock。
+- 验证：pytest 3 项通过；ruff 检查/格式化通过；覆盖事件结束和重连。
+- 遗留：任务执行状态暂在内存，重启需重新提交；curl 网络验证安排 S10 完整接口阶段。
+- 更正 S2：进一步检查发现 /Library/TeX/texbin/latexmk，之前 PATH 检查被前序失败中止；正在补做实际编译。
