@@ -21,3 +21,5 @@ frontend/dist/
 *.toc
 paper/etat_de_lart/*.pdf
 .DS_Store
+
+*.tsbuildinfo

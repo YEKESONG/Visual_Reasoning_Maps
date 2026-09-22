@@ -76,3 +76,10 @@
 - 决策：单进程 asyncio 后台任务；按文档加锁；flow.json 最后写入作为完成标志；模型错误不返回原始请求或凭证。
 - 验证：pytest 30 项通过（固定假模型端到端 + REST + SSE）；ruff 通过。
 - 遗留：尚无真实 key；真实 arXiv/GROBID 外部服务、模型效果不在离线测试结论内；S8 当时实际 27 项，S9 为 28 项。
+
+## S11 前端骨架与上传
+- 完成：先写 DESIGN；React 法语上传/历史页、SSE 进度、错误/空状态、OpenAPI 自动生成 TypeScript 类型、Vite 代理。
+- 工具：React 19.3.0、Vite 8.3.0；pnpm-lock.yaml 精确锁定。
+- 问题：TypeScript 7.0.2 不再提供生成工具所需 factory API；改用已验证 5.9.3，ESLint 9.39.4 与生态兼容。首次写入命令目录前缀有误，未覆盖任何文件，已改正。
+- 验证：pnpm types、lint、build 全通过；Prettier 已格式化。
+- 决策：使用本地字体、纸色阅读工作台，不采用通用营销卡片。
