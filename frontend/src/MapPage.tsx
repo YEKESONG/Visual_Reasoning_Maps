@@ -161,6 +161,10 @@ function TensionEdge({
   );
 }
 
+// Edge labels stay short; the relation panel shows the full linking words.
+const short = (text: string) =>
+  text.length > 28 ? text.slice(0, 27).trimEnd() + "…" : text;
+
 const nodeTypes = { step: StepNode };
 const edgeTypes = { tension: TensionEdge };
 export const colors: Record<Link["type"], string> = {
@@ -516,9 +520,11 @@ function MapWorkspace({
       target: e.dst,
       type: e.type === "contradict" ? "tension" : "smoothstep",
       // Support is the default relation; other types are also named in words.
-      label:
-        e.connective ||
-        (e.type === "support" ? undefined : t(relationLabel[e.type])),
+      label: e.connective
+        ? short(e.connective)
+        : e.type === "support"
+          ? undefined
+          : t(relationLabel[e.type]),
       markerEnd:
         e.type === "contradict"
           ? undefined

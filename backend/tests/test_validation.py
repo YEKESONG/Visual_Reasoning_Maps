@@ -249,3 +249,17 @@ def test_deterministic_fixes_before_any_model_call():
         "link_anchors_replaced",
         "term_removed",
     }
+
+
+def test_connective_that_is_a_clause_is_cleared():
+    from backend.app.validation.checks import tidy
+
+    graph = fixture_graph()
+    graph.links[1].connective = "Une observation mesurée"
+    graph.links[2].connective = "un argument limité"
+    tidy(graph, fixture_doc())
+    # Three words found in the source are kept; the rule only drops long clauses.
+    assert graph.links[1].connective == "Une observation mesurée"
+    graph.links[1].connective = "Une observation mesurée que rien ne contredit ici"
+    tidy(graph, fixture_doc())
+    assert graph.links[1].connective == ""

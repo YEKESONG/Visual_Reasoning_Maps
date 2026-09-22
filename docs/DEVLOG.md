@@ -292,3 +292,12 @@
   - 重新生成 docs/screenshots 下的 13 张截图（Playwright 用例自动写出）。
 - 主要文件：scripts/build_examples.py、examples/*、frontend/src/translations.ts、frontend/e2e/*.spec.ts、backend/app/main.py、backend/tests/test_examples.py、examples/README.md、docs/screenshots/*。
 - 验证：pytest 62 项通过（新增示例副本替换测试）；Vitest 11 项通过（示例文案全部有中英文）；Playwright 10 条通过；截图人工检查中文图谱页和法文首页。
+
+## S20f 连接词只保留几个词
+- 问题：通过网页把测试论文完整跑一遍后，图上有一条关系的标签是整句话（"A jointly trained readout increases separation at the cost of prediction quality, whereas ActSWM retains high fidelity"）。模型把整个分句填进了 connective；这句话确实出现在原文里，所以"连接词必须出自原文"的检查没有拦住它。
+- 完成内容：
+  - tidy() 额外清空超过 4 个词、或超过 30 个字符（含中日韩文字时为 12 个字符）的连接词，并记录在 validation_report 的 changes 中。
+  - skeleton、section、cross 提示词升到 2.1，明确连接词只取原文中的 1–4 个词，不能是分句。
+  - 前端连线标签超过 28 个字符时截断，完整内容在关系详情里查看。
+- 主要文件：backend/app/validation/checks.py、backend/app/prompts/{skeleton,section,cross}.md、backend/app/models.py（prompt_version 2.1）、frontend/src/MapPage.tsx。
+- 验证：新增测试（原文中的三词短语保留，长分句清空）；pytest 63 项通过；OpenAPI 与前端类型重新生成；前端 lint/test/build 通过。

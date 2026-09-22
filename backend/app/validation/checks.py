@@ -1,3 +1,4 @@
+import re
 from collections import Counter
 from collections.abc import Callable
 
@@ -224,7 +225,11 @@ def tidy(graph: Graph, doc: Document) -> list[dict]:
             link.anchors = list(dict.fromkeys(valid or [a for a in fallback if a in sentences]))
             changes.append({"code": "link_anchors_replaced", "target_id": link.id})
         text = " ".join(sentences[a].text.casefold() for a in link.anchors if a in sentences)
-        if link.connective and link.connective.casefold() not in text:
+        connective = link.connective.strip()
+        cjk = re.search(r"[\u3000-\u9fff]", connective)
+        # Linking words are a few words ("therefore", "as a result", "因此"), never a clause.
+        too_long = len(connective.split()) > 4 or len(connective) > (12 if cjk else 30)
+        if connective and (connective.casefold() not in text or too_long):
             changes.append(
                 {"code": "connective_cleared", "target_id": link.id, "value": link.connective}
             )

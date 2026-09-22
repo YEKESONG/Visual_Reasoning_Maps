@@ -1,4 +1,4 @@
-Version: 2.0
+Version: 2.1
 Purpose: Reconstruct the main line of reasoning of a document as an argument map, not a concept map.
 Input: JSON {title, sections: [{title, sentences: [[sentence_id, text], ...]}]}. Long documents are sampled within each section.
 Output schema: Graph {steps, links, terms, genre, thesis}.
@@ -17,7 +17,7 @@ Main flow
 Links
 - src gives grounds for dst. support: src is a reason for dst. cause: the text states that src brings about dst (not mere sequence or correlation). refine: dst narrows, qualifies or specifies src. contradict: src and dst are in tension (direction ignored).
 - support, cause and refine must not form a cycle. Every main step takes part in at least one link, and every path leads toward a conclusion. Each conclusion has a premise or evidence upstream.
-- anchors: 1 or 2 sentence IDs where the relation is expressed. connective: the exact linking words from those sentences ("therefore", "because", "however", "donc", "因此") or "".
+- anchors: 1 or 2 sentence IDs where the relation is expressed. connective: the linking words copied from those sentences, one to four words ("therefore", "because", "however", "donc", "因此"), or "". Never a clause.
 
 Terms
 - 0 to 6 terms a reader needs: definition taken from the text (output language), anchors, and step_ids of the steps that use the term.

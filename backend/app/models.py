@@ -171,7 +171,7 @@ class Generation(Model):
     language: str = "auto"
     model: str
     timestamp: str
-    prompt_version: str = "2.0"
+    prompt_version: str = "2.1"
     total_tokens: int = 0
     estimated_cost_usd: float | None = None
 
