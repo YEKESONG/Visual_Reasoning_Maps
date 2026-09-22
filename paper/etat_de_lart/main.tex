@@ -1,0 +1,26 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{lmodern,microtype,booktabs,tabularx,longtable}
+\usepackage[hidelinks]{hyperref}
+\title{Visual Reasoning Maps\\\large État de l'art et positionnement d'un prototype}
+\author{Document de travail — projet ENAC}
+\date{22 septembre 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Ce document situe un prototype de lecture fondé sur la reconstruction des relations argumentatives. Il rapproche visualisation assistée par modèles de langage, fouille d'arguments, disposition de graphes et interfaces de lecture. La contribution envisagée est une chaîne inspectable reliant un aperçu hiérarchique à des passages conservant leur mise en page. Il s'agit d'un état de l'art initial, fondé sur les notices et résumés primaires consultés, à compléter par une lecture intégrale et une évaluation humaine.
+\end{abstract}
+\tableofcontents
+\input{sections/01-introduction}
+\input{sections/02-visualisation}
+\input{sections/03-arguments}
+\input{sections/04-graphes}
+\input{sections/05-lecture}
+\input{sections/06-documents}
+\input{sections/07-synthese}
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}

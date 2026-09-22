@@ -1,0 +1,4 @@
+\section{Outils d'analyse de documents}
+GROBID fournit une extraction structurée de documents scientifiques en XML/TEI \cite{ref22}. Docling associe conversion de PDF, analyse de mise en page et reconnaissance de tableaux ; son rapport présente une distribution sous licence MIT \cite{ref23}. Leur rôle concerne l'accès au contenu, qui précède l'analyse argumentative.
+
+Le prototype retient initialement PyMuPDF pour conserver des coordonnées de mots sans service supplémentaire. Un adaptateur GROBID permet d'enrichir la structure. Il faut distinguer trois sources d'erreurs : ordre de lecture, segmentation en phrases, et interprétation argumentative. Une bonne mise en page graphique ne corrige aucune de ces erreurs en amont. Les PDF scannés, tableaux et formules complexes nécessiteront des essais ciblés ; un texte insuffisamment extractible doit provoquer un message explicite.
