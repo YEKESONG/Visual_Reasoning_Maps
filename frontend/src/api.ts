@@ -8,6 +8,15 @@ export type Suggestion = components["schemas"]["Suggestion"];
 export type Metadata = components["schemas"]["Metadata"];
 export type Explanation = components["schemas"]["Explanation"];
 export type TaskAccepted = components["schemas"]["TaskAccepted"];
+export type Health = { status: string; configured: boolean; model: string };
+export type TaskEvent = {
+  step: string;
+  progress: number;
+  status: "running" | "done" | "error";
+  doc_id?: string;
+  error?: string;
+  params?: Record<string, string>;
+};
 export async function api<T>(url: string, options?: RequestInit): Promise<T> {
   let response: Response;
   try {

@@ -36,10 +36,20 @@ export const messages = {
     en: "Uploading document",
     zh: "正在上传文档",
   },
-  "La connexion de suivi a été interrompue. Rechargez la bibliothèque pour retrouver un traitement terminé.":
+  "Le suivi de l’analyse a été interrompu. Rechargez la page : une carte terminée apparaîtra dans la bibliothèque.":
     {
-      en: "The progress connection was interrupted. Reload the library to find completed work.",
-      zh: "进度连接已中断。请刷新文档库查看已完成的任务。",
+      en: "Lost track of the analysis. Reload the page: a finished map will show up in the library.",
+      zh: "分析进度的连接中断了。请刷新页面，分析完成后图谱会出现在文档库里。",
+    },
+  "Aucune clé API n’est configurée. Les exemples restent consultables ; pour analyser un document, ajoutez DEEPSEEK_API_KEY dans .env puis redémarrez le serveur.":
+    {
+      en: "No API key is set. You can still open the examples; to analyse a document, add DEEPSEEK_API_KEY to .env and restart the server.",
+      zh: "还没有配置 API 密钥。示例可以直接查看；要分析新文档，请在 .env 中填写 DEEPSEEK_API_KEY，然后重启服务。",
+    },
+  "Comptez quelques minutes pour un article. Vous pouvez quitter cette page : la carte apparaîtra dans la bibliothèque une fois prête.":
+    {
+      en: "A paper takes a few minutes. You can leave this page: the map will appear in the library when it is ready.",
+      zh: "一篇论文通常需要几分钟。可以离开这个页面，完成后图谱会出现在文档库里。",
     },
   "Un texte, un raisonnement à explorer": {
     en: "A text, a line of reasoning to explore",
@@ -486,6 +496,74 @@ export const messages = {
   "Préparation des suggestions": {
     en: "Preparing suggestions",
     zh: "正在生成修改建议",
+  },
+  "Esquisse du raisonnement principal": {
+    en: "Drafting the main line of reasoning",
+    zh: "正在梳理主要推理",
+  },
+  "Détails section par section": {
+    en: "Adding details section by section",
+    zh: "正在逐节补充细节",
+  },
+  "Relations entre les sections": {
+    en: "Linking steps across sections",
+    zh: "正在连接各节之间的关系",
+  },
+  "Vérification des passages cités": {
+    en: "Checking the cited passages",
+    zh: "正在核对引文",
+  },
+  "Correction des éléments signalés": {
+    en: "Fixing flagged steps",
+    zh: "正在修正有问题的步骤",
+  },
+  "Le modèle n’a pas fourni de résultat exploitable à l’étape « {stage} ». Relancez l’analyse : les étapes déjà terminées sont gardées en cache.":
+    {
+      en: "The model did not return a usable result at the “{stage}” stage. Run the analysis again: finished stages are cached.",
+      zh: "模型在“{stage}”阶段没有返回可用结果。请重新分析，已完成的阶段有缓存，不会重复计算。",
+    },
+  "esquisse du raisonnement principal": {
+    en: "main line of reasoning",
+    zh: "梳理主要推理",
+  },
+  "détails section par section": {
+    en: "section details",
+    zh: "逐节补充细节",
+  },
+  "relations entre les sections": {
+    en: "links across sections",
+    zh: "连接各节关系",
+  },
+  "vérification des passages cités": {
+    en: "checking cited passages",
+    zh: "核对引文",
+  },
+  "correction des éléments signalés": {
+    en: "fixing flagged steps",
+    zh: "修正有问题的步骤",
+  },
+  "suggestions de relecture": {
+    en: "revision notes",
+    zh: "整理修改建议",
+  },
+  "Le fournisseur du modèle a refusé la clé API. Vérifiez DEEPSEEK_API_KEY dans .env, puis redémarrez.":
+    {
+      en: "The model provider refused the API key. Check DEEPSEEK_API_KEY in .env, then restart.",
+      zh: "模型服务商拒绝了 API 密钥。请检查 .env 中的 DEEPSEEK_API_KEY，然后重启服务。",
+    },
+  "Solde insuffisant chez le fournisseur du modèle. Rechargez le compte, puis relancez l’analyse.":
+    {
+      en: "The model provider account has no balance left. Top it up, then run the analysis again.",
+      zh: "模型服务商账户余额不足。充值后请重新分析。",
+    },
+  "Le fournisseur du modèle limite le nombre de requêtes. Patientez quelques minutes, puis relancez l’analyse.":
+    {
+      en: "The model provider is limiting requests. Wait a few minutes, then run the analysis again.",
+      zh: "模型服务商限制了请求频率。请等几分钟再重新分析。",
+    },
+  "GROBID indisponible : structure extraite avec PyMuPDF.": {
+    en: "GROBID unavailable: structure extracted with PyMuPDF.",
+    zh: "GROBID 不可用，已改用 PyMuPDF 提取结构。",
   },
   "Carte prête": {
     en: "Map ready",

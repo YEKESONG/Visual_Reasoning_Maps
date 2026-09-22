@@ -1,8 +1,27 @@
 import { useI18n, useLocale, type Locale, type AnalysisLanguage } from "./i18n";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { api } from "./api";
-import type { Metadata, TaskAccepted } from "./api";
+import type { Health, Metadata, TaskAccepted, TaskEvent } from "./api";
+
+const TASK_KEY = "vrm.task";
+
+function remember(taskId: string | null) {
+  try {
+    if (taskId) sessionStorage.setItem(TASK_KEY, taskId);
+    else sessionStorage.removeItem(TASK_KEY);
+  } catch {
+    /* Resuming after a reload is a convenience only. */
+  }
+}
+
+function remembered(): string | null {
+  try {
+    return sessionStorage.getItem(TASK_KEY);
+  } catch {
+    return null;
+  }
+}
 
 export function Shell() {
   const { t, locale } = useI18n();
@@ -43,28 +62,81 @@ export function Shell() {
     </>
   );
 }
+type Failure = { message: string; params?: Record<string, string> };
+
 export function Home() {
   const { t, locale } = useI18n();
   const { analysisLanguage, setAnalysisLanguage } = useLocale();
   const [docs, setDocs] = useState<Metadata[]>([]);
+  const [health, setHealth] = useState<Health | null>(null);
   const [url, setUrl] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [stage, setStage] = useState("");
+  const [failure, setFailure] = useState<Failure | null>(null);
+  const [task, setTask] = useState<TaskEvent | null>(null);
   const source = useRef<EventSource | null>(null);
   const navigate = useNavigate();
+  const busy = task !== null;
+
+  const follow = useCallback(
+    (taskId: string) => {
+      source.current?.close();
+      remember(taskId);
+      const events = new EventSource(`/api/tasks/${taskId}/events`);
+      source.current = events;
+      events.onmessage = (event) => {
+        const value = JSON.parse(event.data) as TaskEvent;
+        if (value.status === "done") {
+          events.close();
+          remember(null);
+          navigate(`/doc/${value.doc_id}`);
+        } else if (value.status === "error") {
+          events.close();
+          remember(null);
+          setTask(null);
+          setFailure({
+            message: value.error || value.step,
+            params: value.params,
+          });
+        } else {
+          setTask(value);
+        }
+      };
+      events.onerror = () => {
+        events.close();
+        setTask(null);
+        setFailure({
+          message:
+            "Le suivi de l’analyse a été interrompu. Rechargez la page : une carte terminée apparaîtra dans la bibliothèque.",
+        });
+      };
+    },
+    [navigate],
+  );
+
   useEffect(() => {
     void api<Metadata[]>("/api/docs")
       .then(setDocs)
-      .catch((e) => setError(String(e.message)));
+      .catch((e) => setFailure({ message: String(e.message) }));
+    void api<Health>("/api/health")
+      .then(setHealth)
+      .catch(() => setHealth(null));
+    const previous = remembered();
+    if (previous) {
+      // Resume following an analysis started before a reload.
+      void api<TaskEvent>(`/api/tasks/${previous}`)
+        .then((value) => {
+          if (value.status === "running") {
+            setTask(value);
+            follow(previous);
+          } else remember(null);
+        })
+        .catch(() => remember(null));
+    }
     return () => source.current?.close();
-  }, []);
+  }, [follow]);
+
   async function submit(file?: File) {
-    setError("");
-    setBusy(true);
-    setProgress(0);
-    setStage("Envoi du document");
+    setFailure(null);
+    setTask({ step: "Envoi du document", progress: 0, status: "running" });
     try {
       const data = new FormData();
       const language =
@@ -82,39 +154,10 @@ export function Home() {
         navigate(`/doc/${result.doc_id}`);
         return;
       }
-      const events = new EventSource(`/api/tasks/${result.task_id}/events`);
-      source.current = events;
-      events.onmessage = (event) => {
-        const value = JSON.parse(event.data) as {
-          progress: number;
-          step: string;
-          status: string;
-          doc_id?: string;
-          error?: string;
-        };
-        setProgress(value.progress);
-        setStage(value.step);
-        if (value.status === "done") {
-          events.close();
-          setBusy(false);
-          navigate(`/doc/${value.doc_id}`);
-        }
-        if (value.status === "error") {
-          events.close();
-          setBusy(false);
-          setError(value.error || value.step);
-        }
-      };
-      events.onerror = () => {
-        events.close();
-        setBusy(false);
-        setError(
-          "La connexion de suivi a été interrompue. Rechargez la bibliothèque pour retrouver un traitement terminé.",
-        );
-      };
+      follow(result.task_id!);
     } catch (e) {
-      setError((e as Error).message);
-      setBusy(false);
+      setFailure({ message: (e as Error).message });
+      setTask(null);
     }
   }
   return (
@@ -220,17 +263,33 @@ export function Home() {
             "Les extraits du document sont envoyés au modèle configuré pour l’analyse. Le document original et les cartes restent sur cette machine.",
           )}
         </p>
+        {health && !health.configured && (
+          <p className="notice">
+            {t(
+              "Aucune clé API n’est configurée. Les exemples restent consultables ; pour analyser un document, ajoutez DEEPSEEK_API_KEY dans .env puis redémarrez le serveur.",
+            )}
+          </p>
+        )}
       </section>
-      {busy && (
+      {task && (
         <div className="progress" role="status">
-          <span>{t(stage)}</span>
-          <progress max={100} value={progress} />
-          <span>{progress} %</span>
+          <span>{t(task.step)}</span>
+          <progress max={100} value={task.progress} />
+          <span>{task.progress} %</span>
+          <small>
+            {t(
+              "Comptez quelques minutes pour un article. Vous pouvez quitter cette page : la carte apparaîtra dans la bibliothèque une fois prête.",
+            )}
+          </small>
         </div>
       )}
-      {error && (
+      {failure && (
         <p className="error" role="alert">
-          {t(error)}
+          {t(failure.message, {
+            ...Object.fromEntries(
+              Object.entries(failure.params ?? {}).map(([k, v]) => [k, t(v)]),
+            ),
+          })}
         </p>
       )}
       <section className="shelf">

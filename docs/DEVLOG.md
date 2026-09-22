@@ -251,3 +251,15 @@
 - 完成内容：标记按在原文中首次出现的位置排序编号；相邻两个标记的纵向距离小于 3.5% 时依次向左错开（最多三列）；当前查看的句子所属步骤的标记高亮。
 - 主要文件：frontend/src/FullText.tsx、style.css。
 - 验证：`pnpm lint && pnpm test && pnpm build` 通过；截图确认示例全文页 6 个标记全部可见、当前步骤高亮。
+
+## S20c 首页接入任务状态与失败提示
+- 目标：前端用上 S19e 的接口：刷新后能继续看到正在进行的分析，失败时显示具体阶段，未配置密钥时在首页说明。
+- 完成内容：
+  - 提交任务后把 task_id 存进 sessionStorage；首页加载时先查 GET /api/tasks/{id}，仍在运行就重新连接 SSE（服务端会从头回放事件），已结束或服务已重启则清除记录。
+  - 进度区显示当前阶段、百分比，并说明"一篇论文需要几分钟，可以离开页面，完成后在文档库里查看"。
+  - 错误事件的 params 先翻译再插入提示，例如"模型在'连接各节关系'阶段没有返回可用结果"。
+  - /api/health 返回 configured=false 时显示如何配置 DEEPSEEK_API_KEY。
+  - 为 S19 新增的进度、阶段名、服务商错误、GROBID 警告补中英文翻译；SSE 中断的提示改写得更具体。
+  - playwright.config.ts 支持 BASE_URL 环境变量（默认仍是 8000），便于在另一个端口上的测试服务运行端到端测试。
+- 主要文件：frontend/src/pages.tsx、api.ts、translations.ts、style.css、playwright.config.ts、e2e/progress.spec.ts。
+- 验证：新增 2 条 Playwright 用例（用路由模拟任务状态与 SSE：刷新后接回任务并显示带阶段名的中文错误、任务记录被清除；未配置密钥时显示英文提示）；`BASE_URL=http://127.0.0.1:8010 pnpm exec playwright test` 10 条全部通过；`pnpm lint && pnpm test && pnpm build` 通过。
