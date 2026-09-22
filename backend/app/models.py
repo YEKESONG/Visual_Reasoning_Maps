@@ -151,3 +151,8 @@ class Critique(Model):
 
 class Suggestions(Model):
     suggestions: list[Suggestion]
+
+
+class TaskAccepted(Model):
+    task_id: str | None = None
+    doc_id: str | None = None

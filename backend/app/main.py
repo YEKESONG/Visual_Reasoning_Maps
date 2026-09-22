@@ -1,9 +1,30 @@
+import asyncio
+import re
+import shutil
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse
 from sse_starlette.sse import EventSourceResponse
+from starlette.datastructures import UploadFile
 
 from backend.app.config import settings
-from backend.app.storage.files import Store
+from backend.app.ingest.arxiv_html import acquire, arxiv_id
+from backend.app.ingest.pdf_grobid import enrich_grobid
+from backend.app.ingest.pdf_pymupdf import parse_pdf
+from backend.app.llm.client import LLMClient
+from backend.app.models import (
+    Document,
+    Explanation,
+    Flow,
+    Metadata,
+    Sentence,
+    Suggestion,
+    TaskAccepted,
+)
+from backend.app.storage.files import Store, digest
 from backend.app.tasks.manager import TaskManager
+from backend.app.tasks.pipeline import process
 
 app = FastAPI(title="Visual Reasoning Maps", version="0.1.0")
 store = Store(settings.data_dir)
@@ -24,3 +45,212 @@ async def events(task_id: str, request: Request):
     except ValueError:
         after = -1
     return EventSourceResponse(tasks.stream(task_id, after), ping=10)
+
+
+# The desktop prototype runs as a single process; locks prevent duplicate writes.
+
+
+locks: dict[str, asyncio.Lock] = {}
+model_factory = LLMClient
+
+
+def read_doc(doc_id: str, name: str):
+    try:
+        return store.read(doc_id, name)
+    except (ValueError, FileNotFoundError):
+        raise HTTPException(404, "Document introuvable.") from None
+
+
+async def run_task(task_id: str, payload: bytes | str, title: str = "") -> None:
+    try:
+        if isinstance(payload, bytes):
+            doc_id = digest(payload)
+            directory = store.directory(doc_id)
+            directory.mkdir(parents=True, exist_ok=True)
+            path = directory / "source.pdf"
+            if not path.exists():
+                path.write_bytes(payload)
+            tasks.emit(task_id, "Lecture du PDF", 10)
+            doc = await asyncio.to_thread(parse_pdf, path, doc_id)
+            if title and doc.title == "source":
+                doc.title = Path(title).stem
+            if settings.grobid_url:
+                doc = await enrich_grobid(payload, doc, settings.grobid_url)
+        else:
+            temp_id = "ingest_" + task_id
+            directory = store.directory(temp_id)
+            directory.mkdir(parents=True, exist_ok=True)
+            tasks.emit(task_id, "Téléchargement depuis arXiv", 5)
+            doc, body = await acquire(payload, directory, temp_id)
+            doc_id = digest(body)
+            doc.id = doc_id
+            if doc.kind == "html":
+                path = directory / "source.html"
+                path.write_text(
+                    path.read_text().replace(f"/api/docs/{temp_id}/", f"/api/docs/{doc_id}/")
+                )
+            destination = store.directory(doc_id)
+            if not destination.exists():
+                directory.rename(destination)
+            else:
+                shutil.rmtree(directory)
+        async with locks.setdefault(doc_id, asyncio.Lock()):
+            if (store.directory(doc_id) / "flow.json").exists():
+                tasks.emit(task_id, "Carte retrouvée", 100, "done", doc_id=doc_id)
+                return
+            model = model_factory(settings, store, doc_id)
+            await process(doc, model, settings, store, tasks, task_id)
+    except Exception as exc:
+        # Provider errors may contain credentials or full request bodies: never return/log them.
+        safe = "Le traitement a échoué. Vérifiez le format du document, la configuration du modèle et la connexion, puis réessayez."
+        if type(exc) is ValueError and not str(exc).startswith("1 validation"):
+            safe = str(exc)[:400]
+        tasks.emit(task_id, safe, 0, "error", error=safe)
+
+
+@app.post("/api/tasks", response_model=TaskAccepted, status_code=202)
+async def create_task(request: Request):
+    content_type = request.headers.get("content-type", "")
+    title = ""
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            payload = body["arxiv_url"]
+            arxiv_id(payload)
+        except (ValueError, KeyError, TypeError):
+            raise HTTPException(422, "Fournissez un lien HTTPS arxiv.org/html/… valide.") from None
+    elif "multipart/form-data" in content_type:
+        async with request.form(
+            max_files=1, max_fields=2, max_part_size=settings.max_upload_bytes
+        ) as form:
+            file = form.get("file")
+            if not isinstance(file, UploadFile):
+                raise HTTPException(422, "Sélectionnez un fichier PDF.")
+            payload = await file.read(settings.max_upload_bytes + 1)
+            title = file.filename or "Document"
+        if len(payload) > settings.max_upload_bytes:
+            raise HTTPException(413, "Le PDF dépasse la limite de 30 Mo.")
+        if not payload.startswith(b"%PDF"):
+            raise HTTPException(422, "Ce fichier n’est pas un PDF valide.")
+        doc_id = digest(payload)
+        if (store.directory(doc_id) / "flow.json").exists():
+            return TaskAccepted(doc_id=doc_id)
+    else:
+        raise HTTPException(415, "Envoyez un PDF ou un lien arXiv au format JSON.")
+    if (
+        model_factory is LLMClient
+        and settings.llm_model.startswith("deepseek/")
+        and not settings.deepseek_api_key.get_secret_value()
+    ):
+        raise HTTPException(
+            503,
+            "Renseignez DEEPSEEK_API_KEY dans .env et redémarrez. Vous pouvez explorer la démonstration sans clé.",
+        )
+    task_id = tasks.create()
+    tasks.start(run_task(task_id, payload, title))
+    return TaskAccepted(task_id=task_id)
+
+
+@app.get("/api/docs", response_model=list[Metadata])
+def list_docs():
+    return store.list_docs()
+
+
+@app.get("/api/docs/{doc_id}", response_model=Document)
+def document(doc_id: str):
+    return read_doc(doc_id, "parsed.json")
+
+
+@app.get("/api/docs/{doc_id}/flow", response_model=Flow)
+def flow(doc_id: str):
+    return read_doc(doc_id, "flow.json")
+
+
+@app.get("/api/docs/{doc_id}/sentences", response_model=list[Sentence])
+def sentences(doc_id: str):
+    return read_doc(doc_id, "parsed.json")["sentences"]
+
+
+@app.get("/api/docs/{doc_id}/suggestions", response_model=list[Suggestion])
+def suggestions(doc_id: str):
+    return read_doc(doc_id, "suggestions.json")
+
+
+@app.get("/api/docs/{doc_id}/source")
+def source(doc_id: str):
+    doc = read_doc(doc_id, "parsed.json")
+    path = store.directory(doc_id) / ("source.pdf" if doc["kind"] == "pdf" else "source.html")
+    if not path.exists():
+        raise HTTPException(404, "Source non disponible.")
+    headers = {
+        "Content-Security-Policy": "sandbox; default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'",
+        "X-Content-Type-Options": "nosniff",
+    }
+    return FileResponse(
+        path, media_type="application/pdf" if doc["kind"] == "pdf" else "text/html", headers=headers
+    )
+
+
+@app.get("/api/docs/{doc_id}/assets/{name}")
+def asset(doc_id: str, name: str):
+    read_doc(doc_id, "parsed.json")
+    if not re.fullmatch(r"\d+\.(css|png|jpg|jpeg|gif|svg|webp)", name):
+        raise HTTPException(404)
+    path = store.directory(doc_id) / "assets" / name
+    if not path.exists():
+        raise HTTPException(404)
+    return FileResponse(
+        path,
+        headers={
+            "X-Content-Type-Options": "nosniff",
+            "Content-Security-Policy": "sandbox; default-src 'none'",
+        },
+    )
+
+
+@app.post("/api/docs/{doc_id}/steps/{step_id}/explanation", response_model=Explanation)
+async def explanation(doc_id: str, step_id: str):
+    graph = Flow.model_validate(read_doc(doc_id, "flow.json"))
+    step = next((s for s in graph.steps if s.id == step_id), None)
+    if not step:
+        raise HTTPException(404, "Étape inconnue.")
+    key = digest(step_id.encode())
+    async with locks.setdefault(f"{doc_id}_{key}", asyncio.Lock()):
+        try:
+            return store.read(doc_id, f"explanations/{key}.json")
+        except FileNotFoundError:
+            pass
+        doc = Document.model_validate(read_doc(doc_id, "parsed.json"))
+        upstream = {e.src for e in graph.links if e.dst == step_id and e.type != "contradict"}
+        parents = [s for s in graph.steps if s.id in upstream]
+        needed = set(step.anchors) | {a for s in parents for a in s.anchors}
+        if graph.metadata.demo:
+            result = Explanation(
+                explanation=step.summary
+                + "\n\nDémonstration éditoriale : consultez les passages cités pour vérifier cette interprétation.",
+                anchors=step.anchors,
+            )
+        else:
+            try:
+                result = await model_factory(settings, store, doc_id).generate(
+                    "explanation",
+                    {
+                        "step": step.model_dump(mode="json"),
+                        "upstream": [s.model_dump(mode="json") for s in parents],
+                        "sentences": [
+                            s.model_dump(mode="json") for s in doc.sentences if s.id in needed
+                        ],
+                    },
+                    Explanation,
+                )
+            except Exception:
+                raise HTTPException(
+                    503,
+                    "Explication indisponible. Vérifiez la configuration du modèle et réessayez.",
+                ) from None
+            if not set(result.anchors) <= needed:
+                raise HTTPException(
+                    502, "L’explication contient des références non valides. Réessayez."
+                )
+        store.write(doc_id, f"explanations/{key}.json", result.model_dump(mode="json"))
+        return result
