@@ -115,3 +115,55 @@ async def test_explanation_drops_citations_outside_the_passages(tmp_path, monkey
     result = TestClient(main.app).post("/api/docs/fixture/steps/e/explanation").json()
     assert result["explanation"] == "1. The author states it [p5s1]. 2. Outside."
     assert result["anchors"] == ["p5s1"]
+
+
+def test_failure_messages_name_the_stage_without_provider_text():
+    import litellm
+
+    from backend.app.llm.client import StageError
+
+    def failed(stage, cause):
+        try:
+            raise StageError(stage) from cause
+        except StageError as exc:
+            return main.failure_message(exc)
+
+    refused = litellm.AuthenticationError(
+        message="secret-provider-text", llm_provider="deepseek", model="deepseek-flash"
+    )
+    message, params = failed("skeleton", refused)
+    assert "DEEPSEEK_API_KEY" in message and "secret" not in message and params == {}
+    message, params = failed("cross", ValueError("secret-provider-text"))
+    assert "{stage}" in message and params == {"stage": "relations entre les sections"}
+    assert main.failure_message(ValueError("PDF trop long : limite de 400 pages."))[0].startswith(
+        "PDF trop long"
+    )
+    assert main.failure_message(RuntimeError("secret"))[0] == main.FAILED
+
+
+async def test_stage_failure_reaches_the_progress_stream(tmp_path, monkeypatch):
+    from backend.app.llm.client import StageError
+    from backend.tests.test_ingest import make_pdf
+
+    path = tmp_path / "fixture.pdf"
+    make_pdf(path)
+    tasks = TaskManager()
+    key = tasks.create()
+    monkeypatch.setattr(main, "store", Store(tmp_path / "data"))
+    monkeypatch.setattr(main, "tasks", tasks)
+
+    async def failing_process(*args):
+        raise StageError("section") from ValueError("secret")
+
+    monkeypatch.setattr(main, "process", failing_process)
+    await main.run_task(key, path.read_bytes())
+    client = TestClient(main.app)
+    last = client.get(f"/api/tasks/{key}").json()
+    assert last["status"] == "error"
+    assert last["params"] == {"stage": "détails section par section"}
+    assert client.get("/api/tasks/unknown").status_code == 404
+
+
+def test_health_reports_the_configured_model():
+    body = TestClient(main.app).get("/api/health").json()
+    assert body["status"] == "ok" and body["model"] == main.settings.llm_model

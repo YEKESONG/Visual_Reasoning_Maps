@@ -13,7 +13,7 @@ from backend.app.config import ROOT, settings
 from backend.app.ingest.arxiv_html import acquire, arxiv_id
 from backend.app.ingest.pdf_grobid import enrich_grobid
 from backend.app.ingest.pdf_pymupdf import parse_pdf
-from backend.app.llm.client import LLMClient
+from backend.app.llm.client import LLMClient, StageError, underlying
 from backend.app.models import (
     Document,
     Explanation,
@@ -48,7 +48,20 @@ tasks = TaskManager()
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "configured": bool(settings.deepseek_api_key.get_secret_value())}
+    return {
+        "status": "ok",
+        "configured": bool(settings.deepseek_api_key.get_secret_value())
+        or not settings.llm_model.startswith("deepseek/"),
+        "model": settings.llm_model,
+    }
+
+
+@app.get("/api/tasks/{task_id}")
+def task_status(task_id: str) -> dict:
+    """Latest event of a task, so a reloaded page can resume following it."""
+    if task_id not in tasks.events:
+        raise HTTPException(404, "Tâche inconnue ou serveur redémarré. Relancez le traitement.")
+    return tasks.events[task_id][-1]
 
 
 @app.get("/api/tasks/{task_id}/events")
@@ -86,6 +99,46 @@ def document_id(body: bytes, language: str | None) -> str:
     return digest(body + (b"\0language:" + language.encode() if language else b""))
 
 
+FAILED = "Le traitement a échoué. Vérifiez le format du document, la configuration du modèle et la connexion, puis réessayez."
+STAGES = {
+    "skeleton": "esquisse du raisonnement principal",
+    "section": "détails section par section",
+    "cross": "relations entre les sections",
+    "critic": "vérification des passages cités",
+    "repair": "correction des éléments signalés",
+    "suggestions": "suggestions de relecture",
+}
+PROVIDER_STATUS = {
+    401: "Le fournisseur du modèle a refusé la clé API. Vérifiez DEEPSEEK_API_KEY dans .env, puis redémarrez.",
+    402: "Solde insuffisant chez le fournisseur du modèle. Rechargez le compte, puis relancez l’analyse.",
+    429: "Le fournisseur du modèle limite le nombre de requêtes. Patientez quelques minutes, puis relancez l’analyse.",
+}
+SAFE_ERRORS = {
+    "PDF protégé. Exportez une copie sans mot de passe.",
+    "PDF trop long : limite de 400 pages.",
+    "Texte insuffisant. Ce PDF peut être scanné : appliquez une reconnaissance OCR puis réessayez.",
+    "Document distant trop volumineux.",
+    "Trop de redirections arXiv.",
+    "Aucun HTML ni PDF exploitable sur arXiv.",
+    "Le document contient moins de cinq phrases exploitables. Choisissez un texte plus complet.",
+}
+
+
+def failure_message(exc: Exception) -> tuple[str, dict]:
+    """Map an exception to a fixed, translatable message; provider text is never forwarded."""
+    if isinstance(exc, StageError):
+        status = getattr(underlying(exc), "status_code", None)
+        if status in PROVIDER_STATUS:
+            return PROVIDER_STATUS[status], {}
+        return (
+            "Le modèle n’a pas fourni de résultat exploitable à l’étape « {stage} ». Relancez l’analyse : les étapes déjà terminées sont gardées en cache.",
+            {"stage": STAGES.get(exc.stage, exc.stage)},
+        )
+    if type(exc) is ValueError and str(exc) in SAFE_ERRORS:
+        return str(exc), {}
+    return FAILED, {}
+
+
 async def run_task(
     task_id: str, payload: bytes | str, title: str = "", language: str | None = None
 ) -> None:
@@ -103,7 +156,10 @@ async def run_task(
             if title and doc.title == "source":
                 doc.title = Path(title).stem
             if settings.grobid_url:
-                doc = await enrich_grobid(payload, doc, settings.grobid_url)
+                try:
+                    doc = await enrich_grobid(payload, doc, settings.grobid_url)
+                except Exception:
+                    doc.warnings.append("GROBID indisponible : structure extraite avec PyMuPDF.")
         else:
             temp_id = "ingest_" + task_id
             directory = store.directory(temp_id)
@@ -130,18 +186,8 @@ async def run_task(
             await process(doc, model, config, store, tasks, task_id)
     except Exception as exc:
         # Provider errors may contain credentials or full request bodies: never return/log them.
-        safe = "Le traitement a échoué. Vérifiez le format du document, la configuration du modèle et la connexion, puis réessayez."
-        if type(exc) is ValueError and str(exc) in {
-            "PDF protégé. Exportez une copie sans mot de passe.",
-            "PDF trop long : limite de 400 pages.",
-            "Texte insuffisant. Ce PDF peut être scanné : appliquez une reconnaissance OCR puis réessayez.",
-            "Document distant trop volumineux.",
-            "Trop de redirections arXiv.",
-            "Aucun HTML ni PDF exploitable sur arXiv.",
-            "Le document contient moins de cinq phrases exploitables. Choisissez un texte plus complet.",
-        }:
-            safe = str(exc)
-        tasks.emit(task_id, safe, 0, "error", error=safe)
+        safe, params = failure_message(exc)
+        tasks.emit(task_id, safe, 0, "error", error=safe, params=params)
 
 
 @app.post("/api/tasks", response_model=TaskAccepted, status_code=202)

@@ -219,3 +219,16 @@
 - 主要文件：backend/app/validation/checks.py、backend/app/models.py（RepairPatch）、backend/app/prompts/repair.md、backend/app/prompts/critic.md、backend/app/extraction/pipeline.py。
 - 验证：新增测试——结构缺口不影响已核对条目、漏判条目会被再问一次、问题带条目类型、补丁保留父节点且只报告真实改动、删除主步骤连带删除子步骤和关系、确定性修正；原有的两轮修复上限和"修复失败仍能渲染"测试保持通过；pytest 58 项通过。
 - 遗留：非思考模式下的修复对结构问题（缺少通向结论的关系）效果有限；如需更强的修复，可把 repair 加入 LLM_THINKING_STAGES，代价是每轮多约 30 秒。
+
+## S19e 分阶段进度、可读的失败提示与任务状态接口
+- 目标：用户能看到分析进行到哪一步；失败时知道是哪一步、该怎么处理；刷新页面后还能找回正在进行的任务。
+- 问题：抽取阶段只有一条"Reconstruction du raisonnement"进度，实际要跑 3–4 分钟；任何异常都显示同一句"处理失败，请检查格式、配置和连接"；前端只能通过 SSE 跟踪任务，刷新后 task_id 丢失。
+- 完成内容：
+  - 进度细分：切句 15%、主要推理 25%、逐节细节 38%、跨节关系 52%、核对引文 62%、修正有问题的步骤 70%/78%、修改建议 88%。
+  - failure_message() 把异常映射成固定的、可翻译的提示：模型阶段失败时说明是哪个阶段，并提示重试会复用已完成阶段的缓存；服务商返回 401/402/429 时分别提示密钥被拒、余额不足、请求过于频繁；解析类错误沿用原有白名单。服务商原始报错仍不会返回给前端。SSE 错误事件增加 params 字段，供前端插入阶段名。
+  - 新增 GET /api/tasks/{id}，返回任务最新一条事件；/api/health 增加当前模型名（不含密钥）；未配置 DeepSeek 以外的模型时，configured 不再依赖 DEEPSEEK_API_KEY。
+  - Metadata 增加 language，文档库可以区分同一文件的不同语言分析。
+  - GROBID 请求失败时写入警告并继续使用 PyMuPDF 结构，不再让整个任务失败。
+- 真实运行：测试论文首次完整跑通用时 208 秒，31.1 万 token，LiteLLM 估算费用约 0.06 美元（含分节阶段的校验重试）；之后改动核验和修复阶段时，骨架、分节、跨节命中缓存，每次重跑约 30–40 秒、0.01–0.02 美元。
+- 主要文件：backend/app/tasks/pipeline.py、backend/app/main.py、backend/app/models.py。
+- 验证：新增测试——失败提示包含阶段名且不含服务商原文、401 映射为密钥提示、阶段失败经任务状态接口可读、未知任务 404、health 返回模型名；pytest 61 项通过；OpenAPI 与前端类型重新生成；前端 lint/test/build 通过。

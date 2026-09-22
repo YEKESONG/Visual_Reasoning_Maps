@@ -163,6 +163,8 @@ class Metadata(Model):
     source_url: str | None = None
     created_at: str
     demo: bool = False
+    # Analysis language requested for a generated map (auto, zh, en or fr).
+    language: str | None = None
 
 
 class Generation(Model):

@@ -22,7 +22,7 @@ async def process(
 ) -> Flow:
     path = store.directory(doc.id) / "source.html"
     html = path.read_text() if doc.kind == "html" else None
-    tasks.emit(task_id, "Repérage des phrases", 20)
+    tasks.emit(task_id, "Repérage des phrases", 15)
     doc, html = await asyncio.to_thread(anchor_document, doc, html)
     if html:
         path.write_text(html)
@@ -31,18 +31,24 @@ async def process(
             "Le document contient moins de cinq phrases exploitables. Choisissez un texte plus complet."
         )
     store.write(doc.id, "parsed.json", doc.model_dump(mode="json"))
-    tasks.emit(task_id, "Reconstruction du raisonnement", 35)
-    graph = await extract(doc, model, config)
-    tasks.emit(task_id, "Vérification des sources et des relations", 65)
-    graph, report = await validate_and_repair(graph, doc, model, config)
+    graph = await extract(doc, model, config, lambda step, value: tasks.emit(task_id, step, value))
+    tasks.emit(task_id, "Vérification des passages cités", 62)
+    graph, report = await validate_and_repair(
+        graph, doc, model, config, lambda step, value: tasks.emit(task_id, step, value)
+    )
     store.write(doc.id, "validation_report.json", report)
     tasks.emit(task_id, "Préparation des suggestions", 88)
-    suggestions = await review(graph, doc, model)
+    suggestions = await review(graph, doc, model, config.max_input_chars)
     now = datetime.now(timezone.utc).isoformat()
     flow = Flow(
         **graph.model_dump(),
         metadata=Metadata(
-            id=doc.id, title=doc.title, kind=doc.kind, source_url=doc.source_url, created_at=now
+            id=doc.id,
+            title=doc.title,
+            kind=doc.kind,
+            source_url=doc.source_url,
+            created_at=now,
+            language=config.label_language,
         ),
         patterns=patterns(graph),
         generation=Generation(
