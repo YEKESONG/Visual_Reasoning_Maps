@@ -11,6 +11,11 @@
 5. **S15–S16，可分发原型**：补安装/启动/开发脚本、CI、Docker 可选配置、双语 README；构建公有领域 Descartes 示例。Playwright 发现 Enter 只选节点未开详情、节点测量未回填、缩窗未适应等真实问题，修复后加入回归断言。
 6. **S17，端到端核对**：直接模拟 LiteLLM transport 验证 Instructor 的 strict 字段、JSON 回退、缓存和日志；修复包装异常导致回退不触发的问题。真实 arXiv 下载发现图片相对路径和 CSS layer import 处理不足，修复后静态资源从 7 个恢复至 64 个，仅剩一个外部字体未缓存。整理无效图结构，确认报告保留删除记录。补全过程文档和远程全新克隆验证。
 
+7. **S18，三语界面**：集中词库、语言偏好、分析语言与缓存隔离，按语言运行浏览器测试。
+8. **S19，真实文档验收（2026-09-23）**：第一次用真实论文和真实 API 完整运行，暴露出只用假模型测不出的问题：PDF 版面解析失效、思考模式的 tool_choice 限制、推理 token 占满输出上限、修复轮丢子步骤、全部条目被标成待核实、步骤与关系 ID 撞名。按"先定位原因、再写测试、再修复、再用真实调用复测"的顺序分成 S19a–S19e 五个提交。
+9. **S20，界面与文案**：逐页截图检查，先提交功能性修复（矛盾连线、节点高度、位置标记、任务续跟），再整体重做界面与三语文案，最后重建示例。每个提交前运行与 CI 相同的检查和 Playwright 用例。
+10. **S21，网页端完整验收与文档**：通过网页上传真实论文，分别生成中文（命中缓存）和英文（全新调用）图谱，据此修复模型输出变体导致的重试、录制脚本和节点标题截断（S21a–c）；README 两种语言重写，补充决策记录、架构说明和接口核实笔记（S21d），综述轻度修订（S21e）。
+
 ## 每阶段的关键验证命令
 
 | 阶段 | 关键命令/操作 |
@@ -33,6 +38,14 @@
 | S15 | 独立新虚拟环境 `bash scripts/setup.sh`；`PORT=8011 python3 run.py` |
 | S16 | `python -m scripts.build_examples`；`pnpm test:e2e`；PDF 两页检查 |
 | S17 | 全量检查、真实 arXiv 解析、真实 HTTP 假模型 SSE、远程克隆验收、PDF 逐页检查 |
+| S18 | `pnpm test`（词库占位符与示例文案覆盖）；三语 Playwright |
+| S19a | `pytest backend/tests/test_ingest.py backend/tests/test_anchors.py`（合成双栏论文）；真实论文解析统计 |
+| S19b | `pytest backend/tests/test_llm.py`；对 DeepSeek 做极小的 tool_choice 探测请求 |
+| S19c | `pytest backend/tests/test_extraction.py`；真实运行对比调用次数与 token |
+| S19d | `pytest backend/tests/test_validation.py`；只重跑核验之后阶段的真实运行 |
+| S19e | `pytest backend/tests/test_e2e.py`；OpenAPI 与前端类型重新生成 |
+| S20a–f | `pnpm lint && pnpm test && pnpm build`；`BASE_URL=http://127.0.0.1:8010 pnpm exec playwright test`；逐页截图 |
+| S21 | 文档链接与命令逐条核对；`cd paper/etat_de_lart && make` |
 
 表中 Python/pytest 应在 `.venv` 中运行，pnpm 在 frontend 目录运行；完整可复制命令见下。每次提交的实际结果和遇到的问题见 [DEVLOG](DEVLOG.md)，失败没有算作通过。S1 首次 BibTeX parser API 用错、S2 的 LaTeX 安装判断错误均已更正记录。
 
@@ -63,11 +76,11 @@ pnpm test:e2e
 
 ## 验收边界
 
-- 本地离线后端39项、前端7项通过；Chromium 两条完整阅读路径通过。后端测试覆盖解析、锚点、图约束、修复、严格输出、JSON 回退、缓存及敏感错误隔离。
-- 真实 HTTP：curl multipart 上传人工夹具，通过实际 Uvicorn SSE 收到从 0 到 100 的七条事件，最终 done；模型替身明确不属于真实模型结果。
-- 真实网络：下载 Story Ribbons（arXiv 2508.06772），HTML 30节/138段/487句/64缓存资源/1条外部字体警告。文件仅在忽略的 work 中，不作为可再分发示例。
-- 未配置 API key，因此没有真实 DeepSeek 生成、真实 token/费用或人工语义准确率结论。已提供 `scripts/record_fixtures.py`，用户配置后可继续模型验收。
-- GitHub Actions 工作流已经提供；若不能读取远端运行结果，不能用本地通过代替“GitHub CI 已通过”。Docker/GROBID/Langfuse/可选向量模型均未做外部服务集成实测。
+S17 时的结论（仅离线测试、未配置 key）已被 S19–S20 取代。当前状态（2026-09-23）：
+
+- 离线测试：后端 pytest 65 项、前端 Vitest 11 项、Playwright 10 条全部通过；GitHub Actions 对 S19a 以后的每个提交都运行并通过（Actions 页面可查）。
+- 真实 API：用 arXiv 2607.26712v2（14 页双栏）和 deepseek-flash 做了完整运行。首次完整运行 208 秒、31.1 万 token、LiteLLM 估算约 0.06 美元；之后改动核验与修复阶段时，其余阶段命中缓存，每次重跑 30–40 秒。也通过网页上传同一 PDF 分别生成了中文和英文图谱（见 DEVLOG S21）。
+- 仍未验证：Docker、GROBID、Langfuse、可选向量模型、DeepSeek 以外的服务商；多学科文本（哲学、随笔）上的人工语义评价。
 
 ## 全新远程克隆验收
 
@@ -77,18 +90,19 @@ S16 的 GitHub Actions 已确认成功：[run 35753367757](https://github.com/YE
 
 ## 已知局限与下一步
 
-- 多栏 PDF、公式、表格和断句仍需更丰富语料；扫描件外部 OCR。原文句子跨 PDF 段落/页边界不会自动合并。
-- 主流程规模与连通性经过校验和最多两次修复，仍可能不合格；虚线标记和报告供人工复核。自报 confidence 不是校准概率。
-- 长文骨架/跨节按章节首尾抽样，分节阶段保留全文；批评或修复/建议 payload 在超长文档上仍可能达到供应商上下文上限。原型不保证任意400页文档可完整分析。
-- 同源 iframe 清洗后禁脚本；保留主样式和图片，省略远程字体/部分 CSS 背景。不是任意网站抓取器。
-- 默认字符串相似度，嵌入可选；原文泳道布局未实现，仅有原文顺序带读与位置条；扩展入口记录在 ADR-005。
-- 单进程、无鉴权、无持久队列；仅本机使用。重启丢失运行中任务状态，内容缓存和已完成文档保留。
-- 本阶段完成的是可运行研究原型和可修改综述初稿；后续最有价值的工作是配置真实 key，对科学、哲学、随笔各取样人工评价，再据错误类型调整提示词和分块策略。
-- 综述尚需全文页码、完整实验方法、个别最终发表信息核实；清单详见 [paper/README](../paper/README.md)。不对未核实条目补造结论。
+- PDF 版面靠启发式规则：一栏/两栏、按字号和粗细识别标题、带横线的表格可以处理；三栏、无横线表格、复杂浮动体仍需更多样本。扫描件需外部 OCR。跨页句子已能接续，但只在起始页高亮。
+- 非思考模式下，修复轮对结构缺口（例如某条分支没有通向结论）的修复效果有限，残留问题写入 validation_report.json；可以把 repair 加入 LLM_THINKING_STAGES 换取更强的修复。
+- 核对使用与抽取相同的模型，不能保证错误独立；自报 confidence 不是校准概率。
+- 长文骨架按章节首尾抽样；超长文档（数百页）的核对和修改建议输入仍可能接近服务商上下文上限。
+- 同源 iframe 清洗后禁脚本；保留主样式和图片，省略远程字体和部分 CSS 背景。
+- 默认字符串相似度去重，嵌入可选；原文泳道布局未实现，扩展入口见 ADR-005。
+- 单进程、无鉴权、无持久队列，仅供本机使用。重启会中断运行中的任务，已完成阶段的缓存保留。
+- 下一步最有价值的工作：在科学论文、哲学文本和随笔上各取样本做人工评价，按错误类型调整提示词和分块策略。
+- 综述尚需核实全文页码、实验方法细节和个别最终发表信息，清单见 [paper/README](../paper/README.md)。
 
 ## 提交记录
 
-以下为 S0 至 S17a 的实际提交。最终 S17b 文档提交可通过 `git log --oneline` 查看；快照不自引用自身哈希。
+以下为实际提交记录（`git log --oneline --reverse`）。最新的文档提交可通过 `git log` 查看；快照不自引用自身哈希。
 
 ```text
 cdf804a chore: initialize repository and development record [S0]
@@ -109,5 +123,21 @@ c907973 feat(graph): add hierarchical layout focus filters and guided reading [S
 82e71a9 build: package local startup bilingual guides and offline CI [S15]
 2fb1667 feat(demo): ship public-domain examples and verified reading journeys [S16]
 6401b73 fix: harden provider transport arXiv assets and graph validation [S17a]
+75da6c5 docs: record clean-clone acceptance and release readiness [S17b]
+664ce1d feat(i18n): add Chinese English and French language switching [S18]
+04fadca fix(ingest): rebuild PDF layout parsing for two-column papers [S19a]
+edda022 fix(llm): make DeepSeek thinking stages work with tool calls [S19b]
+e1291f2 feat(extraction): compact model inputs, pack sections, prompts v2 [S19c]
+decdfb3 fix(validation): repair with targeted patches, mark support per item [S19d]
+e7ef291 feat(api): stage progress, readable failures, task status endpoint [S19e]
+8b8b529 fix(map): symmetric contradiction edges and label-sized nodes [S20a]
+114dd2a fix(reader): keep position markers from covering each other [S20b]
+3680be9 feat(ui): resume a running analysis and name the failed stage [S20c]
+f8ff1b9 feat(ui): redesign the pages and rewrite the copy in three languages [S20d]
+42b41f8 feat(examples): rebuild the Descartes example with accurate titles [S20e]
+5d14105 fix(map): keep relation labels to a few linking words [S20f]
+a03779c fix(models): accept common variants in model output [S21a]
+8d1c7e5 fix(scripts): send the current skeleton input when recording [S21b]
+4c8bd9a fix(labels): cut long labels at a word and ask for six words [S21c]
 ```
 
