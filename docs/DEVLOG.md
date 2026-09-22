@@ -353,3 +353,10 @@
 - 完成内容：没有 `detail` 的 5xx 响应改为提示"服务器出错了。请查看运行服务器的终端；如果刚更新过代码，请重启服务器。"；其他情况的提示不变。三种语言的文案同步增加。
 - 主要文件：frontend/src/api.ts、frontend/src/translations.ts、frontend/src/api.test.ts（新增）。
 - 验证：新增 4 个测试（带 detail 的错误、无 detail 的 500、无 detail 的 400、连不上服务）；`pnpm lint && pnpm test && pnpm build` 通过，Vitest 15 项。
+
+## S22b 布局不再依赖嵌套 worker
+- 问题：在 Claude 桌面应用的内置浏览器里打开图谱页，标题、主旨、工具栏都正常，画布却一直是空的，也没有错误提示。原因是 `layout.worker.ts` 本身是一个 Web Worker，它又用 elk-api 启动 ELK 自带的 worker（`elk-worker.min.js`），即 worker 里再开 worker。这个浏览器不支持嵌套 worker：内层 worker 加载失败，错误事件只发给外层 worker，elk-api 不监听它，布局请求永远没有回应。
+- 排查：在页面里分别测试。普通 worker（classic 和 module）正常；页面直接启动 ELK 的 worker 并发送 register 能收到回应；从 worker 里启动同一个 ELK worker 则报错。当前的 `layout.worker` 发出布局请求后 8 秒无回应。
+- 完成内容：删除 `layout.worker.ts`，新增 `layout.ts` 的 `startLayout()`：页面直接用 elk-api 启动 ELK 的 worker，布局计算仍在 worker 中进行，不占主线程；worker 加载失败时返回"布局计算失败，请刷新页面"，不再无限等待；ELK 计算出错时返回原有的"请减少展开的子步骤"。图谱页在依赖变化时忽略过期结果，并结束旧的 worker。
+- 主要文件：frontend/src/layout.ts（新增）、frontend/src/layout.test.ts（新增）、frontend/src/MapPage.tsx、docs/DECISIONS.md（ADR-004、ADR-005）、docs/ARCHITECTURE.md。
+- 验证：新增测试（worker 无法启动时报错而不是一直等待）；`pnpm lint && pnpm test && pnpm build` 通过，Vitest 16 项；Playwright 10 项通过；内置浏览器中图谱显示 8 个主步骤、10 条连线，展开和折叠子步骤正常。

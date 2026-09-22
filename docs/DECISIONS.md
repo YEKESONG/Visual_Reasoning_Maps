@@ -33,10 +33,10 @@
 
 - 背景：需要分层节点、键盘交互、缩放和平移。
 - 备选：React Flow、Cytoscape、自写 SVG。
-- 决定：React + TypeScript + Vite、React Flow；`graph.ts` 负责图算法/布局输入，`layout.worker.ts` 负责 ELK，页面只消费位置。
+- 决定：React + TypeScript + Vite、React Flow；`graph.ts` 负责图算法/布局输入，`layout.ts` 调用 ELK（在 ELK 自己的 Web Worker 中计算），页面只消费位置。
 - 理由：优先实现可检查的学术阅读流程，使用现成视口与可访问性能力。
-- 影响：ELK 与 PDF.js worker 体积较大；页面路由与 PDF 引擎按需加载。布局错误显示法语可操作提示。
-- 切换：替换 worker 返回相同节点 ID/位置即可换布局器；替换渲染器需要保持 `Step`/`Link` 契约与 Zustand 选择状态。
+- 影响：ELK 与 PDF.js worker 体积较大；页面路由与 PDF 引擎按需加载。布局错误显示法语可操作提示；ELK 的 worker 由页面直接启动，不嵌套在另一个 worker 里，因为部分内嵌浏览器不支持嵌套 worker（S22b）。
+- 切换：替换 `startLayout` 的实现、返回相同节点 ID/位置即可换布局器；替换渲染器需要保持 `Step`/`Link` 契约与 Zustand 选择状态。
 
 ## ADR-005 布局：逻辑从左到右
 
@@ -44,8 +44,8 @@
 - 备选：逻辑分层、原文泳道、力导布局。
 - 决定：ELK layered/RIGHT，矛盾不进入 DAG，子流程使用分组节点；带读另有逻辑/原文顺序切换。
 - 理由：概览明确从依据到结论，原文位置通过全文侧栏与带读表达。
-- 影响：原文泳道布局尚未实现；“原文顺序带读”不冒充泳道。未来布局模式的扩展入口是 worker 消息及 `layoutInput`；当前没有可用的泳道配置开关。
-- 切换：增加 `layoutMode` 到 worker 输入，由 `layoutInput` 分派到另一布局实现，不必改后端 schema。
+- 影响：原文泳道布局尚未实现；“原文顺序带读”不冒充泳道。未来布局模式的扩展入口是 `startLayout` 的参数及 `layoutInput`；当前没有可用的泳道配置开关。
+- 切换：给 `startLayout` 增加 `layoutMode` 参数，由 `layoutInput` 分派到另一布局实现，不必改后端 schema。
 
 ## ADR-006 单机文件存储与 SSE
 

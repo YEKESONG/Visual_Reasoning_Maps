@@ -47,7 +47,7 @@ flowchart LR
 | 模块 | 路径 | 职责 |
 |---|---|---|
 | F1 | `frontend/src/pages.tsx`, `api.ts` | 上传、链接、SSE、历史文档、法语错误 |
-| F2 | `MapPage.tsx`, `graph.ts`, `layout.worker.ts`, `state.ts` | React Flow、ELK worker、层级、聚焦、带读、键盘 |
+| F2 | `MapPage.tsx`, `graph.ts`, `layout.ts`, `state.ts` | React Flow、ELK 布局（ELK 自带的 worker）、层级、聚焦、带读、键盘 |
 | F3 | `Details.tsx`, `SourceView.tsx`, `geometry.ts` | 原文引文、解释、术语、建议、PDF/HTML 片段与关系双端 |
 | F4 | `FullText.tsx`, `SourceView.tsx` | 懒渲染全文、位置条、双向定位 |
 | B1 | `backend/app/ingest/` | PyMuPDF 版面分析（双栏顺序、按字号/粗细识别标题、过滤公式/图表/表格/页眉页脚/参考文献、跨栏跨页续句、去连字符）、GROBID TEI、arXiv HTML/PDF 与资源缓存 |

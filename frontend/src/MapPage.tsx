@@ -43,6 +43,7 @@ import {
   topological,
   visibleSteps,
 } from "./graph";
+import { startLayout } from "./layout";
 import { useView } from "./state";
 import { Details, LinkDetails } from "./Details";
 
@@ -437,16 +438,10 @@ function MapWorkspace({
     [getNode, setCenter, setSelected],
   );
   useEffect(() => {
-    const worker = new Worker(new URL("./layout.worker.ts", import.meta.url), {
-      type: "module",
-    });
-    worker.onmessage = (
-      event: MessageEvent<{ children: ElkNode[]; error?: string }>,
-    ) => {
-      if (event.data.error) {
-        setLayoutError(event.data.error);
-        return;
-      }
+    let active = true;
+    const layout = startLayout(flow.steps, flow.links, expanded, labels);
+    const place = (children: ElkNode[]) => {
+      if (!active) return;
       const result: StepFlowNode[] = [];
       const append = (n: ElkNode, parentId?: string) => {
         const step = flow.steps.find((s) => s.id === n.id);
@@ -474,22 +469,18 @@ function MapWorkspace({
         });
         n.children?.forEach((c) => append(c, n.id));
       };
-      event.data.children.forEach((n) => append(n));
+      children.forEach((n) => append(n));
       setNodes(result);
       setLayoutError("");
       setTimeout(() => void fitView({ padding: 0.12 }), 70);
     };
-    worker.onerror = () =>
-      setLayoutError(
-        "Le calcul de la disposition a échoué. Rechargez la page.",
-      );
-    worker.postMessage({
-      steps: flow.steps,
-      links: flow.links,
-      expanded,
-      labels,
+    layout.result.then(place, (e: Error) => {
+      if (active) setLayoutError(e.message);
     });
-    return () => worker.terminate();
+    return () => {
+      active = false;
+      layout.stop();
+    };
   }, [flow, expanded, suggestions, toggle, fitView, labels, t]);
   const selectedStep = flow.steps.find((s) => s.id === selected);
   const chain = useMemo(
