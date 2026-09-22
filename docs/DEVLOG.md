@@ -38,3 +38,9 @@
 - 验证：pytest 9 项通过；ruff 格式化后检查通过。
 - 遗留：PDF 公式无法可靠恢复 LaTeX；扫描件明确提示 OCR；GROBID 未进行真实服务验收。
 - 综述补验：latexmk 完整通过，输出 5 页，无未定义引用，存在窄表列 underfull 提示。
+
+## S5 句子锚定
+- 完成：法英缩写与小数处理、pNsM 编号、词坐标按行合并；HTML 跨 em 等内联元素逐段包裹，保留 MathML；每句首节点有稳定 DOM ID。
+- 主要文件：anchoring/sentences.py；坐标：旋转后的页面左上角，单位 PDF point，页码从 1 起。
+- 验证：pytest 12 项通过，含 90° 旋转、HTML 原文不变、缩写与小数；ruff 通过。
+- 遗留：规则切句不能完整覆盖所有学术缩写及多栏阅读顺序。
