@@ -38,6 +38,22 @@ export function FullText() {
     const ids = new Set(data.flow.steps.flatMap((s) => s.anchors));
     return (data.doc.sentences ?? []).filter((s) => ids.has(s.id));
   }, [data]);
+  // Main steps in reading order; markers closer than the button height are staggered.
+  const markers = useMemo(() => {
+    if (!data) return [];
+    const total = Math.max(1, (data.doc.sentences?.length ?? 1) - 1);
+    let previous = -Infinity;
+    let shift = 0;
+    return data.flow.steps
+      .filter((s) => !s.parent)
+      .sort((a, b) => (a.first_position ?? 0) - (b.first_position ?? 0))
+      .map((step, index) => {
+        const top = 3 + ((step.first_position ?? 0) / total) * 92;
+        shift = top - previous < 3.5 ? (shift + 1) % 3 : 0;
+        previous = top;
+        return { step, number: index + 1, top, shift };
+      });
+  }, [data]);
   useEffect(() => {
     if (!current || !data || data.doc.kind !== "pdf") return;
     const sentence = data.doc.sentences?.find((s) => s.id === current);
@@ -115,23 +131,20 @@ export function FullText() {
       >
         <span>{t("Le fil du texte")}</span>
         <div>
-          {data.flow.steps
-            .filter((s) => !s.parent)
-            .map((step, index) => (
-              <button
-                key={step.id}
-                style={{
-                  top: `${5 + (step.first_position / Math.max(1, (data.doc.sentences?.length ?? 1) - 1)) * 88}%`,
-                }}
-                aria-label={t("Aller au passage : {label}", {
-                  label: t(step.label),
-                })}
-                title={t(step.label)}
-                onClick={() => setParams({ s: step.anchors[0] })}
-              >
-                {index + 1}
-              </button>
-            ))}
+          {markers.map(({ step, number, top, shift }) => (
+            <button
+              key={step.id}
+              className={step.anchors.includes(current ?? "") ? "current" : ""}
+              style={{ top: `${top}%`, marginLeft: -shift * 30 }}
+              aria-label={t("Aller au passage : {label}", {
+                label: t(step.label),
+              })}
+              title={t(step.label)}
+              onClick={() => setParams({ s: step.anchors[0] })}
+            >
+              {number}
+            </button>
+          ))}
         </div>
       </nav>
     </main>

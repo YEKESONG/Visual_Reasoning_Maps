@@ -790,7 +790,8 @@ input[type="checkbox"] {
   font-size: 10px;
   border: 1px solid #8fa58e;
 }
-.position-rail button:hover {
+.position-rail button:hover,
+.position-rail button.current {
   background: #245d5b;
   color: white;
 }
