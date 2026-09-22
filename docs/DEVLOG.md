@@ -83,3 +83,9 @@
 - 问题：TypeScript 7.0.2 不再提供生成工具所需 factory API；改用已验证 5.9.3，ESLint 9.39.4 与生态兼容。首次写入命令目录前缀有误，未覆盖任何文件，已改正。
 - 验证：pnpm types、lint、build 全通过；Prettier 已格式化。
 - 决策：使用本地字体、纸色阅读工作台，不采用通用营销卡片。
+
+## S12 交互式推理图
+- 完成：React Flow + ELK worker 分层与分组布局、展开折叠、上下游聚焦、四种关系筛选、图标/线型冗余编码、小地图、缩放、逻辑/原文顺序带读、Tab/Enter/Esc。
+- 主要文件：MapPage.tsx、graph.ts、layout.worker.ts、state.ts；Zustand 管理交互状态。
+- 验证：Vitest 4 项图算法/布局输入测试、ESLint、tsc/Vite 构建通过。
+- 遗留：浏览器中的实际布局与键盘操作在 S13/S14 示例数据下截图验证。
