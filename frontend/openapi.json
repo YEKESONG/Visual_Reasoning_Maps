@@ -623,7 +623,7 @@
           "prompt_version": {
             "type": "string",
             "title": "Prompt Version",
-            "default": "2.1"
+            "default": "2.2"
           },
           "total_tokens": {
             "type": "integer",

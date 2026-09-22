@@ -224,3 +224,12 @@ def test_common_variants_in_model_output_are_accepted():
     assert graph.steps[0].confidence == 0.5
     assert graph.links[0].type == "support"
     assert graph.terms[0].term == "Collapse" and graph.terms[0].definition == "d"
+
+
+def test_long_labels_are_cut_at_a_word_boundary():
+    from backend.app.models import short_label
+
+    assert short_label("Whether latent rollouts respond to actions") == (
+        "Whether latent rollouts respond to…"
+    )
+    assert short_label("Short label") == "Short label"

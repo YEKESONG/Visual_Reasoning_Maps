@@ -315,3 +315,9 @@
 - 问题：`scripts/record_fixtures.py` 仍按旧格式发送 `sentences` 字典列表，与 2.x 版骨架提示词要求的 `{title, sections}` 不一致；服务商价格未知时 cost_usd 为 None，`:.6f` 格式化会抛异常。
 - 完成内容：改用 extraction.pipeline.sections_payload() 构造输入；费用未知时输出 unknown。
 - 验证：ruff 检查通过；脚本可以正常导入。它会真实调用模型并产生费用，因此没有在这里运行。
+
+## S21c 节点标题：按词截断、提示词限制词数
+- 问题：英文分析的节点标题常超过 40 个字符，被截成"Whether latent rollouts respond to acti…"这样断在单词中间的样子。模型数字符不准。
+- 完成内容：骨架与分节提示词改为"不超过 6 个词、40 个字符（中文约 12 个字）"，版本 2.2；超长标题在后半段有空格时退到词边界再加省略号。
+- 主要文件：backend/app/models.py、backend/app/prompts/{skeleton,section}.md、backend/tests/test_extraction.py。
+- 验证：新增截断测试；pytest 65 项通过；OpenAPI 与前端类型重新生成（prompt_version 2.2）；前端 lint/test/build 通过。

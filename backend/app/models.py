@@ -9,9 +9,14 @@ class Model(BaseModel):
 
 def short_label(value: object) -> object:
     # Model labels sometimes exceed the node width; trim instead of failing the whole stage.
-    if isinstance(value, str) and len(value.strip()) > 40:
-        return value.strip()[:39].rstrip() + "…"
-    return value
+    if not isinstance(value, str) or len(value.strip()) <= 40:
+        return value
+    text = value.strip()[:39]
+    # Cut at a word boundary when there is one in the second half of the label.
+    space = text.rfind(" ")
+    if space > 20:
+        text = text[:space]
+    return text.rstrip(" ,;:-–") + "…"
 
 
 def unit_interval(value: object) -> object:
@@ -247,7 +252,7 @@ class Generation(Model):
     language: str = "auto"
     model: str
     timestamp: str
-    prompt_version: str = "2.1"
+    prompt_version: str = "2.2"
     total_tokens: int = 0
     estimated_cost_usd: float | None = None
 
