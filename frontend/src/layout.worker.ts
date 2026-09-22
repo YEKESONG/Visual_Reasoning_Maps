@@ -1,7 +1,8 @@
-import ELK from "elkjs/lib/elk.bundled.js";
+import ELK from "elkjs/lib/elk-api.js";
+import elkWorkerUrl from "elkjs/lib/elk-worker.min.js?url";
 import { layoutInput } from "./graph";
 import type { Step, Link } from "./api";
-const elk = new ELK();
+const elk = new ELK({ workerUrl: elkWorkerUrl });
 self.onmessage = async (
   event: MessageEvent<{ steps: Step[]; links: Link[]; expanded: string[] }>,
 ) => {

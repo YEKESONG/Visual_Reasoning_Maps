@@ -89,3 +89,9 @@
 - 主要文件：MapPage.tsx、graph.ts、layout.worker.ts、state.ts；Zustand 管理交互状态。
 - 验证：Vitest 4 项图算法/布局输入测试、ESLint、tsc/Vite 构建通过。
 - 遗留：浏览器中的实际布局与键盘操作在 S13/S14 示例数据下截图验证。
+
+## S13 详情与原版片段
+- 完成：步骤状态/引文/术语/建议/按需解释；连线双端并排；PDF.js 原页裁剪及高亮；HTML 保留样式并在无脚本 iframe 中展示。
+- 问题修复：ELK bundled 包在 Worker 内构造失败，改用官方 elk-api + 显式 worker URL；临时浏览器脚本加入 lint 忽略目录。
+- 验证：前端 7 项测试（左上坐标、旋转页缩放、裁剪边界）；ESLint/tsc/build 通过；Playwright 在 1440px 下打开节点与 HTML 片段，无 pageerror；截图 docs/screenshots/qa-details.png。
+- 自查：修正 iframe 初始视口高度造成多余空白；PDF 完整交互在 S16 示例补验。

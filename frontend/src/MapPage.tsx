@@ -21,6 +21,7 @@ import { api, relationLabel, statusLabel, typeLabel } from "./api";
 import type { Document, Flow, Link, Step, Suggestion } from "./api";
 import { reachable, topological, visibleSteps } from "./graph";
 import { useView } from "./state";
+import { Details, LinkDetails } from "./Details";
 
 type StepData = {
   step: Step;
@@ -436,22 +437,20 @@ function MapWorkspace({
         </section>
         <aside className="detail-panel">
           {selectedStep ? (
-            <>
-              <p className="eyebrow">{typeLabel[selectedStep.type]}</p>
-              <h2>{selectedStep.label}</h2>
-              <p className="status">{statusLabel[selectedStep.status]}</p>
-              <p>{selectedStep.summary}</p>
-              <blockquote>{selectedStep.quote}</blockquote>
-            </>
+            <Details
+              key={selectedStep.id}
+              step={selectedStep}
+              doc={doc}
+              flow={flow}
+              suggestions={suggestions}
+            />
           ) : selectedLink ? (
-            <p>
-              {
-                relationLabel[
-                  flow.links.find((e) => e.id === selectedLink)!.type
-                ]
-              }{" "}
-              · Détail de la relation
-            </p>
+            <LinkDetails
+              edge={flow.links.find((e) => e.id === selectedLink)!}
+              doc={doc}
+              flow={flow}
+              suggestions={suggestions}
+            />
           ) : (
             <div className="detail-empty">
               <span className="detail-symbol">↗</span>

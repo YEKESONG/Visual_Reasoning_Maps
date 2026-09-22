@@ -593,3 +593,197 @@ input[type="checkbox"] {
     padding-left: 22px;
   }
 }
+.detail-section-title {
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 24px 0 12px;
+}
+.anchor-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  color: var(--teal);
+}
+.source-link {
+  display: block;
+  margin: 15px 0;
+  font-size: 11px;
+  text-decoration: underline;
+  color: var(--teal);
+}
+.pdf-page {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: white;
+}
+.pdf-page canvas {
+  position: absolute;
+  display: block;
+}
+.pdf-highlight {
+  position: absolute;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0;
+  background: #e5c75d66;
+  min-width: 2px;
+  mix-blend-mode: multiply;
+}
+.pdf-highlight.current {
+  background: #eab57199;
+  outline: 1.5px solid var(--ochre);
+}
+.pdf-highlight:hover {
+  background: #e1ab4b88;
+}
+.snippet-pages figure {
+  margin: 18px 0;
+  border: 1px solid var(--line);
+}
+.snippet-pages figcaption {
+  font-size: 10px;
+  color: #67776d;
+  padding: 8px;
+  background: #f2f3eb;
+}
+.html-source {
+  width: 100%;
+  border: 1px solid var(--line);
+  display: block;
+  background: #fffdf8;
+}
+.detail-section {
+  border-top: 1px solid var(--line);
+  margin-top: 25px;
+  padding-bottom: 8px;
+}
+.explanation {
+  white-space: pre-wrap;
+}
+.term {
+  background: #edf1e7;
+  border-left: 2px solid #73916f;
+  padding: 12px;
+  margin-top: 15px;
+}
+.term strong {
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+.term p {
+  margin: 8px 0;
+}
+.term small {
+  font-size: 10px;
+}
+.suggestion {
+  border-left: 2px solid var(--ochre);
+  padding: 8px 12px;
+  background: #f7f0e5;
+  margin-bottom: 12px;
+}
+.suggestion p {
+  margin-bottom: 8px;
+}
+.suggestion small {
+  font-size: 10px;
+  color: #766551;
+}
+.endpoint-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.endpoint-pair h3 {
+  font-size: 19px;
+  line-height: 1.25;
+}
+.endpoint-pair blockquote {
+  font-size: 14px;
+}
+.endpoint-pair section {
+  min-width: 0;
+}
+.status.verified {
+  color: var(--teal);
+}
+.fulltext {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 28px 90px 70px 30px;
+}
+.reader-heading {
+  padding: 12px 0 25px;
+}
+.reader-heading > a {
+  font-size: 12px;
+  color: var(--teal);
+}
+.reader-heading h1 {
+  font-size: 35px;
+  letter-spacing: -0.7px;
+  margin-top: 22px;
+  line-height: 1.2;
+}
+.reader-heading p {
+  font-size: 12px;
+  color: #60726a;
+}
+.reader-note {
+  border-left: 2px solid #c3c8b8;
+  padding-left: 10px;
+}
+.reader-sheet {
+  margin-bottom: 28px;
+  background: #fffdf8;
+  border: 1px solid var(--line);
+}
+.page-caption {
+  padding: 10px 16px;
+  margin: 0;
+  font-size: 11px;
+  color: #67766d;
+}
+.position-rail {
+  position: fixed;
+  right: 27px;
+  top: 180px;
+  bottom: 45px;
+  width: 65px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 10px;
+  color: #5d7065;
+}
+.position-rail > span {
+  text-align: center;
+  line-height: 1.5;
+}
+.position-rail > div {
+  position: relative;
+  flex: 1;
+  width: 1px;
+  background: #bac7b8;
+  margin-top: 15px;
+}
+.position-rail button {
+  position: absolute;
+  left: -13px;
+  width: 27px;
+  height: 27px;
+  padding: 0;
+  background: #f4f1e9;
+  color: var(--teal);
+  font-size: 10px;
+  border: 1px solid #8fa58e;
+}
+.position-rail button:hover {
+  background: #245d5b;
+  color: white;
+}
