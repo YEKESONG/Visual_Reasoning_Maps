@@ -18,6 +18,56 @@ def unit_interval(value: object) -> object:
     return min(1.0, max(0.0, value)) if isinstance(value, (int, float)) else value
 
 
+STEP_TYPES = {
+    "problem": "question",
+    "research_question": "question",
+    "assumption": "premise",
+    "background": "premise",
+    "context": "premise",
+    "definition": "premise",
+    "hypothesis": "claim",
+    "method": "claim",
+    "proposal": "claim",
+    "contribution": "claim",
+    "argument": "claim",
+    "result": "evidence",
+    "finding": "evidence",
+    "observation": "evidence",
+    "experiment": "evidence",
+    "example": "evidence",
+    "data": "evidence",
+    "limitation": "objection",
+    "counterargument": "objection",
+    "criticism": "objection",
+    "implication": "conclusion",
+}
+LINK_TYPES = {
+    "supports": "support",
+    "evidence": "support",
+    "causes": "cause",
+    "leads_to": "cause",
+    "refines": "refine",
+    "elaborates": "refine",
+    "specifies": "refine",
+    "details": "refine",
+    "contradicts": "contradict",
+    "opposes": "contradict",
+    "attacks": "contradict",
+}
+
+
+def vocabulary(mapping: dict[str, str], allowed: set[str], fallback: str):
+    """Map common synonyms from model output onto the fixed vocabulary."""
+
+    def normalize(value: object) -> object:
+        if not isinstance(value, str):
+            return value
+        key = value.strip().lower().replace("-", "_").replace(" ", "_")
+        return key if key in allowed else mapping.get(key, fallback)
+
+    return normalize
+
+
 class Word(Model):
     text: str
     start: int
@@ -69,6 +119,8 @@ Status = Literal["verified", "partial", "to_verify"]
 
 
 class Step(Model):
+    # Model output sometimes carries extra keys; they are dropped rather than rejected.
+    model_config = ConfigDict(extra="ignore")
     id: str
     parent: str | None = None
     type: Literal["question", "premise", "claim", "evidence", "objection", "conclusion"]
@@ -76,32 +128,56 @@ class Step(Model):
     summary: str
     anchors: list[str] = Field(min_length=1)
     quote: str = Field(min_length=1)
-    confidence: float = Field(ge=0, le=1)
+    confidence: float = Field(default=0.5, ge=0, le=1)
     status: Status = "to_verify"
     first_position: int = 0
 
     _label = field_validator("label", mode="before")(short_label)
     _confidence = field_validator("confidence", mode="before")(unit_interval)
+    _type = field_validator("type", mode="before")(
+        vocabulary(
+            STEP_TYPES,
+            {"question", "premise", "claim", "evidence", "objection", "conclusion"},
+            "claim",
+        )
+    )
 
 
 class Link(Model):
+    model_config = ConfigDict(extra="ignore")
     id: str
     src: str
     dst: str
     type: Literal["support", "cause", "refine", "contradict"]
     connective: str = ""
     anchors: list[str] = Field(min_length=1)
-    confidence: float = Field(ge=0, le=1)
+    confidence: float = Field(default=0.5, ge=0, le=1)
     status: Status = "to_verify"
 
     _confidence = field_validator("confidence", mode="before")(unit_interval)
+    _type = field_validator("type", mode="before")(
+        vocabulary(LINK_TYPES, {"support", "cause", "refine", "contradict"}, "support")
+    )
 
 
 class TermCard(Model):
+    model_config = ConfigDict(extra="ignore")
     term: str
     definition: str
     anchors: list[str] = Field(min_length=1)
     step_ids: list[str] = Field(min_length=1)
+
+    @model_validator(mode="before")
+    @classmethod
+    def aliases(cls, data: object) -> object:
+        if isinstance(data, dict):
+            data = dict(data)
+            for key in ("name", "label", "title"):
+                if "term" not in data and data.get(key):
+                    data["term"] = data[key]
+            if "definition" not in data and data.get("description"):
+                data["definition"] = data["description"]
+        return data
 
 
 class Suggestion(Model):

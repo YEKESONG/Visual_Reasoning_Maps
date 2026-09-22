@@ -181,3 +181,46 @@ def test_model_output_without_sources_is_dropped_not_fatal():
     # A relation without its own sentence borrows the sentences of its endpoints.
     assert graph.links[0].anchors == ["p1s1"]
     assert graph.terms == []
+
+
+def test_common_variants_in_model_output_are_accepted():
+    graph = Graph.model_validate(
+        {
+            "steps": [
+                {
+                    "id": "a",
+                    "type": "Result",
+                    "label": "A",
+                    "summary": "s",
+                    "anchors": ["p1s1"],
+                    "quote": "q",
+                    "reason": "extra key",
+                },
+                {
+                    "id": "b",
+                    "type": "sub-claim",
+                    "label": "B",
+                    "summary": "s",
+                    "anchors": ["p1s1"],
+                    "quote": "q",
+                    "confidence": 0.7,
+                },
+            ],
+            "links": [
+                {"id": "l", "src": "a", "dst": "b", "type": "Supports", "anchors": ["p1s1"]},
+            ],
+            "terms": [
+                {
+                    "id": "t1",
+                    "name": "Collapse",
+                    "description": "d",
+                    "anchors": ["p1s1"],
+                    "step_ids": ["a"],
+                }
+            ],
+        }
+    )
+    assert [s.type for s in graph.steps] == ["evidence", "claim"]
+    assert graph.steps[0].confidence == 0.5
+    assert graph.links[0].type == "support"
+    assert graph.terms[0].term == "Collapse" and graph.terms[0].definition == "d"

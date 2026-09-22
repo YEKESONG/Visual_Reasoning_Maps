@@ -153,7 +153,7 @@ export function Details({
       {!demo && (
         <p className="confidence">
           {t("Confiance indiquée par le modèle : {value}", {
-            value: step.confidence.toFixed(2),
+            value: (step.confidence ?? 0.5).toFixed(2),
           })}
         </p>
       )}

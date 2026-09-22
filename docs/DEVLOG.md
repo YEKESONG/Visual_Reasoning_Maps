@@ -301,3 +301,12 @@
   - 前端连线标签超过 28 个字符时截断，完整内容在关系详情里查看。
 - 主要文件：backend/app/validation/checks.py、backend/app/prompts/{skeleton,section,cross}.md、backend/app/models.py（prompt_version 2.1）、frontend/src/MapPage.tsx。
 - 验证：新增测试（原文中的三词短语保留，长分句清空）；pytest 63 项通过；OpenAPI 与前端类型重新生成；前端 lint/test/build 通过。
+
+## S21a 接受模型输出中的常见变体
+- 问题：通过网页用英文把测试论文完整跑一遍（全新调用，约 4 分钟、30.4 万 token、0.066 美元）后，llm_log 中有 8 次校验失败重试：分节阶段每一批的第一次输出都缺 confidence、步骤类型写成枚举外的值（严格模式下 DeepSeek 也没有强制这些约束）；骨架阶段的术语卡多了 id 字段、缺 term；修复阶段的关系类型不在枚举内。
+- 完成内容：
+  - Step 和 Link 的类型先做同义词映射（result/finding → evidence，assumption/background → premise，limitation → objection，supports → support，elaborates → refine 等），无法识别时分别落到 claim、support。
+  - confidence 缺失时默认 0.5；Step、Link、TermCard 忽略多余字段；术语卡接受 name/label/title 作为 term、description 作为 definition。
+  - 前端在 confidence 缺省时按 0.5 显示。
+- 主要文件：backend/app/models.py、backend/tests/test_extraction.py、frontend/src/Details.tsx、frontend/openapi.json、frontend/src/api-schema.d.ts。
+- 验证：新增测试（类型同义词与大小写、缺省置信度、多余字段、术语别名）；pytest 64 项通过；OpenAPI 与前端类型重新生成；前端 lint/test/build 通过。

@@ -318,7 +318,10 @@ export interface components {
       connective: string;
       /** Anchors */
       anchors: string[];
-      /** Confidence */
+      /**
+       * Confidence
+       * @default 0.5
+       */
       confidence: number;
       /**
        * Status
@@ -433,7 +436,10 @@ export interface components {
       anchors: string[];
       /** Quote */
       quote: string;
-      /** Confidence */
+      /**
+       * Confidence
+       * @default 0.5
+       */
       confidence: number;
       /**
        * Status

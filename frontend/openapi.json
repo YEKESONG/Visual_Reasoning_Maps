@@ -704,7 +704,8 @@
             "type": "number",
             "maximum": 1.0,
             "minimum": 0.0,
-            "title": "Confidence"
+            "title": "Confidence",
+            "default": 0.5
           },
           "status": {
             "type": "string",
@@ -717,15 +718,13 @@
             "default": "to_verify"
           }
         },
-        "additionalProperties": false,
         "type": "object",
         "required": [
           "id",
           "src",
           "dst",
           "type",
-          "anchors",
-          "confidence"
+          "anchors"
         ],
         "title": "Link"
       },
@@ -1031,7 +1030,8 @@
             "type": "number",
             "maximum": 1.0,
             "minimum": 0.0,
-            "title": "Confidence"
+            "title": "Confidence",
+            "default": 0.5
           },
           "status": {
             "type": "string",
@@ -1049,7 +1049,6 @@
             "default": 0
           }
         },
-        "additionalProperties": false,
         "type": "object",
         "required": [
           "id",
@@ -1057,8 +1056,7 @@
           "label",
           "summary",
           "anchors",
-          "quote",
-          "confidence"
+          "quote"
         ],
         "title": "Step"
       },
@@ -1190,7 +1188,6 @@
             "title": "Step Ids"
           }
         },
-        "additionalProperties": false,
         "type": "object",
         "required": [
           "term",
