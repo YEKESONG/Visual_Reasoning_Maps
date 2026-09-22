@@ -44,3 +44,10 @@
 - 主要文件：anchoring/sentences.py；坐标：旋转后的页面左上角，单位 PDF point，页码从 1 起。
 - 验证：pytest 12 项通过，含 90° 旋转、HTML 原文不变、缩写与小数；ruff 通过。
 - 遗留：规则切句不能完整覆盖所有学术缩写及多栏阅读顺序。
+
+## S6 模型适配与缓存
+- 完成：Instructor + LiteLLM 异步客户端、严格 schema 转换、JSON 回退、tenacity 限流重试、并发限制、提示词/模型/schema/模式哈希缓存、token/耗时/成本日志；可选 Langfuse 仅记录指标。
+- 主要文件：llm/client.py、prompts/skeleton.md；LiteLLM 1.102.0、Instructor 1.17.0、Langfuse 4.15.4。
+- 决策：按官方文档使用 deepseek/deepseek-flash、beta URL、显式 thinking；参考 docs/API_NOTES.md。
+- 验证：pytest 14 项通过；schema 子集和无 key 错误已测；已核对本地 API 方法签名。
+- 遗留：项目无 .env，不进行真实付费调用；S10 用假模型验证整个编排。
