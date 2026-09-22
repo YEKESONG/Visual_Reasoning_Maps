@@ -1,14 +1,13 @@
 import { test, expect } from "@playwright/test";
 const labels = {
   zh: {
-    library: "我的文档库",
-    focus: "聚焦推理链",
-    expand: "展开 呈现思考历程",
-    collapse: "收起 呈现思考历程",
+    library: "文档库",
+    focus: "只显示所选步骤的推理链",
+    expand: "展开“呈现思考历程”的 2 个子步骤",
+    collapse: "收起“呈现思考历程”的子步骤",
     evidence: "方法带来进步",
-    explain: "解释此步骤",
-    note: "人工编排示例",
-    full: "在全文中查看 ↗",
+    explain: "解释这一步",
+    note: "人工整理的示例",
     filter: "矛盾",
     next: "下一步",
     zoom: "放大",
@@ -16,14 +15,13 @@ const labels = {
     language: "界面语言",
   },
   en: {
-    library: "Your library",
-    focus: "Focus on reasoning chain",
-    expand: "Expand Make the thinking visible",
-    collapse: "Collapse Make the thinking visible",
+    library: "Library",
+    focus: "Isolate the selected step’s chain",
+    expand: "Show the 2 sub-steps of “Make the thinking visible”",
+    collapse: "Hide the sub-steps of “Make the thinking visible”",
     evidence: "A method, some progress",
     explain: "Explain this step",
-    note: "Editorial demo",
-    full: "View in full text ↗",
+    note: "Hand-made example",
     filter: "Contradiction",
     next: "Next step",
     zoom: "Zoom in",
@@ -31,14 +29,13 @@ const labels = {
     language: "Interface language",
   },
   fr: {
-    library: "Votre bibliothèque",
-    focus: "Isoler la chaîne",
-    expand: "Développer Rendre son parcours visible",
-    collapse: "Replier Rendre son parcours visible",
+    library: "Bibliothèque",
+    focus: "Isoler la chaîne de l’étape choisie",
+    expand: "Afficher les 2 sous-étapes de « Rendre son parcours visible »",
+    collapse: "Masquer les sous-étapes de « Rendre son parcours visible »",
     evidence: "Une méthode, des progrès",
     explain: "Expliquer cette étape",
-    note: "Démonstration éditoriale",
-    full: "Voir dans le texte intégral ↗",
+    note: "Exemple préparé à la main",
     filter: "Contradiction",
     next: "Étape suivante",
     zoom: "Zoom avant",
@@ -93,7 +90,7 @@ for (const locale of ["zh", "en", "fr"] as const) {
       path: `../docs/screenshots/map-${locale}.png`,
       fullPage: true,
     });
-    await page.getByRole("link", { name: l.full, exact: true }).click();
+    await page.locator(".detail-panel .anchor-links a").first().click();
     await expect(page.locator(".reader-sheet")).toHaveCount(2);
     await page.locator(".pdf-highlight.current").first().click();
     await expect(page).toHaveURL(/step=experience/);
@@ -119,7 +116,7 @@ test("switching language preserves selected node, expanded state and HTML source
   await expect(page.locator(".detail-panel h2")).toHaveText(
     "描述经历，不强加规则",
   );
-  await page.getByRole("link", { name: labels.zh.full, exact: true }).click();
+  await page.locator(".detail-panel .anchor-links a").first().click();
   await page.locator(".language-switch select").selectOption("fr");
   await page
     .frameLocator(".reader-pages iframe")
@@ -148,15 +145,13 @@ test("analysis language is submitted and errors change with the interface", asyn
   await page.goto("/");
   await page.locator(".language-switch select").selectOption("zh");
   await page.locator("#arxiv").fill("https://arxiv.org/html/2404.16130");
-  await page.getByRole("button", { name: "生成图谱 →" }).click();
+  await page.getByRole("button", { name: "生成图谱" }).click();
   expect(submitted.language).toBe("zh");
-  await expect(page.getByRole("alert")).toContainText("无需密钥即可浏览演示");
+  await expect(page.getByRole("alert")).toContainText("示例不需要密钥也能查看");
   await page.locator(".language-switch select").selectOption("en");
   await expect(page.getByRole("alert")).toContainText("without a key");
-  await page
-    .getByLabel("Analysis language", { exact: true })
-    .selectOption("fr");
-  await page.getByRole("button", { name: "Create map →" }).click();
+  await page.getByLabel("Map language", { exact: true }).selectOption("fr");
+  await page.getByRole("button", { name: "Build the map" }).click();
   expect(submitted.language).toBe("fr");
 });
 

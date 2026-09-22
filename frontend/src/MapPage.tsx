@@ -28,7 +28,13 @@ import type {
   NodeProps,
 } from "@xyflow/react";
 import type { ElkNode } from "elkjs";
-import { api, relationLabel, statusLabel, typeLabel } from "./api";
+import {
+  api,
+  languageName,
+  relationLabel,
+  statusLabel,
+  typeLabel,
+} from "./api";
 import type { Document, Flow, Link, Step, Suggestion } from "./api";
 import {
   NODE_WIDTH,
@@ -45,41 +51,45 @@ type StepData = {
   children: number;
   suggestions: number;
   expanded: boolean;
-  dimmed: boolean;
   toggle: () => void;
 };
 type StepFlowNode = Node<StepData, "step">;
+
 function StepNode({ data, selected }: NodeProps<StepFlowNode>) {
   const { t } = useI18n();
+  const { step } = data;
+  const status = step.status ?? "to_verify";
   return (
     <div
-      className={`step-node ${data.step.type} ${data.step.status} ${selected ? "is-selected" : ""} ${data.expanded ? "expanded" : ""}`}
+      className={`step-node type-${step.type} status-${status} ${selected ? "is-selected" : ""} ${data.expanded ? "expanded" : ""}`}
     >
       <Handle type="target" position={Position.Left} />
-      <div className="step-kind">
-        <span>{t(typeLabel[data.step.type])}</span>
-        <span>
-          {data.step.status === "to_verify"
-            ? "?"
-            : data.step.status === "partial"
-              ? "◐"
-              : "✓"}
-        </span>
+      <div className="step-head">
+        <span className="step-type">{t(typeLabel[step.type])}</span>
+        {status !== "verified" && (
+          <span className="step-status">{t(statusLabel[status])}</span>
+        )}
       </div>
-      <strong>{t(data.step.label)}</strong>
-      <div className="node-bottom">
+      <strong className="step-label">{t(step.label)}</strong>
+      <div className="step-foot">
         <span>
-          {t("{count} passage{plural}", { count: data.step.anchors.length })}
+          {t("{count} passage{plural}", { count: step.anchors.length })}
         </span>
         {data.suggestions > 0 && (
-          <span className="suggestion-count" title={t("Suggestions")}>
+          <span className="step-notes">
             {t("{count} remarque{plural}", { count: data.suggestions })}
           </span>
         )}
         {data.children > 0 && (
           <button
             className="expand-button nodrag"
-            aria-label={`${t(data.expanded ? "Replier" : "Développer")} ${t(data.step.label)}`}
+            aria-expanded={data.expanded}
+            aria-label={t(
+              data.expanded
+                ? "Masquer les sous-étapes de « {label} »"
+                : "Afficher les {count} sous-étapes de « {label} »",
+              { label: t(step.label), count: data.children },
+            )}
             onClick={(e) => {
               e.stopPropagation();
               data.toggle();
@@ -93,6 +103,7 @@ function StepNode({ data, selected }: NodeProps<StepFlowNode>) {
     </div>
   );
 }
+
 // Point where the segment between two node centres leaves the first node's box.
 function borderPoint(node: InternalNode, other: InternalNode) {
   const w = (node.measured.width ?? NODE_WIDTH) / 2;
@@ -152,12 +163,38 @@ function TensionEdge({
 
 const nodeTypes = { step: StepNode };
 const edgeTypes = { tension: TensionEdge };
-const colors = {
+export const colors: Record<Link["type"], string> = {
   support: "#245d5b",
-  cause: "#a15b2b",
-  refine: "#697e96",
+  cause: "#9a5a24",
+  refine: "#5f7186",
   contradict: "#a3393d",
 };
+export const dashes: Record<Link["type"], string | undefined> = {
+  support: undefined,
+  cause: undefined,
+  refine: "2 4",
+  contradict: "7 5",
+};
+
+export function LineSample({ type }: { type: Link["type"] }) {
+  return (
+    <svg className="line-sample" width="34" height="10" aria-hidden="true">
+      <line
+        x1="1"
+        y1="5"
+        x2={type === "contradict" ? 33 : 27}
+        y2="5"
+        stroke={colors[type]}
+        strokeWidth={type === "cause" ? 2.4 : 1.6}
+        strokeDasharray={dashes[type]}
+      />
+      {type !== "contradict" && (
+        <path d="M26 1.5 L33 5 L26 8.5 z" fill={colors[type]} />
+      )}
+    </svg>
+  );
+}
+
 export function MapPage() {
   const { t } = useI18n();
   const { id } = useParams();
@@ -214,6 +251,99 @@ export function MapPage() {
     </ReactFlowProvider>
   );
 }
+
+function MapGuide({ flow }: { flow: Flow }) {
+  const { t } = useI18n();
+  const counts = new Map<string, number>();
+  for (const p of flow.patterns ?? [])
+    counts.set(p.type, (counts.get(p.type) ?? 0) + 1);
+  const patterns: [string, string, string][] = [
+    [
+      "divergence",
+      "{count} divergence{plural}",
+      "Divergence : une même étape ouvre plusieurs suites.",
+    ],
+    [
+      "convergence",
+      "{count} convergence{plural}",
+      "Convergence : plusieurs raisons aboutissent à la même étape.",
+    ],
+    [
+      "contradiction",
+      "{count} contradiction{plural}",
+      "Contradiction : deux étapes sont en tension.",
+    ],
+    [
+      "refinement",
+      "{count} précision{plural}",
+      "Précision : une étape en détaille ou en restreint une autre.",
+    ],
+    [
+      "causality",
+      "{count} lien{plural} de cause",
+      "Cause : le texte présente une étape comme produisant l’autre.",
+    ],
+  ];
+  return (
+    <div className="map-guide">
+      <h2>{t("Lire la carte")}</h2>
+      <p>
+        {t(
+          "Cliquez sur une étape pour voir le passage sur lequel elle repose, ou sur une flèche pour comparer les deux passages qu’elle relie.",
+        )}
+      </p>
+      <h3>{t("Étapes")}</h3>
+      <ul className="legend-types">
+        {Object.entries(typeLabel).map(([key, label]) => (
+          <li key={key}>
+            <span className={`type-swatch type-${key}`} aria-hidden="true" />
+            {t(label)}
+          </li>
+        ))}
+      </ul>
+      <h3>{t("Relations")}</h3>
+      <ul className="legend-links">
+        {(Object.keys(relationLabel) as Link["type"][]).map((key) => (
+          <li key={key}>
+            <LineSample type={key} />
+            {t(relationLabel[key])}
+          </li>
+        ))}
+      </ul>
+      <ul className="legend-notes">
+        <li>
+          {t(
+            "Cadre pointillé : le contrôle automatique n’a pas confirmé le soutien du passage cité.",
+          )}
+        </li>
+        <li>
+          {t("« + 3 » : l’étape a trois sous-étapes, cliquez pour les voir.")}
+        </li>
+        <li>
+          {t(
+            "Clavier : Tab passe d’une étape à l’autre, Entrée ouvre l’étape, Échap ferme le panneau.",
+          )}
+        </li>
+      </ul>
+      {counts.size > 0 && (
+        <>
+          <h3>{t("Structure repérée")}</h3>
+          <dl className="pattern-list">
+            {patterns
+              .filter(([key]) => counts.has(key))
+              .map(([key, count, definition]) => (
+                <div key={key}>
+                  <dt>{t(count, { count: counts.get(key)! })}</dt>
+                  <dd>{t(definition)}</dd>
+                </div>
+              ))}
+          </dl>
+        </>
+      )}
+    </div>
+  );
+}
+
 function MapWorkspace({
   flow,
   doc,
@@ -252,7 +382,7 @@ function MapWorkspace({
     let timer: ReturnType<typeof setTimeout>;
     const observer = new ResizeObserver(() => {
       clearTimeout(timer);
-      timer = setTimeout(() => void fitView({ padding: 0.15 }), 100);
+      timer = setTimeout(() => void fitView({ padding: 0.12 }), 100);
     });
     observer.observe(element);
     return () => {
@@ -271,14 +401,16 @@ function MapWorkspace({
   const walk = useMemo(
     () =>
       order === "text"
-        ? [...steps].sort((a, b) => a.first_position - b.first_position)
+        ? [...steps].sort(
+            (a, b) => (a.first_position ?? 0) - (b.first_position ?? 0),
+          )
         : topological(steps, flow.links),
     [steps, flow.links, order],
   );
   const choose = useCallback(
-    (id: string) => {
-      setSelected(id);
-      const node = getNode(id);
+    (key: string) => {
+      setSelected(key);
+      const node = getNode(key);
       if (node) {
         const parent = node.parentId ? getNode(node.parentId) : undefined;
         void setCenter(
@@ -287,7 +419,7 @@ function MapWorkspace({
             (node.measured?.width || NODE_WIDTH) / 2,
           node.position.y +
             (parent?.position.y || 0) +
-            (node.measured?.height || 118) / 2,
+            (node.measured?.height || 110) / 2,
           {
             zoom: 0.9,
             duration: window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -332,20 +464,21 @@ function MapWorkspace({
               (s) => s.target_type === "step" && s.target_id === step.id,
             ).length,
             expanded: expanded.includes(step.id),
-            dimmed: false,
             toggle: () => toggle(step.id),
           },
-          ariaLabel: `${t(typeLabel[step.type])} : ${t(step.label)}. ${t(statusLabel[step.status])}`,
+          ariaLabel: `${t(typeLabel[step.type])} : ${labels[step.id]}. ${t(statusLabel[step.status ?? "to_verify"])}`,
         });
         n.children?.forEach((c) => append(c, n.id));
       };
       event.data.children.forEach((n) => append(n));
       setNodes(result);
       setLayoutError("");
-      setTimeout(() => void fitView({ padding: 0.15 }), 70);
+      setTimeout(() => void fitView({ padding: 0.12 }), 70);
     };
     worker.onerror = () =>
-      setLayoutError("Le calcul de disposition a échoué. Rechargez la page.");
+      setLayoutError(
+        "Le calcul de la disposition a échoué. Rechargez la page.",
+      );
     worker.postMessage({
       steps: flow.steps,
       links: flow.links,
@@ -382,25 +515,26 @@ function MapWorkspace({
       source: e.src,
       target: e.dst,
       type: e.type === "contradict" ? "tension" : "smoothstep",
-      label: e.connective || t(relationLabel[e.type]),
+      // Support is the default relation; other types are also named in words.
+      label:
+        e.connective ||
+        (e.type === "support" ? undefined : t(relationLabel[e.type])),
       markerEnd:
         e.type === "contradict"
           ? undefined
           : { type: MarkerType.ArrowClosed, color: colors[e.type] },
       style: {
         stroke: colors[e.type],
-        strokeWidth: e.id === selectedLink ? 3 : 1.7,
-        strokeDasharray:
-          e.type === "contradict"
-            ? "6 5"
-            : e.type === "refine"
-              ? "3 4"
-              : undefined,
+        strokeWidth:
+          (e.id === selectedLink ? 1.4 : 0) + (e.type === "cause" ? 2.4 : 1.6),
+        strokeDasharray: dashes[e.type],
         opacity: chain && (!chain.has(e.src) || !chain.has(e.dst)) ? 0.2 : 1,
       },
-      labelStyle: { fontSize: 10, fill: colors[e.type] },
-      labelBgStyle: { fill: "#f4f1e9" },
-      ariaLabel: `${t(relationLabel[e.type])} : ${e.src} → ${e.dst}`,
+      labelStyle: { fontSize: 11, fill: colors[e.type] },
+      labelBgStyle: { fill: "#fbfaf6" },
+      labelBgPadding: [4, 2] as [number, number],
+      interactionWidth: 14,
+      ariaLabel: `${t(relationLabel[e.type])} : ${labels[e.src] ?? e.src} → ${labels[e.dst] ?? e.dst}`,
     }));
   const advance = useCallback(
     (delta: number) => {
@@ -413,7 +547,7 @@ function MapWorkspace({
   );
   useEffect(() => {
     if (!playing) return;
-    const timer = setTimeout(() => advance(1), 3000);
+    const timer = setTimeout(() => advance(1), 3500);
     return () => clearTimeout(timer);
   }, [playing, advance]);
   useEffect(() => {
@@ -426,6 +560,7 @@ function MapWorkspace({
     window.addEventListener("keydown", listener);
     return () => window.removeEventListener("keydown", listener);
   }, [setSelected]);
+  const mainCount = flow.steps.filter((s) => !s.parent).length;
   return (
     <main className="map-page">
       <div className="document-heading">
@@ -434,66 +569,63 @@ function MapWorkspace({
             ← {t("Bibliothèque")}
           </RouterLink>
           <h1>{t(flow.metadata.title)}</h1>
-          <p>
+          <p className="document-meta">
             {t("{steps} étapes principales · {links} relations", {
-              steps: flow.steps.filter((s) => !s.parent).length,
+              steps: mainCount,
               links: flow.links.length,
             })}
-            {flow.metadata.demo && " · " + t("Démonstration éditoriale")}
+            {flow.metadata.demo
+              ? " · " + t("Exemple préparé à la main")
+              : " · " +
+                t("Langue de la carte : {language}", {
+                  language:
+                    languageName[flow.generation.language ?? "auto"] ??
+                    t("langue du document"),
+                })}
           </p>
-          {!flow.metadata.demo && (
-            <p
-              className="analysis-info"
-              title={t(
-                "Une carte existante garde sa langue d’analyse. Les explications à la demande suivent l’interface.",
-              )}
-            >
-              {t("Langue d’analyse : {language}", {
-                language:
-                  (
-                    { zh: "中文", en: "English", fr: "Français" } as Record<
-                      string,
-                      string
-                    >
-                  )[flow.generation.language ?? "auto"] ??
-                  t("Langue du document"),
-              })}
+          {flow.thesis && (
+            <p className="thesis">
+              <span>{t("Thèse")}</span> {t(flow.thesis)}
             </p>
           )}
         </div>
         <RouterLink className="text-link" to={`/doc/${doc.id}/texte`}>
-          {t("Ouvrir le texte intégral ↗")}
+          {t("Lire le texte intégral")}
         </RouterLink>
       </div>
       <div className="map-toolbar">
         <fieldset className="filters">
-          <legend className="sr-only">
-            {t("Types de relations visibles")}
-          </legend>
-          {Object.entries(relationLabel).map(([key, label]) => (
+          <legend>{t("Relations affichées")}</legend>
+          {(Object.keys(relationLabel) as Link["type"][]).map((key) => (
             <label key={key}>
               <input
                 type="checkbox"
-                checked={filters.includes(key as Link["type"])}
+                checked={filters.includes(key)}
                 onChange={() =>
                   setFilters((prev) =>
-                    prev.includes(key as Link["type"])
+                    prev.includes(key)
                       ? prev.filter((k) => k !== key)
-                      : [...prev, key as Link["type"]],
+                      : [...prev, key],
                   )
                 }
               />
-              {t(label)}
+              <LineSample type={key} />
+              {t(relationLabel[key])}
             </label>
           ))}
         </fieldset>
-        <label className="focus-control">
+        <label
+          className="focus-control"
+          title={t(
+            "Estompe les étapes hors de la chaîne : en amont pour une conclusion, en aval pour les autres étapes.",
+          )}
+        >
           <input
             type="checkbox"
             checked={focus}
             onChange={(e) => setFocus(e.target.checked)}
           />
-          {t("Isoler la chaîne")}
+          {t("Isoler la chaîne de l’étape choisie")}
         </label>
         <div className="guided">
           <select
@@ -529,11 +661,13 @@ function MapWorkspace({
           </button>
         </div>
       </div>
-      <div className="map-workspace">
+      <div
+        className={`map-workspace ${selectedLink && !selectedStep ? "link-open" : ""}`}
+      >
         <section
           ref={graphPanel}
           className="graph-panel"
-          aria-label={t("Carte interactive du raisonnement")}
+          aria-label={t("Carte du raisonnement")}
           onKeyDownCapture={(event) => {
             const target = event.target as HTMLElement;
             const node = target.closest<HTMLElement>(".react-flow__node");
@@ -567,36 +701,37 @@ function MapWorkspace({
             maxZoom={1.8}
             ariaLabelConfig={{
               "node.a11yDescription.default": t(
-                "Appuyez sur Entrée pour ouvrir les détails, Échap pour fermer.",
+                "Appuyez sur Entrée pour ouvrir l’étape, Échap pour fermer.",
               ),
               "edge.a11yDescription.default": t(
-                "Sélectionnez une relation pour ouvrir ses deux sources.",
+                "Sélectionnez une relation pour comparer ses deux passages.",
               ),
               "controls.zoomIn.ariaLabel": t("Zoom avant"),
               "controls.zoomOut.ariaLabel": t("Zoom arrière"),
               "controls.fitView.ariaLabel": t("Adapter à la fenêtre"),
               "controls.ariaLabel": t("Commandes de la carte"),
-              "minimap.ariaLabel": t("Mini-carte"),
+              "minimap.ariaLabel": t("Vue d’ensemble"),
             }}
             proOptions={{ hideAttribution: true }}
           >
-            <Background color="#c8cfc4" gap={24} size={1} />
+            <Background color="#d3d8cf" gap={24} size={1} />
             <Controls showInteractive={false} />
             <MiniMap
-              nodeColor={(n) => (n.id === selected ? "#245d5b" : "#b6c5b7")}
+              nodeColor={(n) => (n.id === selected ? "#245d5b" : "#c3cec3")}
               pannable
               zoomable
             />
           </ReactFlow>
-          <div className="graph-caption">
-            {t("Une relation relie une raison à ce qu’elle soutient.")}{" "}
-            <span>{t("Cadre pointillé : à vérifier")}</span>
-          </div>
+          <p className="graph-caption">
+            {t(
+              "Les flèches vont d’une raison vers ce qu’elle appuie. Cadre pointillé : soutien non confirmé.",
+            )}
+          </p>
         </section>
-        <aside className="detail-panel">
+        <aside className="detail-panel" key={locale}>
           {selectedStep ? (
             <Details
-              key={`${selectedStep.id}-${locale}`}
+              key={selectedStep.id}
               step={selectedStep}
               doc={doc}
               flow={flow}
@@ -610,41 +745,7 @@ function MapWorkspace({
               suggestions={suggestions}
             />
           ) : (
-            <div className="detail-empty">
-              <span className="detail-symbol">↗</span>
-              <h2>
-                {t("Suivez une idée")}
-                <br />
-                {t("jusqu’à sa source.")}
-              </h2>
-              <p>
-                {t(
-                  "Sélectionnez une étape pour examiner les passages qui la soutiennent.",
-                )}
-              </p>
-              <p>
-                {t(
-                  "Les liens ouvrent les deux côtés d’une relation. Développez les étapes pour découvrir leurs détails.",
-                )}
-              </p>
-              <div className="pattern-list">
-                {[...new Set((flow.patterns ?? []).map((p) => p.type))].map(
-                  (p) => (
-                    <span key={p}>
-                      {
-                        {
-                          divergence: "⑂ " + t("Divergence"),
-                          convergence: "⑃ " + t("Convergence"),
-                          contradiction: "↔ " + t("Contradiction"),
-                          refinement: "⊞ " + t("Précision"),
-                          causality: "→ " + t("Causalité"),
-                        }[p]
-                      }
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
+            <MapGuide flow={flow} />
           )}
         </aside>
       </div>

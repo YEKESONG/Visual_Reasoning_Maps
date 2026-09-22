@@ -102,7 +102,7 @@ export function PdfPage({
       .catch((e) => {
         if (active && e.name !== "RenderingCancelledException")
           setError(
-            "Le rendu PDF a échoué. Réessayez en rechargeant le document.",
+            "Impossible d’afficher cette page du PDF. Rechargez la page.",
           );
       });
     return () => {
@@ -137,7 +137,9 @@ export function PdfPage({
             style={displayBox(box, crop, scale)}
             onClick={() => onSentence?.(s.id)}
             title={s.text}
-            aria-label={t("Voir l’étape liée : {text}", { text: s.text })}
+            aria-label={t("Revenir à l’étape qui cite : {text}", {
+              text: s.text,
+            })}
           />
         )),
       )}
@@ -173,7 +175,7 @@ export function HtmlSource({
         if (active) setHtml(text);
       })
       .catch(() => {
-        if (active) setError("Le passage HTML est indisponible.");
+        if (active) setError("Impossible de charger le passage HTML.");
       });
     return () => {
       active = false;
@@ -207,7 +209,7 @@ export function HtmlSource({
       parsed.body.replaceChildren(wrapper);
     }
     const style = parsed.createElement("style");
-    style.textContent = `html,body{background:#fffdf8!important;margin:0!important;min-width:0!important}body{padding:${full ? "24" : "12"}px!important;color:#202d32}article{max-width:100%!important;padding:0!important;margin:auto!important}.vrm-highlight{background:#f2e2ad;cursor:pointer}.vrm-current{background:#e8ba77;outline:2px solid #a15b2b}img{max-width:100%}`;
+    style.textContent = `html,body{background:#fffdf9!important;margin:0!important;min-width:0!important}body{padding:${full ? "24" : "12"}px!important;color:#1f2a2e}article{max-width:100%!important;padding:0!important;margin:auto!important}.vrm-highlight{background:#f1e3b0;cursor:pointer}.vrm-current{background:#ebc288;outline:2px solid #9a5a24}img{max-width:100%}`;
     parsed.head.append(style);
     return "<!doctype html>" + parsed.documentElement.outerHTML;
   }, [html, full, anchors]);
@@ -279,7 +281,9 @@ export function SourceSnippet({ doc, ids }: { doc: Document; ids: string[] }) {
   if (!anchors.length)
     return (
       <p>
-        {t("Passage indisponible : les références doivent être vérifiées.")}
+        {t(
+          "Les phrases citées par cette étape sont introuvables dans le document.",
+        )}
       </p>
     );
   if (doc.kind === "html") return <HtmlSource doc={doc} anchors={anchors} />;
@@ -290,7 +294,7 @@ export function SourceSnippet({ doc, ids }: { doc: Document; ids: string[] }) {
         .map((page) => (
           <figure key={page}>
             <figcaption>
-              {t("Page {page} · Extrait original", { page: page ?? 1 })}
+              {t("Page {page}, mise en page d’origine", { page: page ?? 1 })}
             </figcaption>
             <PdfPage
               doc={doc}

@@ -433,6 +433,6 @@ def parse_pdf(path: Path, doc_id: str) -> Document:
                 "Texte insuffisant. Ce PDF peut être scanné : appliquez une reconnaissance OCR puis réessayez."
             )
         doc.warnings.append(
-            "PDF : ordre de lecture et formules extraits heuristiquement ; pas de reconstruction LaTeX fiable."
+            "PDF : l’ordre de lecture et les formules sont reconstitués par heuristique ; les équations ne sont pas converties en LaTeX."
         )
         return doc

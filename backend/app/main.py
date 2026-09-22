@@ -314,7 +314,7 @@ async def explanation(doc_id: str, step_id: str, request: Request):
         if graph.metadata.demo:
             result = Explanation(
                 explanation=step.summary
-                + "\n\nDémonstration éditoriale : consultez les passages cités pour vérifier cette interprétation.",
+                + "\n\nExemple préparé à la main : aucune explication n’est générée, relisez le passage cité.",
                 anchors=step.anchors,
             )
         else:

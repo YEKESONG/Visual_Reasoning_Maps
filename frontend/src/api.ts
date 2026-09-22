@@ -39,19 +39,36 @@ export async function api<T>(url: string, options?: RequestInit): Promise<T> {
 export const typeLabel: Record<Step["type"], string> = {
   question: "Question",
   premise: "Prémisse",
-  claim: "Argument",
+  claim: "Affirmation",
   evidence: "Preuve",
   objection: "Objection",
   conclusion: "Conclusion",
 };
 export const relationLabel: Record<Link["type"], string> = {
   support: "Soutien",
-  cause: "Causalité",
+  cause: "Cause",
   refine: "Précision",
   contradict: "Contradiction",
 };
-export const statusLabel = {
-  verified: "Appui vérifié par le modèle",
+export const statusLabel: Record<Step["status"] & string, string> = {
+  verified: "Vérifié",
   partial: "Appui partiel",
   to_verify: "À vérifier",
+};
+export const statusDetail: Record<Step["status"] & string, string> = {
+  verified:
+    "Le passage cité soutient cette étape. Il s’agit d’un contrôle automatique de fidélité au texte, pas d’une validation scientifique.",
+  partial: "Le passage cité ne soutient qu’une partie de cette étape.",
+  to_verify:
+    "Soutien non confirmé : lisez le passage avant de vous fier à cette étape.",
+};
+export const linkStatusDetail: Record<Link["status"] & string, string> = {
+  verified: "Les passages cités établissent cette relation.",
+  partial: "Les passages cités n’établissent cette relation qu’en partie.",
+  to_verify: "Relation non confirmée : comparez les deux passages.",
+};
+export const languageName: Record<string, string> = {
+  zh: "中文",
+  en: "English",
+  fr: "Français",
 };

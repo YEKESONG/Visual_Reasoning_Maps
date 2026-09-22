@@ -1,7 +1,7 @@
 import { useI18n, useLocale, type Locale, type AnalysisLanguage } from "./i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { api } from "./api";
+import { api, languageName } from "./api";
 import type { Health, Metadata, TaskAccepted, TaskEvent } from "./api";
 
 const TASK_KEY = "vrm.task";
@@ -33,13 +33,7 @@ export function Shell() {
     <>
       <header className="site-header">
         <Link to="/" className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            ⌘
-          </span>
-          <span>
-            Visual Reasoning Maps
-            <small>{t("Lire les idées. Suivre les preuves.")}</small>
-          </span>
+          Visual Reasoning Maps
         </Link>
         <nav>
           <Link to="/">{t("Bibliothèque")}</Link>
@@ -55,19 +49,19 @@ export function Shell() {
               <option value="fr">Français</option>
             </select>
           </label>
-          <span className="local-label">{t("Atelier de lecture · ENAC")}</span>
         </nav>
       </header>
       <Outlet />
     </>
   );
 }
+
 type Failure = { message: string; params?: Record<string, string> };
 
 export function Home() {
   const { t, locale } = useI18n();
   const { analysisLanguage, setAnalysisLanguage } = useLocale();
-  const [docs, setDocs] = useState<Metadata[]>([]);
+  const [docs, setDocs] = useState<Metadata[] | null>(null);
   const [health, setHealth] = useState<Health | null>(null);
   const [url, setUrl] = useState("");
   const [failure, setFailure] = useState<Failure | null>(null);
@@ -75,6 +69,12 @@ export function Home() {
   const source = useRef<EventSource | null>(null);
   const navigate = useNavigate();
   const busy = task !== null;
+
+  const refresh = useCallback(() => {
+    void api<Metadata[]>("/api/docs")
+      .then(setDocs)
+      .catch((e) => setFailure({ message: String(e.message) }));
+  }, []);
 
   const follow = useCallback(
     (taskId: string) => {
@@ -113,9 +113,7 @@ export function Home() {
   );
 
   useEffect(() => {
-    void api<Metadata[]>("/api/docs")
-      .then(setDocs)
-      .catch((e) => setFailure({ message: String(e.message) }));
+    refresh();
     void api<Health>("/api/health")
       .then(setHealth)
       .catch(() => setHealth(null));
@@ -132,15 +130,15 @@ export function Home() {
         .catch(() => remember(null));
     }
     return () => source.current?.close();
-  }, [follow]);
+  }, [refresh, follow]);
 
   async function submit(file?: File) {
     setFailure(null);
     setTask({ step: "Envoi du document", progress: 0, status: "running" });
     try {
-      const data = new FormData();
       const language =
         analysisLanguage === "interface" ? locale : analysisLanguage;
+      const data = new FormData();
       if (file) {
         data.append("file", file);
         data.append("language", language);
@@ -160,44 +158,28 @@ export function Home() {
       setTask(null);
     }
   }
+
+  const date = new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : locale, {
+    dateStyle: "medium",
+  });
   return (
     <main className="library">
-      <section className="intro">
-        <div>
-          <p className="eyebrow">{t("Un texte, un raisonnement à explorer")}</p>
-          <h1>
-            {t("De la question")}
-            <br />
-            {t("à la conclusion.")}
-          </h1>
-          <p className="lead">
+      <section className="new-map" aria-labelledby="new-map-title">
+        <h1 id="new-map-title">{t("Nouvelle carte")}</h1>
+        <p className="intro">
+          {t(
+            "Importez un article en PDF ou collez le lien de sa version HTML sur arXiv. Le modèle relève les étapes de l’argumentation et relie chacune aux phrases du texte : chaque étape s’ouvre sur le passage d’origine.",
+          )}
+        </p>
+        {health && !health.configured && (
+          <p className="notice">
             {t(
-              "Retrouvez le fil d’un article. Explorez ses arguments, confrontez ses preuves et revenez à chaque passage.",
+              "Aucune clé API n’est configurée. Les exemples restent consultables ; pour analyser un document, ajoutez DEEPSEEK_API_KEY dans .env puis redémarrez le serveur.",
             )}
           </p>
-        </div>
-        <div
-          className="intro-diagram"
-          aria-label={t("Question vers prémisse et preuve, puis conclusion")}
-        >
-          <span>{t("Question")}</span>
-          <b>↘</b>
-          <span>{t("Prémisse")}</span>
-          <b>→</b>
-          <span>{t("Argument")}</span>
-          <b>→</b>
-          <span className="last">{t("Conclusion")}</span>
-          <span className="evidence">{t("Preuve")} ↗</span>
-          <small>{t("Chaque étape garde un lien avec le texte.")}</small>
-        </div>
-      </section>
-      <section className="import-section">
-        <div>
-          <h2>{t("Commencer une lecture")}</h2>
-          <p>{t("Un article PDF ou sa version HTML sur arXiv.")}</p>
-        </div>
+        )}
         <div className="import-controls">
-          <label className="upload-button">
+          <label className={`upload-button ${busy ? "disabled" : ""}`}>
             {t("Importer un PDF")}
             <input
               type="file"
@@ -225,107 +207,108 @@ export function Home() {
               id="arxiv"
               type="url"
               required
-              placeholder="https://arxiv.org/html/…"
+              placeholder="https://arxiv.org/html/2404.16130"
               value={url}
               disabled={busy}
               onChange={(e) => setUrl(e.target.value)}
             />
             <button disabled={busy || !url.trim()}>
-              {t("Créer la carte →")}
+              {t("Générer la carte")}
             </button>
           </form>
         </div>
         <div className="analysis-language">
           <label>
-            {t("Langue de l’analyse")}{" "}
+            {t("Langue de la carte")}{" "}
             <select
-              aria-label={t("Langue de l’analyse")}
+              aria-label={t("Langue de la carte")}
               value={analysisLanguage}
               onChange={(e) =>
                 setAnalysisLanguage(e.target.value as AnalysisLanguage)
               }
             >
-              <option value="interface">{t("Suivre l’interface")}</option>
-              <option value="auto">{t("Langue du document")}</option>
+              <option value="interface">{t("Comme l’interface")}</option>
+              <option value="auto">{t("Comme le document")}</option>
               <option value="zh">中文</option>
               <option value="en">English</option>
               <option value="fr">Français</option>
             </select>
           </label>
-          <small>
-            {t(
-              "Les citations restent dans leur langue originale. Ce réglage s’applique aux nouvelles cartes.",
-            )}
-          </small>
+          <span>{t("Les citations restent dans la langue du document.")}</span>
         </div>
-        <p className="import-note">
+        <p className="privacy">
           {t(
-            "Les extraits du document sont envoyés au modèle configuré pour l’analyse. Le document original et les cartes restent sur cette machine.",
+            "Le texte du document est envoyé au modèle défini dans .env ({model}). Le PDF et les cartes restent dans le dossier data/ de cette machine.",
+            { model: health?.model ?? "LLM_MODEL" },
           )}
         </p>
-        {health && !health.configured && (
-          <p className="notice">
-            {t(
-              "Aucune clé API n’est configurée. Les exemples restent consultables ; pour analyser un document, ajoutez DEEPSEEK_API_KEY dans .env puis redémarrez le serveur.",
-            )}
+        {task && (
+          <div className="progress" role="status">
+            <div className="progress-line">
+              <span>{t(task.step)}</span>
+              <span>{task.progress} %</span>
+            </div>
+            <progress max={100} value={task.progress} />
+            <p>
+              {t(
+                "Comptez quelques minutes pour un article. Vous pouvez quitter cette page : la carte apparaîtra dans la bibliothèque une fois prête.",
+              )}
+            </p>
+          </div>
+        )}
+        {failure && (
+          <p className="error" role="alert">
+            {t(failure.message, {
+              ...Object.fromEntries(
+                Object.entries(failure.params ?? {}).map(([k, v]) => [k, t(v)]),
+              ),
+            })}
           </p>
         )}
       </section>
-      {task && (
-        <div className="progress" role="status">
-          <span>{t(task.step)}</span>
-          <progress max={100} value={task.progress} />
-          <span>{task.progress} %</span>
-          <small>
-            {t(
-              "Comptez quelques minutes pour un article. Vous pouvez quitter cette page : la carte apparaîtra dans la bibliothèque une fois prête.",
-            )}
-          </small>
-        </div>
-      )}
-      {failure && (
-        <p className="error" role="alert">
-          {t(failure.message, {
-            ...Object.fromEntries(
-              Object.entries(failure.params ?? {}).map(([k, v]) => [k, t(v)]),
-            ),
-          })}
-        </p>
-      )}
-      <section className="shelf">
+      <section className="shelf" aria-labelledby="shelf-title">
         <div className="section-heading">
-          <h2>{t("Votre bibliothèque")}</h2>
-          <span>{t("{count} document{plural}", { count: docs.length })}</span>
+          <h2 id="shelf-title">{t("Bibliothèque")}</h2>
+          {docs && (
+            <span>{t("{count} document{plural}", { count: docs.length })}</span>
+          )}
         </div>
-        {docs.length === 0 ? (
-          <div className="empty">
-            <h3>{t("Le prochain fil commence ici.")}</h3>
-            <p>
-              {t("Importez un document pour construire votre première carte.")}
-            </p>
-          </div>
-        ) : (
-          docs.map((doc, i) => (
-            <Link className="document-row" to={`/doc/${doc.id}`} key={doc.id}>
-              <span className="doc-number">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="doc-title">
-                {t(doc.title)}
-                <small>
-                  {doc.demo
-                    ? t("Démonstration commentée · Sans clé API")
-                    : doc.kind.toUpperCase() + " · " + t("Carte enregistrée")}
-                </small>
-              </span>
-              <span className="read-link">{t("Explorer la carte ↗")}</span>
-            </Link>
-          ))
+        {docs?.length === 0 && (
+          <p className="empty">
+            {t(
+              "Aucune carte pour l’instant. Importez un PDF ou collez un lien arXiv ci-dessus.",
+            )}
+          </p>
+        )}
+        {docs && docs.length > 0 && (
+          <ul className="document-list">
+            {docs.map((doc) => (
+              <li key={doc.id}>
+                <Link className="document-row" to={`/doc/${doc.id}`}>
+                  <span className="doc-title">{t(doc.title)}</span>
+                  <span className="doc-meta">
+                    {doc.demo ? (
+                      t("Exemple préparé à la main · sans clé API")
+                    ) : (
+                      <>
+                        {doc.kind.toUpperCase()}
+                        {doc.language &&
+                          " · " +
+                            (languageName[doc.language] ??
+                              t("langue du document"))}
+                        {" · " + date.format(new Date(doc.created_at))}
+                      </>
+                    )}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
       <footer>
         {t(
-          "Une carte est une interprétation du texte. Les passages originaux restent la référence.",
+          "Une carte est la lecture d’un texte par un modèle. En cas de doute, le passage original fait foi.",
         )}
       </footer>
     </main>

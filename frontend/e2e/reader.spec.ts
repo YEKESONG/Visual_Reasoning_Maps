@@ -40,7 +40,9 @@ test("PDF demonstration: hierarchy, evidence, full text and return", async ({
     fullPage: true,
   });
   await page
-    .getByRole("button", { name: "Développer Rendre son parcours visible" })
+    .getByRole("button", {
+      name: "Afficher les 2 sous-étapes de « Rendre son parcours visible »",
+    })
     .click();
   await expect(page.locator(".react-flow__node")).toHaveCount(8);
   await page.waitForTimeout(500);
@@ -49,14 +51,16 @@ test("PDF demonstration: hierarchy, evidence, full text and return", async ({
     fullPage: true,
   });
   await page
-    .getByRole("button", { name: "Replier Rendre son parcours visible" })
+    .getByRole("button", {
+      name: "Masquer les sous-étapes de « Rendre son parcours visible »",
+    })
     .click();
   await expect(page.locator(".react-flow__node")).toHaveCount(6);
   await page.getByRole("button", { name: "Expliquer cette étape" }).click();
   await expect(page.locator(".explanation")).toContainText(
-    "Démonstration éditoriale",
+    "Exemple préparé à la main",
   );
-  await page.getByRole("link", { name: "Voir dans le texte intégral" }).click();
+  await page.locator(".detail-panel .anchor-links a").first().click();
   await expect(page.locator(".reader-sheet")).toHaveCount(2);
   await page.locator(".pdf-highlight.current").first().scrollIntoViewIfNeeded();
   await page.screenshot({
@@ -71,7 +75,7 @@ test("PDF demonstration: hierarchy, evidence, full text and return", async ({
     "Laisser le lecteur juger",
   );
   await page.keyboard.press("Escape");
-  await expect(page.locator(".detail-empty")).toBeVisible();
+  await expect(page.locator(".map-guide")).toBeVisible();
   await page.setViewportSize({ width: 1024, height: 800 });
   await page.waitForTimeout(300);
   await page.screenshot({
@@ -107,7 +111,7 @@ test("HTML source navigates both ways and filters relations", async ({
     path: "../docs/screenshots/map-html.png",
     fullPage: true,
   });
-  await page.getByRole("link", { name: "Voir dans le texte intégral" }).click();
+  await page.locator(".detail-panel .anchor-links a").first().click();
   await expect(
     page.frameLocator(".reader-pages iframe").locator(".vrm-current").first(),
   ).toBeVisible();

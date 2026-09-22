@@ -79,9 +79,15 @@ export function FullText() {
     return (
       <main className="loading">
         <p className="error">{t(error)}</p>
+        <RouterLink to="/">{t("Retour à la bibliothèque")}</RouterLink>
       </main>
     );
-  if (!data) return <p className="loading">{t("Ouverture du texte…")}</p>;
+  if (!data)
+    return (
+      <p className="loading" role="status">
+        {t("Ouverture du texte…")}
+      </p>
+    );
   return (
     <main className="fulltext">
       <header className="reader-heading">
@@ -89,7 +95,7 @@ export function FullText() {
         <h1>{t(data.doc.title)}</h1>
         <p>
           {t(
-            "Texte intégral · Cliquez sur un passage surligné pour retrouver son étape.",
+            "Les passages surlignés sont cités dans la carte. Cliquez sur l’un d’eux pour revenir à l’étape correspondante.",
           )}
         </p>
         {(data.doc.warnings ?? []).map((w, i) => (
@@ -127,16 +133,17 @@ export function FullText() {
       </div>
       <nav
         className="position-rail"
-        aria-label={t("Position des idées dans le texte")}
+        aria-label={t("Position des étapes principales dans le texte")}
       >
-        <span>{t("Le fil du texte")}</span>
+        <span>{t("Étapes")}</span>
         <div>
           {markers.map(({ step, number, top, shift }) => (
             <button
               key={step.id}
               className={step.anchors.includes(current ?? "") ? "current" : ""}
               style={{ top: `${top}%`, marginLeft: -shift * 30 }}
-              aria-label={t("Aller au passage : {label}", {
+              aria-label={t("Aller au passage de l’étape {number} : {label}", {
+                number,
                 label: t(step.label),
               })}
               title={t(step.label)}

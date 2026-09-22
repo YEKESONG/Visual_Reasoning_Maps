@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import graph from "../../examples/demo-descartes-html/flow.json";
 import suggestions from "../../examples/demo-descartes-html/suggestions.json";
+import parsed from "../../examples/demo-descartes-html/parsed.json";
 import { messages } from "./translations";
 import { translate } from "./i18n";
 
@@ -33,6 +34,8 @@ describe("locale catalog", () => {
   it("covers all editorial demonstration prose without translating evidence", () => {
     const prose = [
       graph.metadata.title,
+      graph.thesis,
+      ...parsed.warnings,
       ...graph.steps.flatMap((s: { label: string; summary: string }) => [
         s.label,
         s.summary,

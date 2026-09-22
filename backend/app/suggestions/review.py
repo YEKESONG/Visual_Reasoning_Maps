@@ -14,13 +14,11 @@ def rule_suggestions(graph: Graph) -> list[Suggestion]:
         message = None
         category = "support"
         if step.type in ("claim", "conclusion") and not inbound:
-            message = "Ajoutez une justification explicite et indiquez quelle preuve soutient cette affirmation."
+            message = "Rien dans la carte n’appuie cette affirmation : précisez dans le texte sur quoi elle repose."
         elif step.type == "evidence" and not outbound:
-            message = "Expliquez quelle affirmation cette observation permet de soutenir."
+            message = "Cette observation n’appuie aucune étape de la carte : indiquez dans le texte quelle affirmation elle soutient."
         elif step.type == "conclusion" and step.status != "verified":
-            message = (
-                "Vérifiez que la portée de la conclusion ne dépasse pas celle des éléments cités."
-            )
+            message = "Vérifiez que la conclusion ne va pas plus loin que les éléments cités."
         if message:
             results.append(
                 Suggestion(
@@ -41,7 +39,7 @@ def rule_suggestions(graph: Graph) -> list[Suggestion]:
                     target_id=edge.id,
                     category="objection",
                     severity="info",
-                    message="Vérifiez si le texte répond explicitement à cette tension ; la présence d’une contradiction ne constitue pas à elle seule une erreur.",
+                    message="Vérifiez si le texte répond à cette tension. Une contradiction relevée n’est pas forcément une erreur.",
                     anchors=edge.anchors,
                     source="rule",
                 )
