@@ -1,6 +1,7 @@
 import asyncio
 import re
 import shutil
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -8,7 +9,7 @@ from fastapi.responses import FileResponse
 from sse_starlette.sse import EventSourceResponse
 from starlette.datastructures import UploadFile
 
-from backend.app.config import settings
+from backend.app.config import ROOT, settings
 from backend.app.ingest.arxiv_html import acquire, arxiv_id
 from backend.app.ingest.pdf_grobid import enrich_grobid
 from backend.app.ingest.pdf_pymupdf import parse_pdf
@@ -26,7 +27,21 @@ from backend.app.storage.files import Store, digest
 from backend.app.tasks.manager import TaskManager
 from backend.app.tasks.pipeline import process
 
-app = FastAPI(title="Visual Reasoning Maps", version="0.1.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    for example in (ROOT / "examples").glob("demo-*"):
+        destination = store.directory(example.name)
+        if example.is_dir() and not destination.exists():
+            shutil.copytree(example, destination)
+    yield
+    for task in tasks.running:
+        task.cancel()
+    if tasks.running:
+        await asyncio.gather(*tasks.running, return_exceptions=True)
+
+
+app = FastAPI(title="Visual Reasoning Maps", version="0.1.0", lifespan=lifespan)
 store = Store(settings.data_dir)
 tasks = TaskManager()
 
@@ -260,7 +275,6 @@ async def explanation(doc_id: str, step_id: str):
 def frontend(path: str):
     if path.startswith("api/"):
         raise HTTPException(404, "Route API inconnue.")
-    from backend.app.config import ROOT
 
     dist = ROOT / "frontend/dist"
     candidate = (dist / path).resolve()

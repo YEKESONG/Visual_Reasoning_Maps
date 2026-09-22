@@ -108,3 +108,11 @@
 - 验证：bash -n、ruff、前端 lint/test/build 通过；不依赖系统全局 Python 包。
 - 决策：当前锁定依赖需要 Python 3.12（NetworkX 3.7），使用已安装 Python 3.12 与 Node 24。S17 将检查是否可以恢复 3.11 支持。
 - 遗留：Docker/GROBID 未实跑；S17 再从已推送提交进行最终 clone 验证，不混淆快照验收与远程克隆验收。
+
+## S16 示例与演示模式
+- 完成：公有领域 Descartes / John Veitch 文本的 PDF、HTML 两种示例；启动自动导入；无密钥详情、术语、建议与按需说明；确定性构建脚本与来源说明。
+- 许可核对：Project Gutenberg eBook 59 标明美国公有领域，作者与译者分别卒于 1650、1894；仅取正文，重新排版，未复制站点商标或附录。示例不是模型实测输出。
+- 问题修复：React Flow 测量事件未回填导致小地图空白；Enter 未联动详情；缩窗后未重新适应窗口。现已修复并断言 1024px 下主节点均在视口内。
+- 验证：后端 33 项通过（包含待在 S17 提交的适配层新增测试），前端 7 项通过；Playwright 2 条完整阅读路径通过，无 pageerror；PDF 两页渲染检查；七张截图保存于 docs/screenshots/。
+- 验证命令：pytest -q、ruff check backend scripts；pnpm lint/test/build/test:e2e。
+- 遗留：图布局缩放后小字号可用放大查看；长文语义准确度和真实 API 调用仍待密钥实测。

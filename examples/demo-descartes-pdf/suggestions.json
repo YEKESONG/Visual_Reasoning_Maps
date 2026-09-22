@@ -1,0 +1,14 @@
+[
+  {
+    "target_type": "step",
+    "target_id": "experience",
+    "category": "support",
+    "severity": "info",
+    "message": "Distinguez le progrès rapporté par l’auteur d’une mesure indépendante de l’efficacité de la méthode.",
+    "suggested_rewrite": null,
+    "anchors": [
+      "p5s1"
+    ],
+    "source": "rule"
+  }
+]

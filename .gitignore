@@ -23,3 +23,6 @@ paper/etat_de_lart/*.pdf
 .DS_Store
 
 *.tsbuildinfo
+
+frontend/test-results/
+frontend/playwright-report/

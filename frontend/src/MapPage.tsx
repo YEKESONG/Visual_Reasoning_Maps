@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Link as RouterLink,
   useParams,
   useSearchParams,
 } from "react-router-dom";
 import {
+  applyNodeChanges,
   Background,
   Controls,
   Handle,
@@ -157,6 +158,7 @@ function MapWorkspace({
     toggle,
     setFocus,
   } = useView();
+  const graphPanel = useRef<HTMLElement>(null);
   const [nodes, setNodes] = useState<StepFlowNode[]>([]);
   const [layoutError, setLayoutError] = useState("");
   const [filters, setFilters] = useState<Link["type"][]>([
@@ -168,6 +170,20 @@ function MapWorkspace({
   const [order, setOrder] = useState("logic");
   const [playing, setPlaying] = useState(false);
   const { fitView, setCenter, getNode } = useReactFlow<StepFlowNode>();
+  useEffect(() => {
+    const element = graphPanel.current;
+    if (!element) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const observer = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(() => void fitView({ padding: 0.15 }), 100);
+    });
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, [fitView]);
   const steps = useMemo(
     () => visibleSteps(flow.steps, expanded),
     [flow.steps, expanded],
@@ -404,12 +420,29 @@ function MapWorkspace({
       </div>
       <div className="map-workspace">
         <section
+          ref={graphPanel}
           className="graph-panel"
           aria-label="Carte interactive du raisonnement"
+          onKeyDownCapture={(event) => {
+            const target = event.target as HTMLElement;
+            const node = target.closest<HTMLElement>(".react-flow__node");
+            if (
+              event.key === "Enter" &&
+              node?.dataset.id &&
+              target.tagName !== "BUTTON"
+            ) {
+              event.preventDefault();
+              event.stopPropagation();
+              setSelected(node.dataset.id);
+            }
+          }}
         >
           {layoutError && <p className="error">{layoutError}</p>}
           <ReactFlow
             nodes={displayNodes}
+            onNodesChange={(changes) =>
+              setNodes((previous) => applyNodeChanges(changes, previous))
+            }
             edges={edges}
             nodeTypes={nodeTypes}
             onNodeClick={(_, node) => setSelected(node.id)}

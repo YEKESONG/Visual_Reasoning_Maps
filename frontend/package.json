@@ -34,7 +34,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "format": "prettier --write src",
-    "test": "vitest run",
-    "types": "openapi-typescript openapi.json -o src/api-schema.d.ts"
+    "test": "vitest run src",
+    "types": "openapi-typescript openapi.json -o src/api-schema.d.ts",
+    "test:e2e": "playwright test"
   }
 }

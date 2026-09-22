@@ -2,7 +2,7 @@
 
 本机运行的学术阅读原型：从 PDF 或 arXiv HTML 重建分层推理图，点击步骤或连线查看原文、解释和修改建议。法语界面；附法语综述初稿与中文过程文档。
 
-![流程图与原文](docs/screenshots/qa-details.png)
+![流程图与原文](docs/screenshots/map-pdf.png)
 
 ## 安装与启动
 

@@ -787,3 +787,9 @@ input[type="checkbox"] {
   background: #245d5b;
   color: white;
 }
+.react-flow__controls.bottom {
+  bottom: 42px;
+}
+.react-flow__minimap.bottom {
+  bottom: 22px;
+}

@@ -2,7 +2,7 @@
 
 Un atelier de lecture local pour parcourir les arguments d’un document et revenir à leurs sources. Projet ENAC : prototype de recherche, interface française et état de l’art modifiable.
 
-![Carte et passages](docs/screenshots/qa-details.png)
+![Carte et passages](docs/screenshots/map-pdf.png)
 
 ## Démarrer
 
