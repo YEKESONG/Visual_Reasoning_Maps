@@ -4,11 +4,18 @@ import { layoutInput } from "./graph";
 import type { Step, Link } from "./api";
 const elk = new ELK({ workerUrl: elkWorkerUrl });
 self.onmessage = async (
-  event: MessageEvent<{ steps: Step[]; links: Link[]; expanded: string[] }>,
+  event: MessageEvent<{
+    steps: Step[];
+    links: Link[];
+    expanded: string[];
+    labels: Record<string, string>;
+  }>,
 ) => {
   try {
-    const { steps, links, expanded } = event.data;
-    const result = await elk.layout(layoutInput(steps, links, expanded));
+    const { steps, links, expanded, labels } = event.data;
+    const result = await elk.layout(
+      layoutInput(steps, links, expanded, labels),
+    );
     self.postMessage({ children: result.children });
   } catch {
     self.postMessage({

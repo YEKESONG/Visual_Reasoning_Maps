@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { layoutInput, reachable, topological, visibleSteps } from "./graph";
+import {
+  layoutInput,
+  nodeHeight,
+  reachable,
+  topological,
+  visibleSteps,
+} from "./graph";
 import type { Step, Link } from "./api";
 const steps = ["a", "b", "c"].map((id, i) => ({
   id,
@@ -34,5 +40,18 @@ describe("graph navigation", () => {
     expect(visibleSteps(all, [])).toHaveLength(3);
     expect(layoutInput(all, links, ["a"]).children[0].children).toHaveLength(1);
     expect(layoutInput(all, links, []).edges).toHaveLength(2);
+  });
+  it("sizes nodes to the label they display", () => {
+    expect(nodeHeight("Short")).toBe(92);
+    // Twenty CJK glyphs need two lines where twenty Latin letters need one.
+    expect(nodeHeight("上下文崩塌：动作条件失效的一种新失败模式")).toBe(114);
+    expect(nodeHeight("Context of the claim")).toBe(92);
+    expect(nodeHeight("一".repeat(200))).toBe(70 + 4 * 22);
+    const translated = { a: "一".repeat(30) };
+    expect(layoutInput(steps, links, [], translated).children[0]).toMatchObject(
+      {
+        height: nodeHeight(translated.a),
+      },
+    );
   });
 });

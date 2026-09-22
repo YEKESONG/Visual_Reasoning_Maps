@@ -416,11 +416,17 @@ input[type="checkbox"] {
   font-size: 11px;
   padding: 7px 9px;
 }
+.map-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 92px);
+  min-height: 560px;
+}
 .map-workspace {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 380px;
-  height: calc(100vh - 263px);
-  min-height: 490px;
   border-bottom: 1px solid var(--line);
 }
 .graph-panel {
@@ -501,8 +507,9 @@ input[type="checkbox"] {
 .step-node {
   height: 100%;
   border-left: 4px solid var(--teal);
-  padding: 14px 16px;
+  padding: 10px 14px;
   color: var(--ink);
+  overflow: hidden;
 }
 .step-node.to_verify {
   outline: 1.5px dashed var(--ochre);
@@ -529,7 +536,7 @@ input[type="checkbox"] {
   justify-content: space-between;
   font-size: 10px;
   color: #536b5e;
-  margin-bottom: 11px;
+  margin-bottom: 6px;
 }
 .step-node strong {
   font-family: Georgia, serif;
@@ -542,7 +549,7 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 6px;
   font-size: 9px;
   color: #64766b;
 }

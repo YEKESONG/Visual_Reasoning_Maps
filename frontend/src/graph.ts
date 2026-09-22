@@ -47,9 +47,25 @@ export function topological(steps: Step[], links: Link[]): Step[] {
 export function visibleSteps(steps: Step[], expanded: string[]): Step[] {
   return steps.filter((s) => !s.parent || expanded.includes(s.parent));
 }
-export function layoutInput(steps: Step[], links: Link[], expanded: string[]) {
+export const NODE_WIDTH = 240;
+// Rough text width in em: CJK glyphs take a full em, Latin letters about half.
+export function nodeHeight(label: string): number {
+  const units = [...label].reduce(
+    (sum, c) => sum + (/[\u2e80-\u9fff\uf900-\uffef]/.test(c) ? 1 : 0.52),
+    0,
+  );
+  const lines = Math.min(4, Math.max(1, Math.ceil((units * 17) / 204)));
+  return 70 + lines * 22;
+}
+export function layoutInput(
+  steps: Step[],
+  links: Link[],
+  expanded: string[],
+  labels: Record<string, string> = {},
+) {
   const visible = visibleSteps(steps, expanded);
   const ids = new Set(visible.map((s) => s.id));
+  const height = (s: Step) => nodeHeight(labels[s.id] ?? s.label);
   return {
     id: "root",
     layoutOptions: {
@@ -67,16 +83,17 @@ export function layoutInput(steps: Step[], links: Link[], expanded: string[]) {
           ? {
               id: s.id,
               layoutOptions: {
-                "elk.padding": "[top=120,left=20,bottom=20,right=20]",
+                "elk.padding": `[top=${height(s) + 14},left=18,bottom=18,right=18]`,
                 "elk.direction": "DOWN",
+                "elk.spacing.nodeNode": "22",
               },
               children: children.map((c) => ({
                 id: c.id,
-                width: 235,
-                height: 108,
+                width: NODE_WIDTH,
+                height: height(c),
               })),
             }
-          : { id: s.id, width: 235, height: 118 };
+          : { id: s.id, width: NODE_WIDTH, height: height(s) };
       }),
     edges: links
       .filter(

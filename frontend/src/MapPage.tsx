@@ -8,20 +8,35 @@ import {
 import {
   applyNodeChanges,
   Background,
+  BaseEdge,
   Controls,
+  getStraightPath,
   Handle,
   MarkerType,
   MiniMap,
   Position,
   ReactFlow,
   ReactFlowProvider,
+  useInternalNode,
   useReactFlow,
 } from "@xyflow/react";
-import type { Edge, Node, NodeProps } from "@xyflow/react";
+import type {
+  Edge,
+  EdgeProps,
+  InternalNode,
+  Node,
+  NodeProps,
+} from "@xyflow/react";
 import type { ElkNode } from "elkjs";
 import { api, relationLabel, statusLabel, typeLabel } from "./api";
 import type { Document, Flow, Link, Step, Suggestion } from "./api";
-import { reachable, topological, visibleSteps } from "./graph";
+import {
+  NODE_WIDTH,
+  nodeHeight,
+  reachable,
+  topological,
+  visibleSteps,
+} from "./graph";
 import { useView } from "./state";
 import { Details, LinkDetails } from "./Details";
 
@@ -78,7 +93,65 @@ function StepNode({ data, selected }: NodeProps<StepFlowNode>) {
     </div>
   );
 }
+// Point where the segment between two node centres leaves the first node's box.
+function borderPoint(node: InternalNode, other: InternalNode) {
+  const w = (node.measured.width ?? NODE_WIDTH) / 2;
+  const h = (node.measured.height ?? 100) / 2;
+  const cx = node.internals.positionAbsolute.x + w;
+  const cy = node.internals.positionAbsolute.y + h;
+  const ox =
+    other.internals.positionAbsolute.x +
+    (other.measured.width ?? NODE_WIDTH) / 2;
+  const oy =
+    other.internals.positionAbsolute.y + (other.measured.height ?? 100) / 2;
+  const dx = ox - cx;
+  const dy = oy - cy;
+  const scale =
+    1 / Math.max(Math.abs(dx) / w || 0, Math.abs(dy) / h || 0, 1e-6);
+  return { x: cx + dx * Math.min(1, scale), y: cy + dy * Math.min(1, scale) };
+}
+
+// Contradictions are symmetric: a straight dashed segment between the two boxes.
+function TensionEdge({
+  id,
+  source,
+  target,
+  style,
+  label,
+  labelStyle,
+  labelBgStyle,
+  interactionWidth,
+}: EdgeProps) {
+  const from = useInternalNode(source);
+  const to = useInternalNode(target);
+  if (!from || !to) return null;
+  const a = borderPoint(from, to);
+  const b = borderPoint(to, from);
+  const [path, labelX, labelY] = getStraightPath({
+    sourceX: a.x,
+    sourceY: a.y,
+    targetX: b.x,
+    targetY: b.y,
+  });
+  return (
+    <BaseEdge
+      id={id}
+      path={path}
+      style={style}
+      label={label}
+      labelX={labelX}
+      labelY={labelY}
+      labelStyle={labelStyle}
+      labelShowBg
+      labelBgStyle={labelBgStyle}
+      labelBgPadding={[4, 2]}
+      interactionWidth={interactionWidth}
+    />
+  );
+}
+
 const nodeTypes = { step: StepNode };
+const edgeTypes = { tension: TensionEdge };
 const colors = {
   support: "#245d5b",
   cause: "#a15b2b",
@@ -187,6 +260,10 @@ function MapWorkspace({
       clearTimeout(timer);
     };
   }, [fitView]);
+  const labels = useMemo(
+    () => Object.fromEntries(flow.steps.map((s) => [s.id, t(s.label)])),
+    [flow.steps, t],
+  );
   const steps = useMemo(
     () => visibleSteps(flow.steps, expanded),
     [flow.steps, expanded],
@@ -207,7 +284,7 @@ function MapWorkspace({
         void setCenter(
           node.position.x +
             (parent?.position.x || 0) +
-            (node.measured?.width || 235) / 2,
+            (node.measured?.width || NODE_WIDTH) / 2,
           node.position.y +
             (parent?.position.y || 0) +
             (node.measured?.height || 118) / 2,
@@ -244,7 +321,10 @@ function MapWorkspace({
           position: { x: n.x || 0, y: n.y || 0 },
           parentId,
           extent: parentId ? "parent" : undefined,
-          style: { width: n.width || 235, height: n.height || 118 },
+          style: {
+            width: n.width || NODE_WIDTH,
+            height: n.height || nodeHeight(labels[step.id]),
+          },
           data: {
             step,
             children: flow.steps.filter((s) => s.parent === step.id).length,
@@ -266,9 +346,14 @@ function MapWorkspace({
     };
     worker.onerror = () =>
       setLayoutError("Le calcul de disposition a échoué. Rechargez la page.");
-    worker.postMessage({ steps: flow.steps, links: flow.links, expanded });
+    worker.postMessage({
+      steps: flow.steps,
+      links: flow.links,
+      expanded,
+      labels,
+    });
     return () => worker.terminate();
-  }, [flow, expanded, suggestions, toggle, fitView, locale, t]);
+  }, [flow, expanded, suggestions, toggle, fitView, labels, t]);
   const selectedStep = flow.steps.find((s) => s.id === selected);
   const chain = useMemo(
     () =>
@@ -296,7 +381,7 @@ function MapWorkspace({
       id: e.id,
       source: e.src,
       target: e.dst,
-      type: "smoothstep",
+      type: e.type === "contradict" ? "tension" : "smoothstep",
       label: e.connective || t(relationLabel[e.type]),
       markerEnd:
         e.type === "contradict"
@@ -471,6 +556,7 @@ function MapWorkspace({
             }
             edges={edges}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             onNodeClick={(_, node) => setSelected(node.id)}
             onEdgeClick={(_, edge) => setLink(edge.id)}
             onPaneClick={() => setSelected(null)}
