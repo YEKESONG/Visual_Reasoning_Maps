@@ -95,3 +95,9 @@
 - 问题修复：ELK bundled 包在 Worker 内构造失败，改用官方 elk-api + 显式 worker URL；临时浏览器脚本加入 lint 忽略目录。
 - 验证：前端 7 项测试（左上坐标、旋转页缩放、裁剪边界）；ESLint/tsc/build 通过；Playwright 在 1440px 下打开节点与 HTML 片段，无 pageerror；截图 docs/screenshots/qa-details.png。
 - 自查：修正 iframe 初始视口高度造成多余空白；PDF 完整交互在 S16 示例补验。
+
+## S14 全文阅读与位置导航
+- 完成：全文 PDF 懒渲染/HTML 排版、高亮锚点、当前句、步骤位置条；详情跳全文、原文跳回步骤；URL 携带稳定句子 ID。
+- 主要文件：FullText.tsx、main.tsx；截图 docs/screenshots/qa-fulltext.png。
+- 验证：Playwright 走通 节点→详情→全文→高亮→原节点；返回 /doc/qa-fixture?step=a；5 节点均渲染、无 JS 异常；Enter/Esc 路径执行。
+- 遗留：位置条按句序估计分布，点击使用实际锚点；S16 更完整示例补验。
