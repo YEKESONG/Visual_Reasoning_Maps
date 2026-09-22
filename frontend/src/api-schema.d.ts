@@ -494,6 +494,8 @@ export interface components {
       end: number;
       /** Bbox */
       bbox: [number, number, number, number];
+      /** Page */
+      page?: number | null;
     };
   };
   responses: never;

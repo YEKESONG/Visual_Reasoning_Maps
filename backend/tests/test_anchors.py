@@ -38,3 +38,15 @@ def test_rotated_pdf_coordinates(tmp_path):
         for box in s.bbox
     )
     assert all(s.id.startswith(s.paragraph_id + "s") for s in doc.sentences)
+
+
+def test_ellipsis_lowercase_and_bullets():
+    text = (
+        "For k = 0, . . . , K the loss drops. See e.g. the table. • We add a model. • We test it."
+    )
+    assert [text[a:b] for a, b in split_spans(text)] == [
+        "For k = 0, . . . , K the loss drops.",
+        "See e.g. the table.",
+        "We add a model.",
+        "We test it.",
+    ]

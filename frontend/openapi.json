@@ -1220,6 +1220,17 @@
             "maxItems": 4,
             "minItems": 4,
             "title": "Bbox"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
           }
         },
         "additionalProperties": false,

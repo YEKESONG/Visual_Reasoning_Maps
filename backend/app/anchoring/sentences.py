@@ -4,38 +4,39 @@ from bs4 import BeautifulSoup, NavigableString
 
 from backend.app.models import Document, Sentence
 
-ABBREVIATIONS = {
-    "m.",
-    "mme.",
-    "dr.",
-    "prof.",
-    "fig.",
-    "eq.",
-    "e.g.",
-    "i.e.",
-    "al.",
-    "etc.",
-    "vs.",
-    "mr.",
-    "mrs.",
-}
+ABBREVIATIONS = set(
+    "m. mme. mlle. dr. prof. mr. mrs. ms. st. jr. sr. fig. figs. eq. eqs. sec. secs. tab. "
+    "tabs. ch. chap. vol. no. nos. pp. p. cf. e.g. i.e. viz. al. etc. vs. approx. resp. ref. "
+    "refs. ibid. ca. n.b. ex. éd. trad. coll. art.".split()
+)
+BULLETS = "•◦▪▫‣∙"
 
 
 def split_spans(text: str) -> list[tuple[int, int]]:
     spans = []
     start = 0
+
+    def add(left: int, right: int) -> None:
+        while left < right and (text[left].isspace() or text[left] in BULLETS):
+            left += 1
+        if left < right:
+            spans.append((left, right))
+
     for match in re.finditer(r"[.!?。！？]+[»”\"\']*(?=\s+|$|[\u4e00-\u9fff])", text):
         before = text[: match.end()].split()[-1].lower()
-        if before in ABBREVIATIONS or re.search(r"\b[A-Z]\.$", text[: match.end()]):
+        following = text[match.end() :].lstrip()[:1]
+        if (
+            before in ABBREVIATIONS
+            or re.search(r"\b[A-Z]\.$", text[: match.end()])
+            # A lowercase continuation or a spaced ellipsis (". . .") does not end a sentence.
+            or following.islower()
+            or following in (".", ",", ";")
+        ):
             continue
-        end = match.end()
-        left = start + len(text[start:end]) - len(text[start:end].lstrip())
-        if left < end:
-            spans.append((left, end))
-        start = end
+        add(start, match.end())
+        start = match.end()
     if text[start:].strip():
-        left = start + len(text[start:]) - len(text[start:].lstrip())
-        spans.append((left, len(text.rstrip())))
+        add(start, len(text.rstrip()))
     return spans
 
 
@@ -57,16 +58,17 @@ def anchor_document(doc: Document, html: str | None = None) -> tuple[Document, s
         spans = split_spans(paragraph.text)
         for index, (start, end) in enumerate(spans):
             sid = f"{paragraph.id}s{index + 1}"
-            boxes = merge_lines(
-                [w.bbox for w in paragraph.words if w.start < end and w.end > start]
-            )
+            selected = [w for w in paragraph.words if w.start < end and w.end > start]
+            # A sentence continued across a page break is located on the page where it starts.
+            page = (selected[0].page or paragraph.page) if selected else paragraph.page
+            boxes = merge_lines([w.bbox for w in selected if (w.page or paragraph.page) == page])
             doc.sentences.append(
                 Sentence(
                     id=sid,
                     text=paragraph.text[start:end],
                     section_id=paragraph.section_id,
                     order=len(doc.sentences),
-                    page=paragraph.page,
+                    page=page,
                     bbox=boxes,
                     dom_id=sid if soup else None,
                     paragraph_id=paragraph.id,

@@ -12,6 +12,8 @@ class Word(Model):
     start: int
     end: int
     bbox: tuple[float, float, float, float]
+    # Set when a paragraph continues on the next page; otherwise the paragraph page applies.
+    page: int | None = None
 
 
 class Paragraph(Model):
