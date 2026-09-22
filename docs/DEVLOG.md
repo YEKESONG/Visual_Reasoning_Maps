@@ -336,3 +336,8 @@
   - API_NOTES：记录 2026-09-23 核实的 DeepSeek 思考模式限制、实测结果和价格。
   - DEVELOPMENT_PROCESS：补充 S18–S21 的时间线、验证命令、当前验收边界、已知限制和提交列表。
 - 验证：文中提到的命令、配置项和文件路径逐项对照代码核对。
+
+## S21e 综述措辞修订
+- 问题：综述初稿整体是平实的学术法语，但有几类模式反复出现：同一段里连续的免责句（"ne valident pas automatiquement notre futur système""Nous ne revendiquons pas…"）、"motive une articulation entre…"之类的名词化长句、对原型的描述停留在测试之前（第 6 节"nécessiteront des essais ciblés"）。paper/README 的中文说明也有"不冒充""不补造"这类防御式措辞。
+- 完成内容：摘要改为先说原型做什么、覆盖哪四个领域、目前依据什么；引言和第 2、4、5、7 节改写 11 处句子，意思、引用和数字不变；第 6 节补充真实双栏论文测试暴露的问题和现在的处理方式；paper/README 改为直接陈述，增加修订记录。
+- 验证：`cd paper/etat_de_lart && make` 编译通过，6 页，无未定义引用；渲染首页检查排版；逐句对照修改前后，确认没有增删引用或事实。
