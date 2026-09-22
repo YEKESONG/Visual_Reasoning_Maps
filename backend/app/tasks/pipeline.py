@@ -46,6 +46,7 @@ async def process(
         ),
         patterns=patterns(graph),
         generation=Generation(
+            language=config.label_language,
             model=config.llm_model,
             timestamp=now,
             total_tokens=getattr(model, "total_tokens", 0),

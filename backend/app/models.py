@@ -115,6 +115,7 @@ class Metadata(Model):
 
 
 class Generation(Model):
+    language: str = "auto"
     model: str
     timestamp: str
     prompt_version: str = "1.0"

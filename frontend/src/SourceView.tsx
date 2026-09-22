@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
@@ -35,6 +36,7 @@ export function PdfPage({
   current?: string;
   onSentence?: (id: string) => void;
 }) {
+  const { t } = useI18n();
   const canvas = useRef<HTMLCanvasElement>(null);
   const container = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
@@ -115,10 +117,10 @@ export function PdfPage({
       ref={container}
       style={{ height: (crop[3] - crop[1]) * scale }}
     >
-      {error && <p className="error">{error}</p>}
+      {error && <p className="error">{t(error)}</p>}
       <canvas
         ref={canvas}
-        aria-label={`Page ${page} du document original`}
+        aria-label={t("Page {page} du document original", { page })}
         style={{
           width: dimensions[0] * scale,
           height: dimensions[1] * scale,
@@ -135,7 +137,7 @@ export function PdfPage({
             style={displayBox(box, crop, scale)}
             onClick={() => onSentence?.(s.id)}
             title={s.text}
-            aria-label={`Voir l’étape liée : ${s.text}`}
+            aria-label={t("Voir l’étape liée : {text}", { text: s.text })}
           />
         )),
       )}
@@ -155,6 +157,7 @@ export function HtmlSource({
   current?: string;
   onSentence?: (id: string) => void;
 }) {
+  const { t } = useI18n();
   const [html, setHtml] = useState("");
   const [error, setError] = useState("");
   const frame = useRef<HTMLIFrameElement>(null);
@@ -250,15 +253,15 @@ export function HtmlSource({
       ),
     );
   }
-  if (error) return <p className="error">{error}</p>;
+  if (error) return <p className="error">{t(error)}</p>;
   return (
     <iframe
       ref={frame}
-      title={
+      title={t(
         full
           ? "Texte intégral dans sa mise en page"
-          : "Passage dans sa mise en page originale"
-      }
+          : "Passage dans sa mise en page originale",
+      )}
       srcDoc={srcDoc}
       sandbox="allow-same-origin"
       className="html-source"
@@ -268,12 +271,17 @@ export function HtmlSource({
   );
 }
 export function SourceSnippet({ doc, ids }: { doc: Document; ids: string[] }) {
+  const { t } = useI18n();
   const anchors = useMemo(
     () => (doc.sentences ?? []).filter((s) => ids.includes(s.id)),
     [doc.sentences, ids],
   );
   if (!anchors.length)
-    return <p>Passage indisponible : les références doivent être vérifiées.</p>;
+    return (
+      <p>
+        {t("Passage indisponible : les références doivent être vérifiées.")}
+      </p>
+    );
   if (doc.kind === "html") return <HtmlSource doc={doc} anchors={anchors} />;
   return (
     <div className="snippet-pages">
@@ -281,7 +289,9 @@ export function SourceSnippet({ doc, ids }: { doc: Document; ids: string[] }) {
         .sort((a, b) => (a ?? 0) - (b ?? 0))
         .map((page) => (
           <figure key={page}>
-            <figcaption>Page {page} · Extrait original</figcaption>
+            <figcaption>
+              {t("Page {page} · Extrait original", { page: page ?? 1 })}
+            </figcaption>
             <PdfPage
               doc={doc}
               page={page!}

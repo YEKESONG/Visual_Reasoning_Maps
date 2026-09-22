@@ -251,6 +251,11 @@ export interface components {
     };
     /** Generation */
     Generation: {
+      /**
+       * Language
+       * @default auto
+       */
+      language: string;
       /** Model */
       model: string;
       /** Timestamp */

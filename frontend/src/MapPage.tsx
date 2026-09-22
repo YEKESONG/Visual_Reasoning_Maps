@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Link as RouterLink,
@@ -34,13 +35,14 @@ type StepData = {
 };
 type StepFlowNode = Node<StepData, "step">;
 function StepNode({ data, selected }: NodeProps<StepFlowNode>) {
+  const { t } = useI18n();
   return (
     <div
       className={`step-node ${data.step.type} ${data.step.status} ${selected ? "is-selected" : ""} ${data.expanded ? "expanded" : ""}`}
     >
       <Handle type="target" position={Position.Left} />
       <div className="step-kind">
-        <span>{typeLabel[data.step.type]}</span>
+        <span>{t(typeLabel[data.step.type])}</span>
         <span>
           {data.step.status === "to_verify"
             ? "?"
@@ -49,21 +51,20 @@ function StepNode({ data, selected }: NodeProps<StepFlowNode>) {
               : "✓"}
         </span>
       </div>
-      <strong>{data.step.label}</strong>
+      <strong>{t(data.step.label)}</strong>
       <div className="node-bottom">
         <span>
-          {data.step.anchors.length} passage
-          {data.step.anchors.length > 1 ? "s" : ""}
+          {t("{count} passage{plural}", { count: data.step.anchors.length })}
         </span>
         {data.suggestions > 0 && (
-          <span className="suggestion-count" title="Suggestions">
-            {data.suggestions} remarque{data.suggestions > 1 ? "s" : ""}
+          <span className="suggestion-count" title={t("Suggestions")}>
+            {t("{count} remarque{plural}", { count: data.suggestions })}
           </span>
         )}
         {data.children > 0 && (
           <button
             className="expand-button nodrag"
-            aria-label={`${data.expanded ? "Replier" : "Développer"} ${data.step.label}`}
+            aria-label={`${t(data.expanded ? "Replier" : "Développer")} ${t(data.step.label)}`}
             onClick={(e) => {
               e.stopPropagation();
               data.toggle();
@@ -85,6 +86,7 @@ const colors = {
   contradict: "#a3393d",
 };
 export function MapPage() {
+  const { t } = useI18n();
   const { id } = useParams();
   const [params] = useSearchParams();
   const [data, setData] = useState<{
@@ -123,14 +125,14 @@ export function MapPage() {
   if (error)
     return (
       <main className="loading">
-        <p className="error">{error}</p>
-        <RouterLink to="/">Retour à la bibliothèque</RouterLink>
+        <p className="error">{t(error)}</p>
+        <RouterLink to="/">{t("Retour à la bibliothèque")}</RouterLink>
       </main>
     );
   if (!data)
     return (
       <p className="loading" role="status">
-        Ouverture de la carte…
+        {t("Ouverture de la carte…")}
       </p>
     );
   return (
@@ -148,6 +150,7 @@ function MapWorkspace({
   doc: Document;
   suggestions: Suggestion[];
 }) {
+  const { t, locale } = useI18n();
   const {
     selected,
     selectedLink,
@@ -252,7 +255,7 @@ function MapWorkspace({
             dimmed: false,
             toggle: () => toggle(step.id),
           },
-          ariaLabel: `${typeLabel[step.type]} : ${step.label}. ${statusLabel[step.status]}`,
+          ariaLabel: `${t(typeLabel[step.type])} : ${t(step.label)}. ${t(statusLabel[step.status])}`,
         });
         n.children?.forEach((c) => append(c, n.id));
       };
@@ -265,7 +268,7 @@ function MapWorkspace({
       setLayoutError("Le calcul de disposition a échoué. Rechargez la page.");
     worker.postMessage({ steps: flow.steps, links: flow.links, expanded });
     return () => worker.terminate();
-  }, [flow, expanded, suggestions, toggle, fitView]);
+  }, [flow, expanded, suggestions, toggle, fitView, locale, t]);
   const selectedStep = flow.steps.find((s) => s.id === selected);
   const chain = useMemo(
     () =>
@@ -294,7 +297,7 @@ function MapWorkspace({
       source: e.src,
       target: e.dst,
       type: "smoothstep",
-      label: e.connective || relationLabel[e.type],
+      label: e.connective || t(relationLabel[e.type]),
       markerEnd:
         e.type === "contradict"
           ? undefined
@@ -312,7 +315,7 @@ function MapWorkspace({
       },
       labelStyle: { fontSize: 10, fill: colors[e.type] },
       labelBgStyle: { fill: "#f4f1e9" },
-      ariaLabel: `${relationLabel[e.type]} : ${e.src} vers ${e.dst}`,
+      ariaLabel: `${t(relationLabel[e.type])} : ${e.src} → ${e.dst}`,
     }));
   const advance = useCallback(
     (delta: number) => {
@@ -343,22 +346,45 @@ function MapWorkspace({
       <div className="document-heading">
         <div>
           <RouterLink className="back" to="/">
-            ← Bibliothèque
+            ← {t("Bibliothèque")}
           </RouterLink>
-          <h1>{flow.metadata.title}</h1>
+          <h1>{t(flow.metadata.title)}</h1>
           <p>
-            {flow.steps.filter((s) => !s.parent).length} étapes principales ·{" "}
-            {flow.links.length} relations{" "}
-            {flow.metadata.demo && " · Démonstration éditoriale"}
+            {t("{steps} étapes principales · {links} relations", {
+              steps: flow.steps.filter((s) => !s.parent).length,
+              links: flow.links.length,
+            })}
+            {flow.metadata.demo && " · " + t("Démonstration éditoriale")}
           </p>
+          {!flow.metadata.demo && (
+            <p
+              className="analysis-info"
+              title={t(
+                "Une carte existante garde sa langue d’analyse. Les explications à la demande suivent l’interface.",
+              )}
+            >
+              {t("Langue d’analyse : {language}", {
+                language:
+                  (
+                    { zh: "中文", en: "English", fr: "Français" } as Record<
+                      string,
+                      string
+                    >
+                  )[flow.generation.language ?? "auto"] ??
+                  t("Langue du document"),
+              })}
+            </p>
+          )}
         </div>
         <RouterLink className="text-link" to={`/doc/${doc.id}/texte`}>
-          Ouvrir le texte intégral ↗
+          {t("Ouvrir le texte intégral ↗")}
         </RouterLink>
       </div>
       <div className="map-toolbar">
         <fieldset className="filters">
-          <legend className="sr-only">Types de relations visibles</legend>
+          <legend className="sr-only">
+            {t("Types de relations visibles")}
+          </legend>
           {Object.entries(relationLabel).map(([key, label]) => (
             <label key={key}>
               <input
@@ -372,7 +398,7 @@ function MapWorkspace({
                   )
                 }
               />
-              {label}
+              {t(label)}
             </label>
           ))}
         </fieldset>
@@ -382,20 +408,20 @@ function MapWorkspace({
             checked={focus}
             onChange={(e) => setFocus(e.target.checked)}
           />
-          Isoler la chaîne
+          {t("Isoler la chaîne")}
         </label>
         <div className="guided">
           <select
-            aria-label="Ordre de lecture"
+            aria-label={t("Ordre de lecture")}
             value={order}
             onChange={(e) => setOrder(e.target.value)}
           >
-            <option value="logic">Ordre logique</option>
-            <option value="text">Ordre du texte</option>
+            <option value="logic">{t("Ordre logique")}</option>
+            <option value="text">{t("Ordre du texte")}</option>
           </select>
           <button
             className="secondary"
-            aria-label="Étape précédente"
+            aria-label={t("Étape précédente")}
             onClick={() => advance(-1)}
           >
             ←
@@ -407,11 +433,11 @@ function MapWorkspace({
               setPlaying(!playing);
             }}
           >
-            {playing ? "Pause" : "Lecture guidée"}
+            {t(playing ? "Pause" : "Lecture guidée")}
           </button>
           <button
             className="secondary"
-            aria-label="Étape suivante"
+            aria-label={t("Étape suivante")}
             onClick={() => advance(1)}
           >
             →
@@ -422,7 +448,7 @@ function MapWorkspace({
         <section
           ref={graphPanel}
           className="graph-panel"
-          aria-label="Carte interactive du raisonnement"
+          aria-label={t("Carte interactive du raisonnement")}
           onKeyDownCapture={(event) => {
             const target = event.target as HTMLElement;
             const node = target.closest<HTMLElement>(".react-flow__node");
@@ -437,7 +463,7 @@ function MapWorkspace({
             }
           }}
         >
-          {layoutError && <p className="error">{layoutError}</p>}
+          {layoutError && <p className="error">{t(layoutError)}</p>}
           <ReactFlow
             nodes={displayNodes}
             onNodesChange={(changes) =>
@@ -453,6 +479,19 @@ function MapWorkspace({
             fitView
             minZoom={0.15}
             maxZoom={1.8}
+            ariaLabelConfig={{
+              "node.a11yDescription.default": t(
+                "Appuyez sur Entrée pour ouvrir les détails, Échap pour fermer.",
+              ),
+              "edge.a11yDescription.default": t(
+                "Sélectionnez une relation pour ouvrir ses deux sources.",
+              ),
+              "controls.zoomIn.ariaLabel": t("Zoom avant"),
+              "controls.zoomOut.ariaLabel": t("Zoom arrière"),
+              "controls.fitView.ariaLabel": t("Adapter à la fenêtre"),
+              "controls.ariaLabel": t("Commandes de la carte"),
+              "minimap.ariaLabel": t("Mini-carte"),
+            }}
             proOptions={{ hideAttribution: true }}
           >
             <Background color="#c8cfc4" gap={24} size={1} />
@@ -464,14 +503,14 @@ function MapWorkspace({
             />
           </ReactFlow>
           <div className="graph-caption">
-            Une relation relie une raison à ce qu’elle soutient.{" "}
-            <span>Cadre pointillé : à vérifier</span>
+            {t("Une relation relie une raison à ce qu’elle soutient.")}{" "}
+            <span>{t("Cadre pointillé : à vérifier")}</span>
           </div>
         </section>
         <aside className="detail-panel">
           {selectedStep ? (
             <Details
-              key={selectedStep.id}
+              key={`${selectedStep.id}-${locale}`}
               step={selectedStep}
               doc={doc}
               flow={flow}
@@ -488,17 +527,19 @@ function MapWorkspace({
             <div className="detail-empty">
               <span className="detail-symbol">↗</span>
               <h2>
-                Suivez une idée
+                {t("Suivez une idée")}
                 <br />
-                jusqu’à sa source.
+                {t("jusqu’à sa source.")}
               </h2>
               <p>
-                Sélectionnez une étape pour examiner les passages qui la
-                soutiennent.
+                {t(
+                  "Sélectionnez une étape pour examiner les passages qui la soutiennent.",
+                )}
               </p>
               <p>
-                Les liens ouvrent les deux côtés d’une relation. Développez les
-                étapes pour découvrir leurs détails.
+                {t(
+                  "Les liens ouvrent les deux côtés d’une relation. Développez les étapes pour découvrir leurs détails.",
+                )}
               </p>
               <div className="pattern-list">
                 {[...new Set((flow.patterns ?? []).map((p) => p.type))].map(
@@ -506,11 +547,11 @@ function MapWorkspace({
                     <span key={p}>
                       {
                         {
-                          divergence: "⑂ Divergence",
-                          convergence: "⑃ Convergence",
-                          contradiction: "↔ Contradiction",
-                          refinement: "⊞ Précision",
-                          causality: "→ Causalité",
+                          divergence: "⑂ " + t("Divergence"),
+                          convergence: "⑃ " + t("Convergence"),
+                          contradiction: "↔ " + t("Contradiction"),
+                          refinement: "⊞ " + t("Précision"),
+                          causality: "→ " + t("Causalité"),
                         }[p]
                       }
                     </span>

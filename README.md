@@ -1,8 +1,14 @@
 # Visual Reasoning Maps
 
-Un atelier de lecture local pour parcourir les arguments d’un document et revenir à leurs sources. Projet ENAC : prototype de recherche, interface française et état de l’art modifiable.
+Un atelier de lecture local pour parcourir les arguments d’un document et revenir à leurs sources. Projet ENAC : prototype de recherche, interface chinois/anglais/français et état de l’art modifiable.
 
 ![Carte et passages](docs/screenshots/map-pdf.png)
+
+## Langues
+
+Le sélecteur en haut à droite propose **中文 / English / Français** et mémorise le choix. Au premier accès, l’interface suit la langue du navigateur (sinon français). Les commandes, détails, navigation, erreurs, progression, libellés accessibles et textes des démonstrations changent immédiatement ; les citations et documents originaux conservent leur langue.
+
+La langue d’analyse est choisie avant l’import : interface, document ou langue explicite. Une carte générée existante garde sa langue ; les explications à la demande suivent l’interface. Les caches des cartes et explications sont séparés par langue. Le changement d’interface et les démonstrations ne déclenchent aucun appel modèle.
 
 ## Démarrer
 

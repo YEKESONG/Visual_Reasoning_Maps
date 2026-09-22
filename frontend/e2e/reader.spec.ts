@@ -1,4 +1,10 @@
 import { test, expect } from "@playwright/test";
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    if (!localStorage.getItem("vrm.locale"))
+      localStorage.setItem("vrm.locale", "fr");
+  });
+});
 
 test("PDF demonstration: hierarchy, evidence, full text and return", async ({
   page,

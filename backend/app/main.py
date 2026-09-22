@@ -76,10 +76,23 @@ def read_doc(doc_id: str, name: str):
         raise HTTPException(404, "Document introuvable.") from None
 
 
-async def run_task(task_id: str, payload: bytes | str, title: str = "") -> None:
+def requested_language(value: str | None) -> str | None:
+    if value is not None and value not in ("auto", "zh", "en", "fr"):
+        raise HTTPException(422, "Langue non prise en charge. Choisissez auto, zh, en ou fr.")
+    return value
+
+
+def document_id(body: bytes, language: str | None) -> str:
+    return digest(body + (b"\0language:" + language.encode() if language else b""))
+
+
+async def run_task(
+    task_id: str, payload: bytes | str, title: str = "", language: str | None = None
+) -> None:
+    config = settings.model_copy(update={"label_language": language}) if language else settings
     try:
         if isinstance(payload, bytes):
-            doc_id = digest(payload)
+            doc_id = document_id(payload, language)
             directory = store.directory(doc_id)
             directory.mkdir(parents=True, exist_ok=True)
             path = directory / "source.pdf"
@@ -97,7 +110,7 @@ async def run_task(task_id: str, payload: bytes | str, title: str = "") -> None:
             directory.mkdir(parents=True, exist_ok=True)
             tasks.emit(task_id, "Téléchargement depuis arXiv", 5)
             doc, body = await acquire(payload, directory, temp_id)
-            doc_id = digest(body)
+            doc_id = document_id(body, language)
             doc.id = doc_id
             if doc.kind == "html":
                 path = directory / "source.html"
@@ -113,8 +126,8 @@ async def run_task(task_id: str, payload: bytes | str, title: str = "") -> None:
             if (store.directory(doc_id) / "flow.json").exists():
                 tasks.emit(task_id, "Carte retrouvée", 100, "done", doc_id=doc_id)
                 return
-            model = model_factory(settings, store, doc_id)
-            await process(doc, model, settings, store, tasks, task_id)
+            model = model_factory(config, store, doc_id)
+            await process(doc, model, config, store, tasks, task_id)
     except Exception as exc:
         # Provider errors may contain credentials or full request bodies: never return/log them.
         safe = "Le traitement a échoué. Vérifiez le format du document, la configuration du modèle et la connexion, puis réessayez."
@@ -135,10 +148,12 @@ async def run_task(task_id: str, payload: bytes | str, title: str = "") -> None:
 async def create_task(request: Request):
     content_type = request.headers.get("content-type", "")
     title = ""
+    language = None
     if "application/json" in content_type:
         try:
             body = await request.json()
             payload = body["arxiv_url"]
+            language = requested_language(body.get("language"))
             arxiv_id(payload)
         except (ValueError, KeyError, TypeError):
             raise HTTPException(422, "Fournissez un lien HTTPS arxiv.org/html/… valide.") from None
@@ -151,11 +166,12 @@ async def create_task(request: Request):
                 raise HTTPException(422, "Sélectionnez un fichier PDF.")
             payload = await file.read(settings.max_upload_bytes + 1)
             title = file.filename or "Document"
+            language = requested_language(form.get("language"))
         if len(payload) > settings.max_upload_bytes:
             raise HTTPException(413, "Le PDF dépasse la limite de 30 Mo.")
         if not payload.startswith(b"%PDF"):
             raise HTTPException(422, "Ce fichier n’est pas un PDF valide.")
-        doc_id = digest(payload)
+        doc_id = document_id(payload, language)
         if (store.directory(doc_id) / "flow.json").exists():
             return TaskAccepted(doc_id=doc_id)
     else:
@@ -170,7 +186,7 @@ async def create_task(request: Request):
             "Renseignez DEEPSEEK_API_KEY dans .env et redémarrez. Vous pouvez explorer la démonstration sans clé.",
         )
     task_id = tasks.create()
-    tasks.start(run_task(task_id, payload, title))
+    tasks.start(run_task(task_id, payload, title, language))
     return TaskAccepted(task_id=task_id)
 
 
@@ -232,12 +248,14 @@ def asset(doc_id: str, name: str):
 
 
 @app.post("/api/docs/{doc_id}/steps/{step_id}/explanation", response_model=Explanation)
-async def explanation(doc_id: str, step_id: str):
+async def explanation(doc_id: str, step_id: str, request: Request):
+    language = requested_language(request.headers.get("x-ui-language"))
+    config = settings.model_copy(update={"label_language": language}) if language else settings
     graph = Flow.model_validate(read_doc(doc_id, "flow.json"))
     step = next((s for s in graph.steps if s.id == step_id), None)
     if not step:
         raise HTTPException(404, "Étape inconnue.")
-    key = digest(step_id.encode())
+    key = document_id(step_id.encode(), language)
     async with locks.setdefault(f"{doc_id}_{key}", asyncio.Lock()):
         try:
             return store.read(doc_id, f"explanations/{key}.json")
@@ -255,7 +273,7 @@ async def explanation(doc_id: str, step_id: str):
             )
         else:
             try:
-                result = await model_factory(settings, store, doc_id).generate(
+                result = await model_factory(config, store, doc_id).generate(
                     "explanation",
                     {
                         "step": step.model_dump(mode="json"),

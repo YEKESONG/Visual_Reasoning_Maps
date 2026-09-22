@@ -793,3 +793,51 @@ input[type="checkbox"] {
 .react-flow__minimap.bottom {
   bottom: 22px;
 }
+
+.language-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.language-switch select,
+.analysis-language select {
+  font: inherit;
+  color: inherit;
+  background: #fffdf8;
+  border: 1px solid #a6b3a7;
+  padding: 7px 9px;
+  border-radius: 2px;
+}
+.analysis-language {
+  margin-top: 20px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.analysis-language label {
+  font-size: 14px;
+}
+.analysis-language small {
+  color: #52665e;
+}
+.site-header nav {
+  flex-wrap: wrap;
+}
+html[lang="zh-CN"] h1,
+html[lang="zh-CN"] h2 {
+  line-height: 1.45;
+}
+html[lang="zh-CN"] .step-node strong {
+  line-height: 1.45;
+}
+@media (max-width: 1180px) {
+  .site-header .local-label {
+    display: none;
+  }
+  .map-toolbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

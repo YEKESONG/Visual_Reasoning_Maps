@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n";
 import { useEffect, useMemo, useState } from "react";
 import {
   Link as RouterLink,
@@ -9,6 +10,7 @@ import { api } from "./api";
 import type { Document, Flow } from "./api";
 import { HtmlSource, PdfPage } from "./SourceView";
 export function FullText() {
+  const { t } = useI18n();
   const { id } = useParams();
   const [params, setParams] = useSearchParams();
   const current = params.get("s") || undefined;
@@ -60,22 +62,23 @@ export function FullText() {
   if (error)
     return (
       <main className="loading">
-        <p className="error">{error}</p>
+        <p className="error">{t(error)}</p>
       </main>
     );
-  if (!data) return <p className="loading">Ouverture du texte…</p>;
+  if (!data) return <p className="loading">{t("Ouverture du texte…")}</p>;
   return (
     <main className="fulltext">
       <header className="reader-heading">
-        <RouterLink to={`/doc/${id}`}>← Revenir à la carte</RouterLink>
-        <h1>{data.doc.title}</h1>
+        <RouterLink to={`/doc/${id}`}>{t("← Revenir à la carte")}</RouterLink>
+        <h1>{t(data.doc.title)}</h1>
         <p>
-          Texte intégral · Cliquez sur un passage surligné pour retrouver son
-          étape.
+          {t(
+            "Texte intégral · Cliquez sur un passage surligné pour retrouver son étape.",
+          )}
         </p>
         {(data.doc.warnings ?? []).map((w, i) => (
           <p className="reader-note" key={i}>
-            {w}
+            {t(w)}
           </p>
         ))}
       </header>
@@ -83,7 +86,9 @@ export function FullText() {
         {data.doc.kind === "pdf" ? (
           (data.doc.pages ?? []).map((_, index) => (
             <section className="reader-sheet" key={index}>
-              <p className="page-caption">Page {index + 1}</p>
+              <p className="page-caption">
+                {t("Page {page}", { page: index + 1 })}
+              </p>
               <PdfPage
                 doc={data.doc}
                 page={index + 1}
@@ -106,9 +111,9 @@ export function FullText() {
       </div>
       <nav
         className="position-rail"
-        aria-label="Position des idées dans le texte"
+        aria-label={t("Position des idées dans le texte")}
       >
-        <span>Le fil du texte</span>
+        <span>{t("Le fil du texte")}</span>
         <div>
           {data.flow.steps
             .filter((s) => !s.parent)
@@ -118,8 +123,10 @@ export function FullText() {
                 style={{
                   top: `${5 + (step.first_position / Math.max(1, (data.doc.sentences?.length ?? 1) - 1)) * 88}%`,
                 }}
-                aria-label={`Aller au passage : ${step.label}`}
-                title={step.label}
+                aria-label={t("Aller au passage : {label}", {
+                  label: t(step.label),
+                })}
+                title={t(step.label)}
                 onClick={() => setParams({ s: step.anchors[0] })}
               >
                 {index + 1}

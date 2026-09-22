@@ -1,9 +1,15 @@
+import { useI18n, useLocale, type Locale, type AnalysisLanguage } from "./i18n";
 import { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { api } from "./api";
 import type { Metadata, TaskAccepted } from "./api";
 
 export function Shell() {
+  const { t, locale } = useI18n();
+  const setLocale = useLocale((s) => s.setLocale);
+  useEffect(() => {
+    document.documentElement.lang = locale === "zh" ? "zh-CN" : locale;
+  }, [locale]);
   return (
     <>
       <header className="site-header">
@@ -13,12 +19,24 @@ export function Shell() {
           </span>
           <span>
             Visual Reasoning Maps
-            <small>Lire les idées. Suivre les preuves.</small>
+            <small>{t("Lire les idées. Suivre les preuves.")}</small>
           </span>
         </Link>
         <nav>
-          <Link to="/">Bibliothèque</Link>
-          <span className="local-label">Atelier de lecture · ENAC</span>
+          <Link to="/">{t("Bibliothèque")}</Link>
+          <label className="language-switch">
+            <span>{t("Langue de l’interface")}</span>
+            <select
+              aria-label={t("Langue de l’interface")}
+              value={locale}
+              onChange={(e) => setLocale(e.target.value as Locale)}
+            >
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+            </select>
+          </label>
+          <span className="local-label">{t("Atelier de lecture · ENAC")}</span>
         </nav>
       </header>
       <Outlet />
@@ -26,6 +44,8 @@ export function Shell() {
   );
 }
 export function Home() {
+  const { t, locale } = useI18n();
+  const { analysisLanguage, setAnalysisLanguage } = useLocale();
   const [docs, setDocs] = useState<Metadata[]>([]);
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
@@ -47,11 +67,16 @@ export function Home() {
     setStage("Envoi du document");
     try {
       const data = new FormData();
-      if (file) data.append("file", file);
+      const language =
+        analysisLanguage === "interface" ? locale : analysisLanguage;
+      if (file) {
+        data.append("file", file);
+        data.append("language", language);
+      }
       const result = await api<TaskAccepted>("/api/tasks", {
         method: "POST",
         headers: file ? undefined : { "Content-Type": "application/json" },
-        body: file ? data : JSON.stringify({ arxiv_url: url }),
+        body: file ? data : JSON.stringify({ arxiv_url: url, language }),
       });
       if (result.doc_id) {
         navigate(`/doc/${result.doc_id}`);
@@ -96,39 +121,41 @@ export function Home() {
     <main className="library">
       <section className="intro">
         <div>
-          <p className="eyebrow">Un texte, un raisonnement à explorer</p>
+          <p className="eyebrow">{t("Un texte, un raisonnement à explorer")}</p>
           <h1>
-            De la question
-            <br />à la conclusion.
+            {t("De la question")}
+            <br />
+            {t("à la conclusion.")}
           </h1>
           <p className="lead">
-            Retrouvez le fil d’un article. Explorez ses arguments, confrontez
-            ses preuves et revenez à chaque passage.
+            {t(
+              "Retrouvez le fil d’un article. Explorez ses arguments, confrontez ses preuves et revenez à chaque passage.",
+            )}
           </p>
         </div>
         <div
           className="intro-diagram"
-          aria-label="Question vers prémisse et preuve, puis conclusion"
+          aria-label={t("Question vers prémisse et preuve, puis conclusion")}
         >
-          <span>Question</span>
+          <span>{t("Question")}</span>
           <b>↘</b>
-          <span>Prémisse</span>
+          <span>{t("Prémisse")}</span>
           <b>→</b>
-          <span>Argument</span>
+          <span>{t("Argument")}</span>
           <b>→</b>
-          <span className="last">Conclusion</span>
-          <span className="evidence">Preuve ↗</span>
-          <small>Chaque étape garde un lien avec le texte.</small>
+          <span className="last">{t("Conclusion")}</span>
+          <span className="evidence">{t("Preuve")} ↗</span>
+          <small>{t("Chaque étape garde un lien avec le texte.")}</small>
         </div>
       </section>
       <section className="import-section">
         <div>
-          <h2>Commencer une lecture</h2>
-          <p>Un article PDF ou sa version HTML sur arXiv.</p>
+          <h2>{t("Commencer une lecture")}</h2>
+          <p>{t("Un article PDF ou sa version HTML sur arXiv.")}</p>
         </div>
         <div className="import-controls">
           <label className="upload-button">
-            Importer un PDF
+            {t("Importer un PDF")}
             <input
               type="file"
               accept="application/pdf,.pdf"
@@ -140,15 +167,16 @@ export function Home() {
               }}
             />
           </label>
-          <span className="or">ou</span>
+          <span className="or">{t("ou")}</span>
           <form
+            noValidate
             onSubmit={(e) => {
               e.preventDefault();
               void submit();
             }}
           >
             <label className="sr-only" htmlFor="arxiv">
-              Lien arXiv
+              {t("Lien arXiv")}
             </label>
             <input
               id="arxiv"
@@ -159,38 +187,63 @@ export function Home() {
               disabled={busy}
               onChange={(e) => setUrl(e.target.value)}
             />
-            <button disabled={busy || !url.trim()}>Créer la carte →</button>
+            <button disabled={busy || !url.trim()}>
+              {t("Créer la carte →")}
+            </button>
           </form>
         </div>
+        <div className="analysis-language">
+          <label>
+            {t("Langue de l’analyse")}{" "}
+            <select
+              aria-label={t("Langue de l’analyse")}
+              value={analysisLanguage}
+              onChange={(e) =>
+                setAnalysisLanguage(e.target.value as AnalysisLanguage)
+              }
+            >
+              <option value="interface">{t("Suivre l’interface")}</option>
+              <option value="auto">{t("Langue du document")}</option>
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+            </select>
+          </label>
+          <small>
+            {t(
+              "Les citations restent dans leur langue originale. Ce réglage s’applique aux nouvelles cartes.",
+            )}
+          </small>
+        </div>
         <p className="import-note">
-          Les extraits du document sont envoyés au modèle configuré pour
-          l’analyse. Le document original et les cartes restent sur cette
-          machine.
+          {t(
+            "Les extraits du document sont envoyés au modèle configuré pour l’analyse. Le document original et les cartes restent sur cette machine.",
+          )}
         </p>
       </section>
       {busy && (
         <div className="progress" role="status">
-          <span>{stage}</span>
+          <span>{t(stage)}</span>
           <progress max={100} value={progress} />
           <span>{progress} %</span>
         </div>
       )}
       {error && (
         <p className="error" role="alert">
-          {error}
+          {t(error)}
         </p>
       )}
       <section className="shelf">
         <div className="section-heading">
-          <h2>Votre bibliothèque</h2>
-          <span>
-            {docs.length} document{docs.length !== 1 ? "s" : ""}
-          </span>
+          <h2>{t("Votre bibliothèque")}</h2>
+          <span>{t("{count} document{plural}", { count: docs.length })}</span>
         </div>
         {docs.length === 0 ? (
           <div className="empty">
-            <h3>Le prochain fil commence ici.</h3>
-            <p>Importez un document pour construire votre première carte.</p>
+            <h3>{t("Le prochain fil commence ici.")}</h3>
+            <p>
+              {t("Importez un document pour construire votre première carte.")}
+            </p>
           </div>
         ) : (
           docs.map((doc, i) => (
@@ -199,21 +252,22 @@ export function Home() {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="doc-title">
-                {doc.title}
+                {t(doc.title)}
                 <small>
                   {doc.demo
-                    ? "Démonstration commentée · Sans clé API"
-                    : doc.kind.toUpperCase() + " · Carte enregistrée"}
+                    ? t("Démonstration commentée · Sans clé API")
+                    : doc.kind.toUpperCase() + " · " + t("Carte enregistrée")}
                 </small>
               </span>
-              <span className="read-link">Explorer la carte ↗</span>
+              <span className="read-link">{t("Explorer la carte ↗")}</span>
             </Link>
           ))
         )}
       </section>
       <footer>
-        Une carte est une interprétation du texte. Les passages originaux
-        restent la référence.
+        {t(
+          "Une carte est une interprétation du texte. Les passages originaux restent la référence.",
+        )}
       </footer>
     </main>
   );

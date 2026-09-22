@@ -5,4 +5,4 @@ Output schema: Suggestions {suggestions: [{target_type,target_id,category,severi
 Review support, logical gaps, evidence versus conclusions, clarity, and relation to prior work.
 Only return actionable comments grounded in cited sentences. Do not invent prior work.
 Each comment must target an existing step/link and have existing source IDs. source must be llm.
-Do not score the paper globally. French prose. Output json only.
+Do not score the paper globally. Use the requested output language. Output json only.

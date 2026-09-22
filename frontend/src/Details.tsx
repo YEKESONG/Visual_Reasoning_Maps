@@ -1,3 +1,4 @@
+import { useI18n, translate } from "./i18n";
 import { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import type {
@@ -21,6 +22,7 @@ export function Details({
   flow: Flow;
   suggestions: Suggestion[];
 }) {
+  const { t, locale } = useI18n();
   const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,7 +30,7 @@ export function Details({
     setExplanation(null);
     setError("");
     setLoading(false);
-  }, [step.id]);
+  }, [step.id, locale]);
   async function explain() {
     setLoading(true);
     setError("");
@@ -36,7 +38,7 @@ export function Details({
       setExplanation(
         await api<Explanation>(
           `/api/docs/${doc.id}/steps/${encodeURIComponent(step.id)}/explanation`,
-          { method: "POST" },
+          { method: "POST", headers: { "X-UI-Language": locale } },
         ),
       );
     } catch (e) {
@@ -51,15 +53,15 @@ export function Details({
   return (
     <>
       <p className="eyebrow">
-        {typeLabel[step.type]} · {step.id}
+        {t(typeLabel[step.type])} · {step.id}
       </p>
-      <h2>{step.label}</h2>
+      <h2>{t(step.label)}</h2>
       <p className={`status ${step.status}`}>
-        {statusLabel[step.status]} · Confiance déclarée{" "}
+        {t(statusLabel[step.status])} · {t("Confiance déclarée")}{" "}
         {Math.round(step.confidence * 100)} %
       </p>
-      <p>{step.summary}</p>
-      <h3 className="detail-section-title">Ce que dit le texte</h3>
+      <p>{t(step.summary)}</p>
+      <h3 className="detail-section-title">{t("Ce que dit le texte")}</h3>
       <blockquote>{step.quote}</blockquote>
       <div className="anchor-list">
         {step.anchors.map((id) => (
@@ -76,51 +78,63 @@ export function Details({
         className="source-link"
         to={`/doc/${doc.id}/texte?s=${encodeURIComponent(step.anchors[0])}`}
       >
-        Voir dans le texte intégral ↗
+        {t("Voir dans le texte intégral ↗")}
       </RouterLink>
       <section className="detail-section">
-        <h3 className="detail-section-title">Comprendre la transition</h3>
+        <h3 className="detail-section-title">
+          {t("Comprendre la transition")}
+        </h3>
         {explanation ? (
-          <p className="explanation">{explanation.explanation}</p>
+          <p className="explanation">
+            {flow.metadata.demo
+              ? t(step.summary) +
+                " " +
+                t(
+                  "Démonstration éditoriale : consultez les passages cités pour vérifier cette interprétation.",
+                )
+              : explanation.explanation}
+          </p>
         ) : (
           <button
             className="secondary"
             disabled={loading}
             onClick={() => void explain()}
           >
-            {loading
-              ? "Préparation de l’explication…"
-              : "Expliquer cette étape"}
+            {t(
+              loading
+                ? "Préparation de l’explication…"
+                : "Expliquer cette étape",
+            )}
           </button>
         )}
         {error && (
           <p role="alert" className="error">
-            {error}
+            {t(error)}
           </p>
         )}
       </section>
       {(flow.terms ?? [])
         .filter((t) => t.step_ids.includes(step.id))
         .map((t) => (
-          <section className="term" key={t.term}>
-            <strong>{t.term}</strong>
-            <p>{t.definition}</p>
+          <section className="term" key={translate(t.term, locale)}>
+            <strong>{translate(t.term, locale)}</strong>
+            <p>{translate(t.definition, locale)}</p>
             <small>{t.anchors.join(" · ")}</small>
           </section>
         ))}
       {comments.length > 0 && (
         <section className="detail-section">
-          <h3 className="detail-section-title">Pistes de relecture</h3>
+          <h3 className="detail-section-title">{t("Pistes de relecture")}</h3>
           {comments.map((s, i) => (
             <div className="suggestion" key={i}>
-              <p>{s.message}</p>
+              <p>{t(s.message)}</p>
               {s.suggested_rewrite && (
                 <blockquote>{s.suggested_rewrite}</blockquote>
               )}
               <small>
                 {s.source === "rule"
-                  ? "Repère structurel"
-                  : "Suggestion du modèle"}{" "}
+                  ? t("Repère structurel")
+                  : t("Suggestion du modèle")}{" "}
                 · {s.anchors.join(", ")}
               </small>
             </div>
@@ -141,28 +155,33 @@ export function LinkDetails({
   flow: Flow;
   suggestions: Suggestion[];
 }) {
+  const { t } = useI18n();
   const endpoints = [edge.src, edge.dst].map((id) =>
     flow.steps.find((s) => s.id === id),
   );
   return (
     <>
-      <p className="eyebrow">Relation argumentative</p>
-      <h2>{relationLabel[edge.type]}</h2>
-      <p className="status">{statusLabel[edge.status]}</p>
-      {edge.connective && <p>Connecteur : « {edge.connective} »</p>}
+      <p className="eyebrow">{t("Relation argumentative")}</p>
+      <h2>{t(relationLabel[edge.type])}</h2>
+      <p className="status">{t(statusLabel[edge.status])}</p>
+      {edge.connective && (
+        <p>
+          {t("Connecteur :")} « {edge.connective} »
+        </p>
+      )}
       <div className="endpoint-pair">
         {endpoints.map(
           (step) =>
             step && (
               <section key={step.id}>
-                <h3>{step.label}</h3>
+                <h3>{t(step.label)}</h3>
                 <blockquote>{step.quote}</blockquote>
                 <SourceSnippet doc={doc} ids={step.anchors} />
                 <RouterLink
                   className="source-link"
                   to={`/doc/${doc.id}/texte?s=${encodeURIComponent(step.anchors[0])}`}
                 >
-                  Voir le passage ↗
+                  {t("Voir le passage ↗")}
                 </RouterLink>
               </section>
             ),
@@ -172,7 +191,7 @@ export function LinkDetails({
         .filter((s) => s.target_type === "link" && s.target_id === edge.id)
         .map((s, i) => (
           <p className="suggestion" key={i}>
-            {s.message}
+            {t(s.message)}
           </p>
         ))}
     </>

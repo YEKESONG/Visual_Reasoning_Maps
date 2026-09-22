@@ -9,7 +9,14 @@ export type Metadata = components["schemas"]["Metadata"];
 export type Explanation = components["schemas"]["Explanation"];
 export type TaskAccepted = components["schemas"]["TaskAccepted"];
 export async function api<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, options);
+  let response: Response;
+  try {
+    response = await fetch(url, options);
+  } catch {
+    throw new Error(
+      "Connexion impossible. Vérifiez que le serveur fonctionne puis réessayez.",
+    );
+  }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     throw new Error(

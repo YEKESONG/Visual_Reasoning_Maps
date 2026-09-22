@@ -565,6 +565,11 @@
       },
       "Generation": {
         "properties": {
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": "auto"
+          },
           "model": {
             "type": "string",
             "title": "Model"

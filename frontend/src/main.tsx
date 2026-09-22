@@ -1,3 +1,4 @@
+import { useI18n } from "./i18n";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -9,15 +10,19 @@ const MapPage = React.lazy(() =>
 const FullText = React.lazy(() =>
   import("./FullText").then((m) => ({ default: m.FullText })),
 );
+function LocalizedMessage({ message }: { message: string }) {
+  const { t } = useI18n();
+  return (
+    <p className="loading" role="status">
+      {t(message)}
+    </p>
+  );
+}
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <React.Suspense
-        fallback={
-          <p className="loading" role="status">
-            Ouverture du lecteur…
-          </p>
-        }
+        fallback={<LocalizedMessage message="Ouverture du lecteur…" />}
       >
         <Routes>
           <Route element={<Shell />}>
@@ -27,7 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route
               path="*"
               element={
-                <p>Cette page est introuvable. Revenez à la bibliothèque.</p>
+                <LocalizedMessage message="Cette page est introuvable. Revenez à la bibliothèque." />
               }
             />
           </Route>
