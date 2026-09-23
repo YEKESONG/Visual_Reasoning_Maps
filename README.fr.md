@@ -115,14 +115,20 @@ Le sélecteur en haut à droite change la langue de l’interface ; le choix est
 ## Fonctionnement
 
 ```mermaid
-flowchart LR
-    A["PDF ou lien arXiv"] --> B["Lecture<br/>PyMuPDF · HTML arXiv · GROBID"]
-    B --> C["Phrases numérotées<br/>p12s3"]
-    C --> D["Reconstruction<br/>esquisse · sections · relations"]
-    D --> E["Vérification<br/>citations · structure · corrections"]
-    E --> F["Pistes de relecture"]
-    F --> G["flow.json"]
-    G --> H["Interface React<br/>carte · détails · texte intégral"]
+flowchart TB
+    subgraph S1["1 · Lecture"]
+        direction LR
+        A["PDF ou lien arXiv"] --> B["Texte et mise en page<br/>PyMuPDF · HTML arXiv"] --> C["Phrases numérotées<br/>p12s3"]
+    end
+    subgraph S2["2 à 4 · Modèle et vérifications"]
+        direction LR
+        D["Reconstruction<br/>esquisse, sections, liens"] --> E["Vérifications et<br/>corrections ciblées"] --> F["Pistes de relecture"]
+    end
+    subgraph S3["Résultat"]
+        direction LR
+        G["flow.json"] --> H["Carte dans le navigateur"]
+    end
+    S1 --> S2 --> S3
 ```
 
 1. **Lecture.** Pour un PDF, PyMuPDF rétablit l’ordre des colonnes, repère les titres de section d’après la taille et la graisse, écarte en-têtes, numéros de page, formules, tableaux et références, et recolle les phrases coupées par une colonne ou une page. Pour arXiv, la version HTML est utilisée si elle existe, sinon le PDF. Si `GROBID_URL` est défini, GROBID complète la structure. Le texte est découpé en phrases numérotées : `p12s3` désigne la 3e phrase du 12e paragraphe.

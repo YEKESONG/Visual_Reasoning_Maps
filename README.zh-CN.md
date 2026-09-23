@@ -115,14 +115,20 @@ python3 run.py
 ## 工作原理
 
 ```mermaid
-flowchart LR
-    A["PDF 或 arXiv 链接"] --> B["读取文档<br/>PyMuPDF · arXiv HTML · GROBID"]
-    B --> C["句子编号<br/>p12s3"]
-    C --> D["重建推理<br/>主干 · 分节 · 跨节关系"]
-    D --> E["核对<br/>引文 · 结构 · 修正"]
-    E --> F["修改建议"]
-    F --> G["flow.json"]
-    G --> H["React 前端<br/>图谱 · 详情 · 全文"]
+flowchart TB
+    subgraph S1["1 · 读取"]
+        direction LR
+        A["PDF 或 arXiv 链接"] --> B["文字与版面<br/>PyMuPDF · arXiv HTML"] --> C["句子编号<br/>p12s3"]
+    end
+    subgraph S2["2–4 · 模型与核对"]
+        direction LR
+        D["重建推理<br/>主干、分节、跨节关系"] --> E["核对与<br/>定向修正"] --> F["修改建议"]
+    end
+    subgraph S3["结果"]
+        direction LR
+        G["flow.json"] --> H["浏览器中的图谱"]
+    end
+    S1 --> S2 --> S3
 ```
 
 1. **读取文档。** PDF 由 PyMuPDF 处理：恢复双栏的阅读顺序，按字号和粗细识别章节标题，去掉页眉页脚、页码、公式、表格和参考文献，把被分栏或分页截断的句子接起来。arXiv 论文优先用 HTML 版，没有 HTML 时下载 PDF。设置了 `GROBID_URL` 时，由 GROBID 补充文档结构。全文切成带编号的句子，`p12s3` 表示第 12 段第 3 句。

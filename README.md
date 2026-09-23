@@ -115,14 +115,20 @@ The selector at the top right switches the interface language, and the browser r
 ## How it works
 
 ```mermaid
-flowchart LR
-    A["PDF or arXiv link"] --> B["Reading<br/>PyMuPDF · arXiv HTML · GROBID"]
-    B --> C["Numbered sentences<br/>p12s3"]
-    C --> D["Reconstruction<br/>outline · sections · cross-links"]
-    D --> E["Checking<br/>quotes · structure · repairs"]
-    E --> F["Revision notes"]
-    F --> G["flow.json"]
-    G --> H["React frontend<br/>map · details · full text"]
+flowchart TB
+    subgraph S1["1 · Reading"]
+        direction LR
+        A["PDF or arXiv link"] --> B["Text and layout<br/>PyMuPDF · arXiv HTML"] --> C["Numbered sentences<br/>p12s3"]
+    end
+    subgraph S2["2–4 · Model and checks"]
+        direction LR
+        D["Reconstruction<br/>outline, sections, links"] --> E["Checks and<br/>targeted repairs"] --> F["Revision notes"]
+    end
+    subgraph S3["Result"]
+        direction LR
+        G["flow.json"] --> H["Map in the browser"]
+    end
+    S1 --> S2 --> S3
 ```
 
 1. **Reading.** For a PDF, PyMuPDF restores the column order, finds section headings from font size and weight, drops running headers, page numbers, formulas, tables and references, and rejoins sentences split across columns or pages. For arXiv, the HTML version is used when it exists, otherwise the PDF. If `GROBID_URL` is set, GROBID adds document structure. The text is then split into numbered sentences: `p12s3` is the third sentence of paragraph 12.
