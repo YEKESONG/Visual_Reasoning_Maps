@@ -393,3 +393,10 @@
 - 核实时发现的、原稿没有写到的要点（供重写使用）：Lauscher 等在科学论文中平均每篇标出 141 个互不相连的论证片段、平均直径 3；Stab 与 Gurevych 的攻击关系 F1 只有 0.413；Story Ribbons 用精确字符串匹配剔除编造的引文，16 名参与者中 14 人表示错误没有影响信任；Sensecape 的作者有意不显示信息来源，并写明实际部署需要核验机制；GraphRAG 的作者指出抽取出的关系属于抽象式摘要，可能并未在原文中明说。
 - 主要文件：paper/etat_de_lart/references.bib、paper/fiches/*.md（新增 12b.md）、paper/reference_index.json、paper/README.md。
 - 验证：`cd paper/etat_de_lart && make` 编译通过（正文尚未改动，6 页），无未定义引用。
+
+## S23b 综述新增 8 篇文献
+- 问题：原清单覆盖了可视化、论证挖掘、阅读界面和自动审稿，但重写综述时有几处论证缺少依据：步骤类型和关系类型从哪里来（论证理论、篇章关系）、推理图和概念图谱的区别、交互设计原则、"用证据句核验主张"的任务定义、大模型当评审的偏差，以及"为什么不直接给大模型摘要"的实证。
+- 做法：按原任务的规则（附可访问链接，并在 paper/README.md 标注"新增"）加入 8 篇：Toulmin（2003 年第 2 版）、Mann 与 Thompson（1988，RST）、Davies（2011）、Shneiderman（1996）、Wadden 等（2020，SciFact）、Zheng 等（2023，LLM-as-a-Judge）、Peters 与 Chin-Yee（2025）、ELK Layered 文档。每篇都有阅读卡片，写明阅读范围、要引用的内容和"为何新增"。
+- 核实：Shneiderman、SciFact、Zheng 等、Peters 与 Chin-Yee、Davies（作者版）读了原文，引用内容带页码；Toulmin 原著和 RST 原文未读，前者只引用 Lauscher 等（2018，第 41 页）转述的六种成分，后者只引用 RST 官方网站上的关系定义；出版信息对照 Crossref。Sugiyama 原文不可访问，分层布局的三个步骤改以 ELK 文档为来源，它同时也是原型实际使用的实现。
+- 主要文件：paper/etat_de_lart/references.bib、paper/fiches/24.md–31.md、paper/reference_index.json、paper/README.md。
+- 验证：`make` 编译通过（正文尚未改动）。

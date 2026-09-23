@@ -198,5 +198,85 @@
     "url": "https://arxiv.org/abs/2408.09869",
     "read": "texte intégral, v5 ; pages de cette version.",
     "todo": "无。"
+  },
+  {
+    "id": "24",
+    "key": "ref24",
+    "title": "The Uses of Argument",
+    "url": "https://doi.org/10.1017/CBO9780511840005",
+    "read": "notice de l’éditeur (Crossref) ; le contenu du modèle est vérifié d’après sa présentation par Lauscher et al. (2018, p. 41), qui l’utilisent comme point de départ.",
+    "todo": "未读原书；只引用 Lauscher 等转述的六种成分，不引用书中其他内容。",
+    "added": true,
+    "reason": "原清单缺少论证理论的基础文献，第 2 节需要它来说明步骤类型的来源。"
+  },
+  {
+    "id": "25",
+    "key": "ref25",
+    "title": "Rhetorical Structure Theory",
+    "url": "https://doi.org/10.1515/text.1.1988.8.3.243",
+    "read": "définitions des relations sur le site de référence de la RST, qui renvoie à cet article ; métadonnées Crossref.",
+    "todo": "未读原文，关系定义以 RST 官方网站为准。",
+    "added": true,
+    "reason": "原清单没有篇章关系理论，而原型的\"细化\"\"因果\"关系来自篇章层面而非论证逻辑。"
+  },
+  {
+    "id": "26",
+    "key": "ref26",
+    "title": "Concept Mapping, Mind Mapping and Argument Mapping",
+    "url": "https://doi.org/10.1007/s10734-010-9387-6",
+    "read": "texte intégral de la version auteur (22 p., pagination différente de la revue).",
+    "todo": "引用页码时需换成期刊版页码。",
+    "added": true,
+    "reason": "用来说明推理图和概念图谱（GraphRAG 类）的根本区别。"
+  },
+  {
+    "id": "27",
+    "key": "ref27",
+    "title": "The Eyes Have It",
+    "url": "https://doi.org/10.1109/VL.1996.545307",
+    "read": "texte intégral.",
+    "todo": "无。",
+    "added": true,
+    "reason": "原清单缺少交互设计的基本原则，而导师方向是信息可视化与人机交互。"
+  },
+  {
+    "id": "28",
+    "key": "ref28",
+    "title": "Fact or Fiction: Verifying Scientific Claims",
+    "url": "https://aclanthology.org/2020.emnlp-main.609/",
+    "read": "texte intégral (lecture ciblée de la définition de la tâche et du jeu de données).",
+    "todo": "无。",
+    "added": true,
+    "reason": "原清单的溯源部分只有 ALCE（生成文本的引用），缺少\"用证据句核验主张\"这一更接近原型核对环节的任务定义。"
+  },
+  {
+    "id": "29",
+    "key": "ref29",
+    "title": "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena",
+    "url": "https://arxiv.org/abs/2306.05685",
+    "read": "texte intégral, arXiv v4 (lecture ciblée des biais et de l’accord avec les humains).",
+    "todo": "80% 一致率针对偏好判断任务，不能直接推到\"引文是否支持步骤\"的判断上。",
+    "added": true,
+    "reason": "原清单没有关于\"LLM 当评审\"可靠性的文献，而原型的核对环节依赖同一模型。"
+  },
+  {
+    "id": "30",
+    "key": "ref30",
+    "title": "Generalization Bias in Large Language Model Summarization of Scientific Research",
+    "url": "https://doi.org/10.1098/rsos.241776",
+    "read": "texte intégral de la prépublication (version avant publication) ; lecture ciblée du résumé et des résultats.",
+    "todo": "数字以预印本为准，需与期刊版核对。",
+    "added": true,
+    "reason": "原清单没有关于大模型总结科学文献时失真的实证研究，而这是\"为什么不直接给摘要\"的核心论据。"
+  },
+  {
+    "id": "31",
+    "key": "ref31",
+    "title": "ELK Layered",
+    "url": "https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html",
+    "read": "page complète.",
+    "todo": "无。",
+    "added": true,
+    "reason": "Sugiyama 原文不可访问，需要一个可核实的来源来描述分层布局的步骤，同时说明原型的实际实现。"
   }
 ]
