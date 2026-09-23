@@ -360,3 +360,17 @@
 - 完成内容：删除 `layout.worker.ts`，新增 `layout.ts` 的 `startLayout()`：页面直接用 elk-api 启动 ELK 的 worker，布局计算仍在 worker 中进行，不占主线程；worker 加载失败时返回"布局计算失败，请刷新页面"，不再无限等待；ELK 计算出错时返回原有的"请减少展开的子步骤"。图谱页在依赖变化时忽略过期结果，并结束旧的 worker。
 - 主要文件：frontend/src/layout.ts（新增）、frontend/src/layout.test.ts（新增）、frontend/src/MapPage.tsx、docs/DECISIONS.md（ADR-004、ADR-005）、docs/ARCHITECTURE.md。
 - 验证：新增测试（worker 无法启动时报错而不是一直等待）；`pnpm lint && pnpm test && pnpm build` 通过，Vitest 16 项；Playwright 10 项通过；内置浏览器中图谱显示 8 个主步骤、10 条连线，展开和折叠子步骤正常。
+
+## S22c README 按常见开源项目格式重写，英文为默认
+- 问题：旧 README 只有平铺的几节说明，缺少徽章、目录、功能列表、HTTP 接口说明、常见问题和贡献说明；配置表漏了 `ANCHOR_THRESHOLD` 等已生效的变量；耗时写成"约 3 分 30 秒"，与 S21d 实测的约 4 分钟不符；修改建议的叫法与界面（Pistes de relecture）不一致。另外 GitHub 主页只显示 `README.md`，原来是法语，不读法语的人看不懂。
+- 完成内容：
+  - 三种语言各一份，结构相同：`README.md`（英文，GitHub 主页显示）、`README.fr.md`（法文，由原 README.md 改名）、`README.zh-CN.md`（中文），顶部互相链接。
+  - 统一结构：标题与一句话简介、CI/许可证/Python/Node 徽章、截图（各用对应语言的界面截图）、简介和说明性提示、目录、功能、快速开始（环境要求表、安装、启动、更新后需重启的提示）、使用、工作原理（Mermaid 流程图、四个阶段、数据目录文件表）、配置（主要变量表、折叠的高级设置、换用服务商、数据去向）、HTTP 接口（路由表和 curl 示例）、开发（目录树、开发服务器、与 CI 相同的检查、端到端测试、接口契约、示例、综述编译、文档索引）、Docker、已知限制、常见问题、参与贡献、许可证。
+  - 常见问题里的提示原文取自界面三种语言的翻译表，读者能按屏幕上的字找到对应条目；收入这次排查遇到的两种情况（"服务器出错了"需要重启服务、`lsof` 没有输出时退出码为 1 不是出错）。
+  - 英文版和法文版注明：除 README 外，项目文档是中文。
+  - DECISIONS 新增 ADR-015，记录 README 默认语言与原始任务说明（法语）的差异。
+- 核对：
+  - 配置项和默认值对照 `backend/app/config.py`；路由对照 `backend/app/main.py`；`setup.sh`、`dev.sh`、CI、Docker 相关说明对照脚本和配置文件；`/docs`、`/openapi.json` 在运行中的服务上返回 200；修复最多两轮对照 `validate_and_repair`。
+  - 换用其他服务商时密钥能否写在 `.env`：本项目只把 `.env` 读进配置对象，但 LiteLLM 导入时会从自身安装位置向上查找并加载 `.env`，虚拟环境在项目目录内，所以能找到项目的 `.env`。用脚本方式启动 Python 验证（只输出真假，不打印值）：导入 LiteLLM 后环境变量中出现了 `.env` 中的变量。
+  - 脚本检查三份 README 的相对链接和目录锚点全部有效，标题层级、代码块数和表格行数完全一致；三张 Mermaid 图用 mermaid 11 解析并渲染成功。
+- 主要文件：README.md、README.fr.md、README.zh-CN.md、docs/DECISIONS.md。
