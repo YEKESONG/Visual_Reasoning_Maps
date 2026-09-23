@@ -1,6 +1,22 @@
-# 综述初稿
+# 综述
 
-法文正文在 `etat_de_lart/main.tex`，各节分文件维护；`fiches/` 中每篇文献一张阅读卡片，`reference_index.json` 是卡片的索引（链接、阅读范围、待核实事项）。原清单共 23 项，第 11 项拆成 StoryFlow 和 iStoryline 两篇，第 12 项附带的边绑定综述（Lhuillier 等 2017）作为 12b 纳入，共 25 张卡片；另有 8 篇新增文献（24–31），共 33 张。
+法文正文在 `etat_de_lart/main.tex`，各节分文件维护（`etat_de_lart/sections/`），插图在 `etat_de_lart/figures/`；`fiches/` 中每篇文献一张阅读卡片，`reference_index.json` 是卡片的索引（链接、阅读范围、待核实事项）。原清单共 23 项，第 11 项拆成 StoryFlow 和 iStoryline 两篇，第 12 项附带的边绑定综述（Lhuillier 等 2017）作为 12b 纳入，共 25 张卡片；另有 8 篇新增文献（24–31），共 33 张。
+
+## 结构
+
+全文围绕四个问题组织：抽取什么、怎样呈现、怎样连回原文、怎样评估。
+
+1. Introduction：从"摘要"到"重建推理"的动机，四个问题，文献范围与阅读方法。
+2. Ce que la carte représente：陈述的角色（Toulmin、Lauscher 等、Stab 与 Gurevych）、关系类型（论证关系与 RST 篇章关系）、论证图与概念图的区别（Davies）。
+3. Extraire la structure：论证挖掘的难点与数字、大模型方法、知识图谱（GraphRAG、LightRAG）作为对照、对原型设计的影响。
+4. Représenter un raisonnement：论证可视化（Khartabil 等）、基于大模型的文本可视化（Story Ribbons、Graphologue、Sensecape、Brossier 等）、交互原则（Shneiderman）、分层布局、故事线与边绑定。
+5. Relier la carte au texte：引用不等于证明（ALCE、SciFact）、在文档中阅读（Semantic Reader、SciDaSynth）、文档解析（GROBID、Docling、PyMuPDF）。
+6. Critique automatique：自动审稿（Liang 等、MARG、Zhuang 等、Stanford Agentic Reviewer）与大模型当评审的偏差（Zheng 等、Li 等、Peters 与 Chin-Yee）。
+7. Synthèse et positionnement：系统对比表、六条设计要求、原型的回应与局限。
+8. Protocole d'évaluation：重建质量、阅读效用、效度威胁（尚未实施）。
+9. Conclusion。
+
+编译：安装 TeX Live 或 MacTeX（需要 babel-french、biblatex 和 biber，完整安装都包含），运行 `cd paper/etat_de_lart && make`。引用采用 biblatex 的作者–年份格式。编译产物不提交。中文说明与法文正文分开修改。
 
 ## 新增文献
 
@@ -16,8 +32,6 @@
 | 29 | Zheng et al. (2023), LLM-as-a-Judge | https://arxiv.org/abs/2306.05685 | 大模型当评审的偏差 |
 | 30 | Peters & Chin-Yee (2025), Generalization Bias | https://doi.org/10.1098/rsos.241776 | 大模型总结科学文献时过度概括的实证 |
 | 31 | ELK Layered 文档 | https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html | 分层布局步骤的可核实描述，也是原型的实际实现 |
-
-编译：安装 TeX Live 或 MacTeX（需要 babel-french），运行 `cd paper/etat_de_lart && make`。编译产物不提交。中文说明与法文正文分开修改。
 
 ## 核实范围
 
@@ -46,3 +60,4 @@
 - S21e：摘要、引言和第 2、4、5、6、7 节做了措辞修订；第 6 节补充了原型在真实双栏论文上测试 PDF 解析后的情况。
 - S23a：逐篇对照全文或出版方页面重新核实，重写 25 张阅读卡片（研究问题、方法、带页码的结果、与本项目的关系），参考文献改为正式发表版本并注明所读版本，纳入 12b。
 - S23b：新增 8 篇文献（24–31），各附阅读卡片、链接和新增理由。
+- S23c：正文按四个问题重写为九节（约 14 页），引用改为 biblatex 作者–年份格式，加入原型截图、系统对比表、六条设计要求与原型对照表、评估方案；每个关于文献的陈述都对照原文或出版方摘要核实，引用全文内容的地方给出页码。

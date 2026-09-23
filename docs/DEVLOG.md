@@ -400,3 +400,14 @@
 - 核实：Shneiderman、SciFact、Zheng 等、Peters 与 Chin-Yee、Davies（作者版）读了原文，引用内容带页码；Toulmin 原著和 RST 原文未读，前者只引用 Lauscher 等（2018，第 41 页）转述的六种成分，后者只引用 RST 官方网站上的关系定义；出版信息对照 Crossref。Sugiyama 原文不可访问，分层布局的三个步骤改以 ELK 文档为来源，它同时也是原型实际使用的实现。
 - 主要文件：paper/etat_de_lart/references.bib、paper/fiches/24.md–31.md、paper/reference_index.json、paper/README.md。
 - 验证：`make` 编译通过（正文尚未改动）。
+
+## S23c 综述正文重写
+- 问题：初稿七节、约 1600 词、6 页，基本按文献清单逐篇复述（"X 做了 A，Y 做了 B"），缺少把文献串起来的问题线索；所有结论只有摘要层面的依据；没有说明原型的步骤和关系类型从何而来，也没有评估方案。
+- 做法：
+  - 结构改为围绕四个问题：抽取什么、怎样呈现、怎样连回原文、怎样评估。共九节：引言（动机、问题、文献范围与阅读方法）、地图表示什么（Toulmin 与 Lauscher 等的对照、论证关系与 RST 篇章关系、论证图与概念图）、抽取（论证挖掘的难点和数字、大模型方法、GraphRAG 类知识图谱作为对照）、呈现（论证可视化、基于大模型的文本可视化、Shneiderman 原则、分层布局、故事线与边绑定）、连回原文（ALCE 与 SciFact、Semantic Reader 与 SciDaSynth、文档解析）、自动评审与评审模型的偏差、综合与定位（系统对比表、六条设计要求、原型对照表）、评估方案、结论。
+  - 每个关于文献的陈述都来自 S23a/S23b 核实过的内容，引用全文时给出页码；只读过摘要的四篇文献只用摘要层面的结论。对原型的描述逐条对照代码（抽取三步、长文档截取方式、引文核对与状态、修改建议规则、矛盾关系不参与分层）。
+  - 引用改为 biblatex 作者–年份格式（biber），法语排版；加入原型截图（Descartes 示例），系统对比表与"设计要求—实现—局限"对照表。
+  - 写作中又发现并更正了三处：Lauscher 等的标注方案只有三种关系（此前卡片误记为四种）；MARG 的用户研究是 9 名研究者（补入卡片）；Sensecape 的对照组是"对话 + 简单画布"，不是纯对话界面。
+- 排版检查：逐页渲染 PDF 检查，修正了表格首列两端对齐造成的空隙、插图浮动到结论页、babel-french 在"arXiv:编号"冒号前自动加空格、粗体小型大写标签的字体警告；参考文献 note 字段里的网址改用 `\url{}`，否则下划线会导致编译失败。
+- 主要文件：paper/etat_de_lart/main.tex、sections/*.tex（旧的 02–06 节删除，新增 02-notions、03-extraction、04-representation、05-ancrage、06-critique、08-evaluation、09-conclusion）、figures/carte-descartes.png、references.bib、paper/README.md、paper/fiches/02、03、08、19、.gitignore（忽略 biber 的中间文件）。
+- 验证：`cd paper/etat_de_lart && make` 编译通过，14 页，日志无警告、无未定义引用；正文约 4900 词。

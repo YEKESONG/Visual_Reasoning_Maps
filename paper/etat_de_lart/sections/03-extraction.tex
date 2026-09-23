@@ -1,0 +1,29 @@
+\section{Extraire la structure d’un raisonnement}
+\label{sec:extraction}
+
+\subsection{La fouille d’arguments}
+
+\textcite[765]{ref05} définissent la fouille d’arguments comme l’identification et l’extraction automatiques de la structure d’inférence et de raisonnement exprimée par des arguments en langue naturelle. Ils organisent la tâche par niveaux de difficulté croissante : délimiter les composantes, qualifier les propositions, puis identifier les relations, des simples liens entre prémisse et conclusion jusqu’aux schèmes d’argumentation \parencite[786--787]{ref05}. Les outils d’analyse classiques, comme Araucaria, Rationale, OVA ou Carneades, laissent à l’analyste le soin d’identifier les propositions \parencite[775]{ref05}. Les difficultés que relèvent les auteurs tiennent surtout aux données : peu de corpus annotés, des schémas d’annotation propres à chaque domaine, des conceptions divergentes de ce qu’est une affirmation, et une part du raisonnement que le texte laisse implicite \parencite[806--807]{ref05}.
+
+Les résultats de \textcite{ref07} donnent l’ordre de grandeur de ces difficultés. Sur un corpus de 402 essais, leur modèle joint optimise ensemble les types de composantes et les relations par programmation linéaire en nombres entiers. Il atteint un F1 macro de 0,826 pour les composantes, pour un plafond humain de 0,868, et de 0,751 pour les relations, contre 0,854. Pour les seules relations d’attaque, le F1 tombe à 0,413, contre 0,703 chez les annotateurs \parencite[646]{ref07}. L’accord entre annotateurs est lui-même plus faible pour les affirmations ($\alpha_U = 0{,}524$) que pour les prémisses ($0{,}824$) \parencite[631]{ref07}. Les relations sont donc plus difficiles à retrouver que les composantes, et l’attaque plus que le soutien.
+
+Le texte scientifique ajoute une difficulté de portée. Dans les 40 articles annotés par \textcite[43]{ref08}, on compte en moyenne 141 composantes connexes par article, pour un diamètre moyen de 3. Les auteurs y voient soit des chaînes argumentatives très courtes, soit la difficulté, pour les annotateurs eux-mêmes, de repérer les dépendances à longue distance. Une analyse qui part des phrases pour remonter vers la structure risque ainsi de produire des fragments sans vue d’ensemble.
+
+\subsection{Avec des modèles de langage}
+
+La revue de \textcite{ref06} montre comment les LLM ont estompé les frontières entre sous-tâches : un même modèle, guidé par des instructions, des exemples ou une chaîne de raisonnement, détecte des affirmations, des preuves ou des positions. Elle signale aussi un risque propre à cette période : lorsque la même famille de modèles sert à annoter des données puis à évaluer des systèmes, les scores peuvent être gonflés \parencite[7]{ref06}.
+
+Deux systèmes de visualisation mesurent la qualité de leur propre extraction. Graphologue fait annoter par GPT-4, au fil de la génération, les entités et les relations de la réponse qu’il est en train de produire. La F-mesure des relations passe de 84,77~\% à 92,39~\% après un tour de correction, et la part de relations manquantes de 20,73~\% à 9,25~\% \parencite[11]{ref02}. Story Ribbons extrait des récits littéraires des attributs et des citations ; une partie des citations produites par le modèle est inventée ou modifiée, si bien que les auteurs les comparent mot à mot au texte et remplacent celles qui n’y figurent pas \parencite[3]{ref01}. La part de citations authentiques varie de 0,85 à 0,97 selon le type de texte \parencite[4]{ref01}. Dans les deux cas, l’extraction n’est utilisable qu’avec une étape de contrôle, et ce contrôle réduit les erreurs sans les supprimer.
+
+\subsection{Les graphes de connaissances}
+\label{sec:graphes}
+
+GraphRAG \parencite{ref13} fait extraire par un LLM des entités, des relations et des affirmations factuelles, regroupe les entités en communautés hiérarchiques et résume chacune à l’avance, afin de répondre à des questions qui portent sur tout un corpus. Sur des corpus d’environ un million de jetons, ses réponses sont plus complètes et plus diverses que celles d’une recherche de passages \parencite[1]{ref13}. LightRAG \parencite{ref14} poursuit le même but avec une recherche à deux niveaux et des mises à jour incrémentales. Les auteurs de GraphRAG précisent que l’extraction d’entités, de relations et d’affirmations est une forme de résumé abstractif : relations et affirmations peuvent ne pas être énoncées explicitement dans le texte \parencite[5]{ref13}.
+
+Ces graphes relient des concepts pour retrouver l’information. Ils ne disent pas quelle proposition justifie laquelle, et leurs arêtes ne renvoient pas à une phrase précise. Le résumé hiérarchique des communautés rejoint en revanche notre besoin d’un aperçu à plusieurs niveaux.
+
+\subsection{Conséquences pour le prototype}
+
+Le prototype procède du haut vers le bas, en trois passes. La première esquisse le raisonnement principal en cinq à douze étapes à partir du texte regroupé par sections ; pour un document très long, seuls le début et la fin de chaque section sont transmis. La deuxième ajoute les sous-étapes section par section, la troisième cherche les relations entre sections. Poser la structure d’ensemble avant les détails répond au problème de portée relevé plus haut.
+
+Chaque étape doit citer au moins une phrase par son identifiant (\texttt{p12s3} désigne la troisième phrase du douzième paragraphe), accompagné d’un court extrait. Les relations sont typées et orientées. Une contradiction exige une citation de chaque côté, puisque c’est le type de relation le moins bien extrait. Enfin, l’extraction et la critique décrite à la section~\ref{sec:critique} sont confiées au même modèle : les verdicts de la critique servent à signaler des problèmes, pas à mesurer la qualité de la carte.

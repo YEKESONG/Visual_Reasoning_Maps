@@ -1,18 +1,68 @@
 \section{Synthèse et positionnement}
-Le tableau compare les propriétés effectivement décrites dans les sources consultées. « À vérifier » indique une limite de cette lecture initiale, et non l'absence d'une fonctionnalité.
-\begin{center}\scriptsize
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{1.65cm}*{5}{>{\raggedright\arraybackslash}X}}
-\toprule Système & Entrée & Structure & Vue & Provenance & Évaluation\\\midrule
-Story Ribbons \cite{ref01} & Romans, scripts & Personnages, thèmes & Rubans hiérarchiques & À vérifier & Pipeline, utilisateurs\\
-Graphologue \cite{ref02} & Réponses LLM & Entités, relations & Nœuds-liens & Réponse générée & Étude formative\\
-Sensecape \cite{ref03} & Exploration LLM & Abstractions & Espace multiniveau & À vérifier & Intra-sujets\\
-GraphRAG \cite{ref13} & Corpus textuel & Entités, communautés & Réponse synthétique & À vérifier & Comparaison RAG\\
-Semantic Reader \cite{ref15} & Articles & Aides à la lecture & Document enrichi & Document & Études de lecture\\
-SciDaSynth \cite{ref16} & Littérature & Données structurées & Tables interactives & À vérifier & Intra-sujets\\
-MARG \cite{ref19} & Articles & Commentaires & Retours textuels & À vérifier & Utilisateurs\\
-Projet proposé & PDF, HTML & Relations argumentatives typées & Flux hiérarchique & Phrase et extrait original & À conduire\\\bottomrule
-\end{tabularx}\end{center}
+\label{sec:synthese}
 
-Le prototype combine une carte de taille limitée, des relations typées, des passages montrés dans leur mise en page et des contrôles explicites. Le corpus a été présélectionné et la revue n'est pas systématique : d'autres systèmes peuvent réunir ces éléments.
+\subsection{Comparaison des systèmes}
 
-L'évaluation à conduire distinguera justesse des étapes, justesse des relations, complétude des ancrages et utilité pour le lecteur. Une annotation humaine sur textes scientifiques, philosophiques et essais permettra d'examiner les désaccords. Des tâches de localisation d'une preuve et d'identification d'une conclusion insuffisamment soutenue pourront comparer lecture seule et lecture assistée. Il s'agit d'un protocole prévu ; aucun résultat expérimental n'est encore disponible.
+Le tableau~\ref{tab:systemes} compare les systèmes étudiés selon cinq critères : ce qu’ils prennent en entrée, ce qu’ils extraient, la forme visuelle, la manière de renvoyer à la source et l’évaluation publiée. Il ne retient que ce que les sources décrivent.
+
+\begin{table}[ht]
+\centering\footnotesize
+\caption{Systèmes étudiés et prototype.}
+\label{tab:systemes}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.7cm}LLLLL@{}}
+\toprule
+Système & Entrée & Structure extraite & Forme visuelle & Renvoi à la source & Évaluation publiée \\
+\midrule
+Story Ribbons\newline\parencite{ref01} & Romans, pièces, poèmes & Personnages, lieux, thèmes, scènes & \emph{Storylines} à plusieurs niveaux & Citations contrôlées mot à mot & Pipeline sur 36 œuvres ; 16 participants \\
+Graphologue\newline\parencite{ref02} & Réponses de GPT-4 & Entités et relations & Diagrammes nœuds-liens & Passage de la réponse générée & Évaluation technique ; 7 participants \\
+Sensecape\newline\parencite{ref03} & Exploration avec un LLM & Niveaux d’abstraction & Toile et vue hiérarchique & Aucun, par choix & Intra-sujets, 12 participants \\
+Visualisations d’arguments\newline\parencite{ref09} & Arguments déjà analysés & Hiérarchie de prémisses & \emph{Sunburst}, \emph{icicle} & Texte des prémisses & Analystes ; 21 participants \\
+GraphRAG\newline\parencite{ref13} & Corpus d’environ un million de jetons & Entités, relations, affirmations, communautés & Aucune (réponses textuelles) & Résumés abstractifs, sans renvoi à la phrase & Complétude et diversité des réponses \\
+Semantic Reader\newline\parencite{ref15} & Articles en PDF & Termes, citations, fonctions du discours & Aides intégrées au document & Le document lui-même & Dix prototypes, plus de 300 participants \\
+SciDaSynth\newline\parencite{ref16} & Articles scientifiques & Données tabulaires & Tables et résumés visuels & Chaque donnée liée à sa source & Intra-sujets, 24 chercheurs \\
+MARG\newline\parencite{ref19} & Articles & Commentaires de relecture & Texte & Commentaires sur l’article & Étude utilisateur, 9 chercheurs \\
+\addlinespace
+Prototype & PDF, HTML d’arXiv & Étapes typées, relations inférentielles et discursives & Carte en couches, sous-étapes dépliables & Phrase citée, extrait dans la mise en page d’origine, statut de vérification & À conduire (section~\ref{sec:evaluation}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Dans ce corpus, les systèmes qui visualisent des extractions de LLM ne représentent pas de relations d’inférence ; les travaux sur la visualisation d’arguments partent d’arguments déjà analysés à la main ; les interfaces de lecture ancrent leurs aides dans le document sans en reconstruire le raisonnement ; la relecture automatique produit du texte sans structure. La combinaison que vise le prototype, des relations typées, un aperçu hiérarchique, un ancrage vérifié phrase par phrase dans la mise en page d’origine et un statut visible pour chaque élément, n’apparaît dans aucun d’eux. Le corpus a été présélectionné et la revue n’est pas systématique : d’autres systèmes peuvent réunir ces éléments.
+
+\subsection{Six exigences}
+
+Les sections précédentes conduisent à six exigences de conception.
+\begin{description}
+  \item[E1. Des relations typées et orientées.] Une carte de raisonnement doit dire quelle proposition appuie, cause, précise ou contredit laquelle, ce que ne fait pas un graphe d’association \parencite{ref26,ref13}.
+  \item[E2. L’ensemble avant le détail.] Un aperçu de taille limitée, développable, qui pose la structure d’ensemble avant les détails locaux \parencite{ref27,ref03,ref08}.
+  \item[E3. Un ancrage vérifiable à la phrase.] Chaque élément renvoie à des phrases précises, montrées dans leur contexte d’origine, et ce renvoi est contrôlé \parencite{ref17,ref28,ref15}.
+  \item[E4. L’incertitude visible.] Ce qui n’a pas été confirmé ne doit pas paraître certain, puisqu’une erreur visible n’entame pas d’elle-même la confiance \parencite{ref01,ref04}.
+  \item[E5. Une critique ciblée.] Des remarques attachées à des passages plutôt qu’une note globale \parencite{ref18,ref19,ref30}.
+  \item[E6. Une évaluation indépendante du modèle.] Le modèle qui produit la carte ne peut pas en être le seul juge \parencite{ref06,ref29}.
+\end{description}
+
+\subsection{Réponses du prototype}
+
+Le tableau~\ref{tab:exigences} résume comment le prototype répond à chaque exigence et ce qui lui manque ; son interface est montrée à la figure~\ref{fig:prototype}.
+
+\begin{table}[ht]
+\centering\footnotesize
+\caption{Exigences et état du prototype.}
+\label{tab:exigences}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.4cm}LL@{}}
+\toprule
+Exigence & Mise en œuvre & Limites actuelles \\
+\midrule
+E1 Relations & Six rôles, quatre relations au trait distinct ; contradictions hors de l’ordre des couches & Cause et précision ne sont pas des relations d’inférence ; leur attribution dépend du modèle \\
+E2 Ensemble & Esquisse de cinq à douze étapes, puis sous-étapes par section ; filtres et chaîne isolée & Pas encore de vue selon la position dans le texte \\
+E3 Ancrage & Identifiant de phrase et extrait, contrôlés par comparaison approximative ; extrait rendu depuis le PDF ; texte intégral surligné & Erreurs de lecture des PDF difficiles (tableaux sans filets, trois colonnes, numérisation) \\
+E4 Incertitude & Statut par étape et par relation, cadre en pointillés, rapport des lacunes de structure & Statuts attribués par le modèle qui a produit la carte \\
+E5 Critique & Règles de structure et remarques du modèle, attachées à une étape et à des phrases ; aucune note globale & Utilité non mesurée \\
+E6 Évaluation & Protocole prévu (section~\ref{sec:evaluation}) & Aucune évaluation humaine à ce jour \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Un premier essai en conditions réelles donne un ordre de grandeur. Sur un article de 14 pages en deux colonnes, une analyse complète a demandé environ quatre minutes et 26 appels au modèle ; 39 des 41 étapes y ont été jugées soutenues par leurs citations. Ce chiffre vient du vérificateur lui-même : il indique que la chaîne fonctionne, pas que la carte est juste.

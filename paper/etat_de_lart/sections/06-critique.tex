@@ -1,0 +1,16 @@
+\section{Critique automatique et fiabilité des juges}
+\label{sec:critique}
+
+\subsection{La relecture automatique}
+
+\textcite{ref18} ont comparé les commentaires de GPT-4 aux rapports de relecture de 3\,096 articles de revues du groupe Nature et de 1\,709 articles soumis à ICLR. Les points soulevés se recouvrent à 30,85~\% et 39,23~\% respectivement, un niveau comparable à celui qu’on observe entre deux relecteurs humains. Dans leur étude auprès de 308 chercheurs, 57,4~\% jugent ces retours utiles ou très utiles et 82,4~\% les trouvent plus utiles que ceux d’au moins certains relecteurs humains. GPT-4 revient cependant souvent aux mêmes types de remarques, par exemple la demande d’expériences sur d’autres jeux de données \parencite[1]{ref18}. MARG \parencite{ref19} répartit la lecture d’un article entre plusieurs instances du modèle, dont des agents spécialisés par aspect. La part de commentaires jugés génériques passe de 60~\% à 29~\%, et le nombre de bons commentaires par article est multiplié par 2,2 \parencite[1]{ref19}.
+
+La revue de \textcite{ref20} range parmi les défis ouverts la correction des hallucinations et la résistance aux entrées conçues pour obtenir des conclusions contraires à l’intégrité scientifique \parencite[25--26]{ref20}. La page technique du Stanford Agentic Reviewer \parencite{ref21} annonce une corrélation de 0,42 entre ses notes et celles d’un relecteur, contre 0,41 entre deux relecteurs, sur des soumissions à ICLR 2025 ; il s’agit d’une documentation d’ingénierie, sans évaluation indépendante.
+
+Ces travaux portent sur des retours qui concernent un article entier. Le prototype en tire deux choix. Ses remarques sont attachées à une étape et à des phrases précises, et il ne calcule aucune note globale de qualité scientifique. Le texte du document est traité comme un matériau à analyser, jamais comme une instruction adressée au modèle.
+
+\subsection{Le modèle comme juge}
+
+Employer un LLM pour juger des sorties de LLM expose à des biais connus. \textcite[1]{ref29} décrivent des biais de position, de verbosité et d’auto-complaisance, le modèle favorisant ses propres réponses ; ils mesurent aussi plus de 80~\% d’accord entre GPT-4 et des préférences humaines, autant qu’entre deux humains. Cet accord porte sur des préférences entre réponses ; il ne dit rien d’un jugement de soutien entre une phrase et une étape. Le risque de circularité signalé par \textcite[7]{ref06} s’applique directement au prototype, où la critique est faite par le même modèle que l’extraction : elle peut repérer des incohérences, mais ses erreurs ne sont pas indépendantes de celles de l’extracteur.
+
+Les règles de structure du prototype ne dépendent pas de ce jugement. Elles signalent une affirmation ou une conclusion que rien n’appuie sur la carte, une preuve qui n’appuie aucune étape, et chaque contradiction, que le lecteur doit examiner. Une conclusion dont le soutien n’est pas confirmé fait l’objet d’une remarque qui invite à vérifier qu’elle ne va pas plus loin que les éléments cités : c’est la réponse du prototype à la surgénéralisation mesurée par \textcite{ref30}. Des remarques du modèle s’y ajoutent, rattachées elles aussi à des étapes et à des phrases.

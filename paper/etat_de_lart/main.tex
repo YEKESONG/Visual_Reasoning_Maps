@@ -2,25 +2,41 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
+\frenchsetup{SmallCapsFigTabCaptions=false}
+\usepackage[autostyle]{csquotes}
 \usepackage[margin=2.5cm]{geometry}
-\usepackage{lmodern,microtype,booktabs,tabularx,longtable}
+\usepackage{lmodern,microtype,booktabs,tabularx,graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[backend=biber,style=authoryear,maxcitenames=2,mincitenames=1,
+  maxbibnames=6,minbibnames=3,giveninits=true,uniquename=false,uniquelist=false,
+  dashed=false,doi=true,url=true,isbn=false,eprint=false]{biblatex}
+\addbibresource{references.bib}
 \usepackage[hidelinks]{hyperref}
-\title{Visual Reasoning Maps\\\large État de l'art et positionnement d'un prototype}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\title{Visual Reasoning Maps\\[0.3em]\large Reconstruire, montrer et vérifier le raisonnement d’un texte\\État de l’art et positionnement}
 \author{Document de travail — projet ENAC}
-\date{22 septembre 2026}
+\date{23 septembre 2026}
+
 \begin{document}
 \maketitle
+
 \begin{abstract}
-Ce document situe Visual Reasoning Maps, un prototype qui reconstruit les relations argumentatives d'un texte et les présente sous forme de carte. Il fait le point sur quatre domaines : la visualisation de textes assistée par des modèles de langage, la fouille d'arguments, la disposition de graphes et les interfaces de lecture scientifique. Le prototype relie un aperçu hiérarchique du raisonnement aux passages du texte, montrés dans leur mise en page d'origine, pour que chaque étape puisse être vérifiée par le lecteur. Cette première version s'appuie sur les résumés et notices des travaux cités ; une lecture intégrale et une évaluation avec des lecteurs restent à faire.
+Les modèles de langage résument volontiers un article, mais un résumé ne montre ni comment les affirmations s’enchaînent ni sur quelles phrases elles reposent, et il tend à généraliser au-delà de ce que dit le texte. Visual Reasoning Maps est un prototype qui reconstruit le raisonnement d’un texte sous forme de carte : des étapes typées (question, prémisse, affirmation, preuve, objection, conclusion), reliées par des relations de soutien, de cause, de précision ou de contradiction, chacune rattachée aux phrases qui la fondent. Ce document examine 33 sources, lues pour la plupart en texte intégral, qui relèvent de la théorie de l’argumentation et de la fouille d’arguments, de la visualisation de textes à l’aide de modèles de langage, du dessin de graphes, des interfaces de lecture scientifique et du contrôle des sorties de modèles. Il en tire six exigences de conception et montre comment le prototype y répond. Dans le corpus examiné, aucun système ne réunit des relations inférentielles typées, un aperçu hiérarchique, un ancrage vérifié phrase par phrase dans la mise en page d’origine et un statut de vérification visible pour chaque élément. Le document se termine par un protocole d’évaluation, qui reste à conduire.
 \end{abstract}
+
 \tableofcontents
+
 \input{sections/01-introduction}
-\input{sections/02-visualisation}
-\input{sections/03-arguments}
-\input{sections/04-graphes}
-\input{sections/05-lecture}
-\input{sections/06-documents}
+\input{sections/02-notions}
+\input{sections/03-extraction}
+\input{sections/04-representation}
+\input{sections/05-ancrage}
+\input{sections/06-critique}
 \input{sections/07-synthese}
-\bibliographystyle{plainurl}
-\bibliography{references}
+\input{sections/08-evaluation}
+\input{sections/09-conclusion}
+
+\printbibliography[heading=bibintoc,title={Références}]
 \end{document}

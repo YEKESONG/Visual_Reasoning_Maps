@@ -19,6 +19,8 @@ frontend/dist/
 *.log
 *.out
 *.toc
+*.bcf
+*.run.xml
 paper/etat_de_lart/*.pdf
 .DS_Store
 

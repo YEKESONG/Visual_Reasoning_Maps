@@ -1,0 +1,18 @@
+\section{Ce que la carte représente}
+\label{sec:notions}
+
+\subsection{Le rôle des énoncés}
+
+Le modèle de \textcite{ref24}, conçu à l’origine pour l’argumentation juridique, distingue six composantes d’un argument : l’affirmation, la donnée, le garant, le fondement, le modalisateur et la réfutation \parencite[41]{ref08}. Appliqué à des articles scientifiques, il s’est révélé mal adapté. Lors d’une annotation préliminaire, \textcite[41]{ref08} n’ont trouvé ni garant, ni fondement, ni modalisateur, ni réfutation ; en revanche, des affirmations servaient souvent d’appui à d’autres affirmations. Leur schéma final ne garde que trois rôles, l’affirmation propre aux auteurs, l’affirmation qui relève du contexte et la donnée, et trois relations : le soutien, la contradiction et l’identité sémantique entre deux mentions d’une même affirmation. Pour des essais argumentatifs, \textcite{ref07} retiennent la thèse, l’affirmation et la prémisse, reliées par le soutien ou l’attaque.
+
+Le prototype adopte six rôles : question, prémisse, affirmation, preuve, objection et conclusion. Ils suivent la demande du sujet (concepts, arguments, exemples, positions adverses, conclusions) plus qu’une théorie particulière. La question marque le point de départ d’un raisonnement, la preuve regroupe données et exemples, l’objection recueille les positions que l’auteur discute. Les concepts ne deviennent pas des étapes : ils figurent dans des fiches de termes, rattachées aux étapes où ils interviennent.
+
+\subsection{Les relations}
+
+En fouille d’arguments, les relations se ramènent le plus souvent au soutien et à l’attaque \parencite{ref05,ref07}. Le sujet en demande davantage, car la causalité et le raffinement ne sont pas des relations d’inférence. Ils relèvent de l’organisation du discours telle que la décrit la théorie de la structure rhétorique \parencite{ref25}. Celle-ci définit par exemple les relations \emph{Evidence} (le satellite accroît la croyance du lecteur dans le noyau), \emph{Cause}, \emph{Elaboration} (le satellite apporte un détail sur un élément du noyau), \emph{Contrast} et \emph{Antithesis}. Les quatre relations du prototype, soutien, cause, précision et contradiction, correspondent à ces familles. La divergence et la convergence ne sont pas des relations mais des configurations : une affirmation d’où partent plusieurs branches, plusieurs preuves qui mènent à la même conclusion. Elles se lisent sur la forme du graphe.
+
+Reste la forme d’ensemble. \textcite[620]{ref07} modélisent un essai comme un arbre connexe, alors que \textcite[43]{ref08} trouvent dans les articles scientifiques une forêt de graphes orientés acycliques. Le prototype retient le graphe orienté acyclique pour le soutien, la cause et la précision, et traite la contradiction à part : elle relie deux étapes sans que l’une précède l’autre.
+
+\subsection{Carte d’arguments ou carte de concepts}
+
+\textcite{ref26} distingue trois familles de cartes souvent confondues. La carte mentale relève de l’association, la carte conceptuelle des relations entre idées, la carte d’arguments de la structure inférentielle, c’est-à-dire de ce qui fonde une affirmation. Les graphes que des LLM extraient pour la recherche d’information (section~\ref{sec:graphes}) appartiennent à la deuxième famille. La carte du prototype appartient surtout à la troisième, mais pas entièrement : selon Davies, la carte d’arguments ne s’occupe pas des relations causales entre affirmations, alors que le sujet demande de les montrer. Nous gardons donc la cause et la précision, avec un trait distinct de celui du soutien, pour qu’un lecteur ne prenne pas une explication pour une preuve.
