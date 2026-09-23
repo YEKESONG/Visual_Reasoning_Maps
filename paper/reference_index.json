@@ -2,169 +2,201 @@
   {
     "id": "01",
     "key": "ref01",
-    "url": "https://arxiv.org/abs/2508.06772",
     "title": "Story Ribbons: Reimagining Storyline Visualizations with Large Language Models",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://arxiv.org/abs/2508.06772",
+    "read": "texte intégral, arXiv v1 ; les pages ci-dessous sont celles de cette version.",
+    "todo": "期刊版页码来自 Crossref，未比对期刊版与 arXiv v1 的差异；用户研究的任务设计只读了第 7 节。"
   },
   {
     "id": "02",
     "key": "ref02",
-    "url": "https://arxiv.org/abs/2305.11473",
     "title": "Graphologue: Exploring Large Language Model Responses with Interactive Diagrams",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://arxiv.org/abs/2305.11473",
+    "read": "texte intégral, arXiv v2 ; pages de cette version.",
+    "todo": "用户研究只有 7 人且为定性研究，引用时不外推。"
   },
   {
     "id": "03",
     "key": "ref03",
-    "url": "https://arxiv.org/abs/2305.11483",
     "title": "Sensecape: Enabling Multilevel Exploration and Sensemaking with Large Language Models",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://arxiv.org/abs/2305.11483",
+    "read": "texte intégral, arXiv v2 ; pages de cette version.",
+    "todo": "无。"
   },
   {
     "id": "04",
     "key": "ref04",
-    "url": "https://arxiv.org/abs/2601.14943",
     "title": "State of the Art of LLM-Enabled Interaction with Visualization",
-    "todo": "核对全文的具体页码、评价协议与适用边界。 arXiv 页面仅写 Submitted to STARs；不声称正式录用。"
+    "url": "https://arxiv.org/abs/2601.14943",
+    "read": "texte intégral, arXiv v2 (mise en page de Computer Graphics Forum) ; pages de cette version.",
+    "todo": "Crossref 在 2026-09-23 尚未收录期刊版 DOI 和页码，定稿前补上。"
   },
   {
     "id": "05",
     "key": "ref05",
-    "url": "https://aclanthology.org/J19-4006/",
     "title": "Argument Mining: A Survey",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://aclanthology.org/J19-4006/",
+    "read": "texte intégral (PDF de l’ACL Anthology) ; pages de la revue.",
+    "todo": "无。"
   },
   {
     "id": "06",
     "key": "ref06",
-    "url": "https://arxiv.org/abs/2506.16383",
     "title": "Large Language Models in Argument Mining: A Survey",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://arxiv.org/abs/2506.16383",
+    "read": "texte intégral, v6 (25 novembre 2025, marquée « work in progress ») ; pages de cette version.",
+    "todo": "预印本仍在更新，定稿前核对最新版本；第 7 页的数字来自其引用的 Liu et al. (2024)，如需引用数字应回到原文。"
   },
   {
     "id": "07",
     "key": "ref07",
-    "url": "https://aclanthology.org/J17-3005/",
     "title": "Parsing Argumentation Structures in Persuasive Essays",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://aclanthology.org/J17-3005/",
+    "read": "texte intégral (PDF de l’ACL Anthology) ; pages de la revue.",
+    "todo": "无。"
   },
   {
     "id": "08",
     "key": "ref08",
-    "url": "https://aclanthology.org/W18-5206/",
     "title": "An Argument-Annotated Corpus of Scientific Publications",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://aclanthology.org/W18-5206/",
+    "read": "texte intégral ; pages des actes.",
+    "todo": "无。"
   },
   {
     "id": "09",
     "key": "ref09",
-    "url": "https://doi.org/10.1111/cgf.14389",
     "title": "Design and Evaluation of Visualization Techniques to Facilitate Argument Exploration",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://doi.org/10.1111/cgf.14389",
+    "read": "résumé de l’éditeur (Crossref) et notice de l’université d’Édimbourg ; texte intégral non accessible.",
+    "todo": "未读全文；引用限于摘要层面的结论，不引用具体任务和数字以外的细节。"
   },
   {
     "id": "10",
     "key": "ref10",
-    "url": "https://doi.org/10.1109/TSMC.1981.4308636",
     "title": "Methods for Visual Understanding of Hierarchical System Structures",
-    "todo": "核对全文的具体页码、评价协议与适用边界。 IEEE 页面受访问限制；作者、年与题名暂按给定清单，正文不转述未经核实的算法结论。"
+    "url": "https://doi.org/10.1109/TSMC.1981.4308636",
+    "read": "métadonnées de l’éditeur (Crossref) ; méthode décrite d’après la documentation d’ELK, qui l’attribue explicitement à cet article. Texte intégral non accessible (IEEE).",
+    "todo": "原文无法访问，不引用原文的具体算法细节；如需细节，通过学校图书馆获取全文。"
   },
   {
     "id": "11a",
     "key": "ref11a",
-    "url": "https://doi.org/10.1109/TVCG.2013.196",
     "title": "StoryFlow: Tracking the Evolution of Stories",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://doi.org/10.1109/TVCG.2013.196",
+    "read": "texte intégral (version de Microsoft Research).",
+    "todo": "无。"
   },
   {
     "id": "11b",
     "key": "ref11b",
-    "url": "https://github.com/remaerd/iStoryline.js",
     "title": "iStoryline: Effective Convergence to Hand-drawn Storylines",
-    "todo": "核对全文的具体页码、评价协议与适用边界。 核对 2018 在线年与 2019 卷期年。"
+    "url": "https://doi.org/10.1109/TVCG.2018.2864899",
+    "read": "texte intégral (dépôt de l’université de Groningue).",
+    "todo": "原链接 remaerd/iStoryline.js 是 fork 的 fork，已改为原仓库 tangtan/iStoryline.js。"
   },
   {
     "id": "12",
     "key": "ref12",
-    "url": "https://doi.org/10.1111/j.1467-8659.2012.03079.x",
     "title": "Graph Bundling by Kernel Density Estimation",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://doi.org/10.1111/j.1467-8659.2012.03079.x",
+    "read": "résumé de l’éditeur (Crossref) et page du projet ; le PDF des auteurs dépasse la limite de taille de l’outil de lecture.",
+    "todo": "未读全文，性能对比只按项目页面转述，不引用具体数字。"
+  },
+  {
+    "id": "12b",
+    "key": "ref12b",
+    "title": "State of the Art in Edge and Trail Bundling Techniques",
+    "url": "https://doi.org/10.1111/cgf.13213",
+    "read": "résumé de l’éditeur ; le PDF des auteurs dépasse la limite de taille de l’outil de lecture et le dépôt de Groningue refuse l’accès automatique.",
+    "todo": "原清单第 12 项注明\"另可引用\"，本轮纳入；未读全文。"
   },
   {
     "id": "13",
     "key": "ref13",
-    "url": "https://arxiv.org/abs/2404.16130",
     "title": "From Local to Global: A Graph RAG Approach to Query-Focused Summarization",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://arxiv.org/abs/2404.16130",
+    "read": "texte intégral, v2 ; pages de cette version.",
+    "todo": "无。"
   },
   {
     "id": "14",
     "key": "ref14",
-    "url": "https://arxiv.org/abs/2410.05779",
     "title": "LightRAG: Simple and Fast Retrieval-Augmented Generation",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://arxiv.org/abs/2410.05779",
+    "read": "texte intégral, v3 (lecture ciblée de l’introduction et de la méthode).",
+    "todo": "未细读实验部分，不引用其数字。"
   },
   {
     "id": "15",
     "key": "ref15",
+    "title": "The Semantic Reader Project",
     "url": "https://arxiv.org/abs/2303.14334",
-    "title": "The Semantic Reader Project: Augmenting Scholarly Documents through AI-Powered Interactive Reading Interfaces",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "read": "texte intégral, arXiv v2 ; pages de cette version.",
+    "todo": "期刊版（CACM 2024）与 arXiv v2（2023）可能有差异，引用的内容以 v2 为准。"
   },
   {
     "id": "16",
     "key": "ref16",
+    "title": "SciDaSynth",
     "url": "https://arxiv.org/abs/2404.13765",
-    "title": "SciDaSynth: Interactive Structured Data Extraction from Scientific Literature with Large Language Model",
-    "todo": "核对全文的具体页码、评价协议与适用边界。 已按 arXiv 修正原清单题名（Structured Data Extraction）。"
+    "read": "texte intégral, arXiv v3 (prépublication des auteurs acceptée par la revue) ; pages de cette version.",
+    "todo": "题名以期刊版为准（\"Data Extraction From ... With\"）。"
   },
   {
     "id": "17",
     "key": "ref17",
-    "url": "https://aclanthology.org/2023.emnlp-main.398/",
     "title": "Enabling Large Language Models to Generate Text with Citations",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://aclanthology.org/2023.emnlp-main.398/",
+    "read": "texte intégral ; pages des actes.",
+    "todo": "无。"
   },
   {
     "id": "18",
     "key": "ref18",
+    "title": "Can Large Language Models Provide Useful Feedback on Research Papers?",
     "url": "https://arxiv.org/abs/2310.01783",
-    "title": "Can large language models provide useful feedback on research papers? A large-scale empirical analysis",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "read": "texte intégral (version arXiv) ; pages de cette version.",
+    "todo": "无。"
   },
   {
     "id": "19",
     "key": "ref19",
-    "url": "https://arxiv.org/abs/2401.04259",
     "title": "MARG: Multi-Agent Review Generation for Scientific Papers",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://arxiv.org/abs/2401.04259",
+    "read": "texte intégral, v1 ; pages de cette version.",
+    "todo": "预印本，定稿前查是否已正式发表。"
   },
   {
     "id": "20",
     "key": "ref20",
+    "title": "Large Language Models for Automated Scholarly Paper Review: A Survey",
     "url": "https://arxiv.org/abs/2501.10326",
-    "title": "Large language models for automated scholarly paper review: A survey",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "read": "texte intégral, arXiv v2 (24 juin 2025) ; lecture ciblée des sections de synthèse et des défis.",
+    "todo": "作者已核实为 Zhuang、Chen、Xu、Jiang、Lin。"
   },
   {
     "id": "21",
     "key": "ref21",
-    "url": "https://paperreview.ai/tech-overview",
     "title": "Tech Overview: Stanford Agentic Reviewer",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://paperreview.ai/tech-overview",
+    "read": "page complète.",
+    "todo": "网页无发布日期，引用不带年份。"
   },
   {
     "id": "22",
     "key": "ref22",
-    "url": "https://github.com/kermitt2/grobid",
     "title": "GROBID",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://github.com/kermitt2/grobid",
+    "read": "page d’introduction de la documentation.",
+    "todo": "性能数字来自官方文档，未独立复现。"
   },
   {
     "id": "23",
     "key": "ref23",
-    "url": "https://arxiv.org/abs/2408.09869",
     "title": "Docling Technical Report",
-    "todo": "核对全文的具体页码、评价协议与适用边界。"
+    "url": "https://arxiv.org/abs/2408.09869",
+    "read": "texte intégral, v5 ; pages de cette version.",
+    "todo": "无。"
   }
 ]
